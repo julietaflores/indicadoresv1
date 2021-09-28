@@ -151,7 +151,8 @@ export class PerformanceGeneralRegionesComponent implements OnInit {
 
   listamesVAR: VarPerformance[] = [];
   listyearVAR: VarPerformance[] = [];
-
+  
+  
 
   coins: any[] = [];
   years: any[] = [
@@ -197,6 +198,7 @@ export class PerformanceGeneralRegionesComponent implements OnInit {
     // canvas.width = w.split("px")[0];
     // canvas.height = h.split("px")[0];
    
+    
 
     if (this.userservice.responseLogin) {
       this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
@@ -233,12 +235,12 @@ export class PerformanceGeneralRegionesComponent implements OnInit {
           for (let i: number = 0; i < listaPerformanceMes.length; i++) {
 
             let performance_producto = {
-              'region': listaPerformanceMes[i].nombre,
-              'moneda': Number(listaPerformanceMes[i].importeactual)
+              region: listaPerformanceMes[i].nombre,
+              moneda: Number(listaPerformanceMes[i].importeactual)
             };
             let posicion = {
               idPosicion: listaPerformanceMes[i].idPosicion,
-              region: Number(listaPerformanceMes[i].nombre)
+              region: listaPerformanceMes[i].nombre
             }
             let diff = Number(listaPerformanceMes[i].importeactual) -
               Number(listaPerformanceMes[i].importeanterior);
@@ -256,7 +258,14 @@ export class PerformanceGeneralRegionesComponent implements OnInit {
         
           this.dataSource = new MatTableDataSource<PerformanceGR>(this.listaitem);
           this.listamesVAR = [];
+
           this.listIdMes.forEach(item => {
+            //setting property region in itemvarsmes object
+           let itemvarsmes={
+              region:item.region,
+              topvar:{}
+            }
+
             this.queryMesVars = this.apollo.watchQuery({
               query: QIVARS,
               variables: {
@@ -286,11 +295,15 @@ export class PerformanceGeneralRegionesComponent implements OnInit {
 
               }
             
-              let itemvar={
-                idposition:item.region,
-                topvarmes:topvarMes
+              itemvarsmes.topvar={
+                p_cantidad: Number(listVarMes[0].porcentaje_Monto_Mes.replace(',', '.')),
+                p_ventas: Number(listVarMes[1].porcentaje_Monto_Mes.replace(',', '.')),
+                p_precio: Number(listVarMes[2].porcentaje_Monto_Mes.replace(',', '.'))
+
               }
-              varsmes.push(itemvar);
+            
+
+              varsmes.push(itemvarsmes);
               this.listamesVAR.push(topvarMes);
               this.listyearVAR.push(topvarYear);
 
@@ -325,6 +338,7 @@ export class PerformanceGeneralRegionesComponent implements OnInit {
             let listBarPercentajeAc: any[] = [];
             if (result.data.performanceregionanual.lista != null) {
               let listaPerformanceYear = result.data.performanceregionanual.lista;
+              
               for (let i: number = 0; i < listaPerformanceYear.length; i++) {
                 let performance_producto = {
                   region: listaPerformanceYear[i].nombre,
@@ -353,48 +367,48 @@ export class PerformanceGeneralRegionesComponent implements OnInit {
                 // this.barChartLabels.push( listaPerformanceYear[i].nombre);
 
               }
-              this.listIdPosicionYear.forEach(item => {
-                this.queryMesVars = this.apollo.watchQuery({
-                  query: QIVARS,
-                  variables: {
-                    idrol1: this.userservice.responseLogin.idUsuario,
-                    anioo: new Date().getFullYear(),
-                    mess: "0" + new Date().getMonth(),
-                    companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
-                    monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo,
-                    ciudadid: item.idPosicion
+              // this.listIdPosicionYear.forEach(item => {
+              //   this.queryMesVars = this.apollo.watchQuery({
+              //     query: QIVARS,
+              //     variables: {
+              //       idrol1: this.userservice.responseLogin.idUsuario,
+              //       anioo: new Date().getFullYear(),
+              //       mess: "0" + new Date().getMonth(),
+              //       companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
+              //       monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo,
+              //       ciudadid: item.idPosicion
 
-                  }
+              //     }
 
-                }).valueChanges.subscribe((result: any) => {
-                  console.log(result);
-                  let listVarMes = result.data.raking_lista_mesanual_region.lista;
+              //   }).valueChanges.subscribe((result: any) => {
+                  
+              //     let listVarMes = result.data.raking_lista_mesanual_region.lista;
 
-                  let topvarMes = {
-                    p_cantidad: Number(listVarMes[0].porcentaje_Monto_Mes.replace(',', '.')),
-                    p_ventas: Number(listVarMes[1].porcentaje_Monto_Mes.replace(',', '.')),
-                    p_precio: Number(listVarMes[2].porcentaje_Monto_Mes.replace(',', '.'))
+              //     let topvarMes = {
+              //       p_cantidad: Number(listVarMes[0].porcentaje_Monto_Mes.replace(',', '.')),
+              //       p_ventas: Number(listVarMes[1].porcentaje_Monto_Mes.replace(',', '.')),
+              //       p_precio: Number(listVarMes[2].porcentaje_Monto_Mes.replace(',', '.'))
 
-                  }
-                  let topvarYear = {
-                    p_cantidad: Number(listVarMes[0].porcentaje_Monto_Acumulado.replace(',', '.')),
-                    p_ventas: Number(listVarMes[1].porcentaje_Monto_Acumulado.replace(',', '.')),
-                    p_precio: Number(listVarMes[2].porcentaje_Monto_Acumulado.replace(',', '.'))
+              //     }
+              //     let topvarYear = {
+              //       p_cantidad: Number(listVarMes[0].porcentaje_Monto_Acumulado.replace(',', '.')),
+              //       p_ventas: Number(listVarMes[1].porcentaje_Monto_Acumulado.replace(',', '.')),
+              //       p_precio: Number(listVarMes[2].porcentaje_Monto_Acumulado.replace(',', '.'))
 
-                  }
+              //     }
 
-                  this.listamesVAR.push(topvarMes);
-                  this.listyearVAR.push(topvarYear);
+              //     this.listamesVAR.push(topvarMes);
+              //     this.listyearVAR.push(topvarYear);
 
-                  // this.barChartData[0].push();
-                  //  public barChartData: ChartDataSets[] = [
-                  //    { data: [65, 59, 80, 81, 56], label: 'Series A' }
-                  //  ]
-                });
+              //     // this.barChartData[0].push();
+              //     //  public barChartData: ChartDataSets[] = [
+              //     //    { data: [65, 59, 80, 81, 56], label: 'Series A' }
+              //     //  ]
+              //   });
 
 
 
-              });
+              // });
               this.barChartColors.push({ backgroundColor: 'rgb(31,78,120)' });
               this.barChartDataAc[0] = {
                 data: listBarPercentajeAc,
@@ -418,7 +432,19 @@ export class PerformanceGeneralRegionesComponent implements OnInit {
 
   }
   private orderList(listaVars:any,listaRegions:any){
-    
+    let listVARS:any=[];
+    console.log(listaVars);
+    listaRegions.forEach((item:any) => {
+     
+    let value=listaVars.find((e:any)=>
+      e.region==item.region);
+    console.log(value);
+    listVARS.push(value);
+
+   });
+   console.log(listaRegions);
+   console.log(listVARS);
+   return listVARS;
 
   }
   private fillbarchart(listabar:any){
@@ -484,19 +510,3 @@ export interface VarPerformance {
   p_precio: any;
 }
 
-const ELEMENT_DATA: PerformanceGR[] = [
-  { region: 'Cruce del Zorro', moneda: 81.976 },
-  { region: 'La Curiosa - Malbec', moneda: 57.128 },
-  { region: 'La Viuda Descalza - Singani', moneda: 51.318 },
-  { region: 'La Curiosa - Cabernet', moneda: 22.315 },
-  { region: 'Mr. Flay - Chuflay', moneda: 17.153 },
-
-];
-const ELEMENT_DATA_AC: PerformanceGR[] = [
-  { region: 'Cruce del Zorro', moneda: 81.976 },
-  { region: 'La Curiosa - Malbec', moneda: 57.128 },
-  { region: 'La Viuda Descalza - Singani', moneda: 51.318 },
-  { region: 'La Curiosa - Cabernet', moneda: 22.315 },
-  { region: 'Mr. Flay - Chuflay', moneda: 17.153 },
-
-];

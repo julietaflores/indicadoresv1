@@ -8,7 +8,6 @@
         </button>
         Inbox
       </mat-card-title>
-
     </mat-card-header>
     <mat-sidenav-container class="email-box" [ngClass]="{ 'side-panel-opened': sidePanelOpened, 'side-panel-closed': !sidePanelOpened }">
       <mat-sidenav #mailnav [mode]="isOver() ? 'over' : 'side'" [opened]="!isOver()" (open)="sidePanelOpened = true" (close)="sidePanelOpened = false"

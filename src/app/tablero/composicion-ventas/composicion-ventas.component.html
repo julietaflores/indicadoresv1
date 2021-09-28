@@ -1,0 +1,230 @@
+<div fxLayout="row wrap">
+    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100">
+        <mat-card style="padding: 0">
+            <mat-card-content style="padding: 0.5rem 1rem;margin: 0;">
+
+                <mat-form-field style="padding:0;margin: 0;">
+                    <mat-select style="padding:0;margin: 0;" placeholder="Año" [(value)]="selectedyear"
+                        (selectionChange)="onYearChange($event)">
+                        <mat-option *ngFor="let year of years" [value]="year.value">
+                            {{year.viewValue}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </mat-card-content>
+        </mat-card>
+    </div>
+    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100">
+        <mat-card>
+            <mat-card-content style="padding: 0.5rem 1rem;margin: 0;">
+
+                <mat-form-field>
+                    <mat-select [(value)]="selectedMonth" placeholder="Mes" (selectionChange)="onMonthChange($event)">
+                        <mat-option *ngFor="let month of months" [value]="month.value">
+                            {{month.viewValue}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </mat-card-content>
+        </mat-card>
+    </div>
+    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100">
+        <mat-card>
+            <mat-card-content style="padding: 0.5rem 1rem;margin: 0;">
+                <mat-form-field>
+                    <mat-select placeholder="Moneda" [(value)]="selectedCoin" (selectionChange)="onCoinChange($event)">
+                        <mat-option *ngFor="let coin of coins" [value]="coin.value">
+                            {{coin.viewValue}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>
+<!-- ============================================================== -->
+<!-- Performance General MES-->
+<!-- ============================================================== -->
+<div fxLayout="row wrap" *ngIf="listChartsPie.length>=1">
+    <div fxFlex.gt-sm="50" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;"
+        *ngFor="let indicador of listChartsPie">
+        <mat-card>
+            <mat-card-content>
+                <mat-card-title>{{indicador.name}}</mat-card-title>
+                <div fxLayout="row wrap">
+                    <!-- Column-->
+                    <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
+                        <canvas baseChart height="250px" [data]="indicador.listPie" [labels]="indicador.labels"
+                            [chartType]="pieChartType" (chartHover)="chartHovered($event)"
+                            (chartClick)="chartClicked($event)"
+                            [colors]="[{backgroundColor: ['#1976d2', '#26dad2', 'rgb(246, 45, 81)','rgba(255,0,0,0.3)','rgba(196,79,244,0.3)', '#dadada','rgb(251, 140, 0)']}]">
+                        </canvas>
+                    </div>
+
+                </div>
+                <hr style="margin-top:20px;margin-bottom: 20px;">
+                <mat-card-title>ACUMULADO</mat-card-title>
+                <div fxLayout="row wrap">
+
+                    <!-- Column-->
+                    <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
+
+
+                        <canvas baseChart height="250px" [data]="indicador.listPieAc" [labels]="indicador.labels"
+                            [chartType]="pieChartType" (chartHover)="chartHovered($event)"
+                            (chartClick)="chartClicked($event)"
+                            [colors]="[{backgroundColor: ['#1976d2', '#26dad2', 'rgb(246, 45, 81)','rgba(255,0,0,0.3)','rgba(196,79,244,0.3)', '#dadada','rgb(246, 45, 81)','rgb(251, 140, 0)']}]">
+                        </canvas>
+                    </div>
+
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </div>
+
+
+
+</div>
+<div fxLayout="row wrap" *ngIf="listChartsPie && listChartsPie.length > 2">
+    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;">
+        <mat-card>
+            <mat-card-content>
+                <mat-card-title>LINEA</mat-card-title>
+                <div fxLayout="row wrap">
+
+
+                    <!-- Column-->
+                    <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
+
+
+                        <canvas baseChart height="300px" [data]="pieChartData" [labels]="pieChartLabels"
+                            [chartType]="pieChartType" (chartHover)="chartHovered($event)"
+                            (chartClick)="chartClicked($event)"
+                            [colors]="[{backgroundColor: ['#1976d2', '#26dad2', '#dadada','rgb(246, 45, 81)','rgb(251, 140, 0)']}]">
+                        </canvas>
+
+                    </div>
+
+                </div>
+
+            </mat-card-content>
+        </mat-card>
+    </div>
+    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;">
+        <mat-card>
+            <mat-card-content>
+                <mat-card-title>REGION</mat-card-title>
+                <div fxLayout="row wrap">
+
+
+                    <!-- Column-->
+                    <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
+
+
+                        <canvas baseChart height="300px" [data]="pieChartData" [labels]="pieChartLabels"
+                            [options]="pieChartOptions" [plugins]="pieChartPlugins" [chartType]="pieChartType"
+                            (chartHover)="chartHovered($event)" (chartClick)="chartClicked($event)"
+                            [colors]="[{backgroundColor: ['#1976d2', '#26dad2', '#dadada','rgb(246, 45, 81)','rgb(251, 140, 0)']}]">
+                        </canvas>
+                    </div>
+
+                </div>
+
+            </mat-card-content>
+        </mat-card>
+    </div>
+    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;">
+        <mat-card>
+            <mat-card-content>
+                <mat-card-title>TOP5</mat-card-title>
+                <div fxLayout="row wrap">
+
+
+                    <!-- Column-->
+                    <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
+
+
+                        <canvas baseChart height="300px" [data]="pieChartData" [labels]="pieChartLabels"
+                            [chartType]="pieChartType" (chartHover)="chartHovered($event)"
+                            (chartClick)="chartClicked($event)" [options]="pieChartOptions" [plugins]="pieChartPlugins"
+                            [colors]="[{backgroundColor: ['#1976d2', '#26dad2', '#dadada','rgb(246, 45, 81)','rgb(251, 140, 0)']}]">
+                        </canvas>
+
+                    </div>
+
+                </div>
+
+            </mat-card-content>
+        </mat-card>
+    </div>
+    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;">
+        <mat-card>
+            <mat-card-content>
+                <mat-card-title>ACUMULADO</mat-card-title>
+                <div fxLayout="row wrap">
+
+                    <!-- Column-->
+                    <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
+
+                        <canvas baseChart height="300px" [data]="pieChartData" [labels]="pieChartLabels"
+                            [options]="pieChartOptions" [plugins]="pieChartPlugins" [chartType]="pieChartType"
+                            (chartHover)="chartHovered($event)" (chartClick)="chartClicked($event)"
+                            [colors]="[{backgroundColor: ['#1976d2', '#26dad2', '#dadada','rgb(246, 45, 81)','rgb(251, 140, 0)']}]">
+                        </canvas>
+
+                    </div>
+
+                </div>
+
+            </mat-card-content>
+        </mat-card>
+    </div>
+    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;">
+        <mat-card>
+            <mat-card-content>
+                <mat-card-title>ACUMULADO</mat-card-title>
+                <div fxLayout="row wrap">
+
+
+                    <!-- Column-->
+                    <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
+
+
+                        <canvas baseChart height="300px" [data]="pieChartData" [labels]="pieChartLabels"
+                            [chartType]="pieChartType" (chartHover)="chartHovered($event)"
+                            (chartClick)="chartClicked($event)" [options]="pieChartOptions" [plugins]="pieChartPlugins"
+                            [colors]="[{backgroundColor: ['#1976d2', '#26dad2', '#dadada','rgb(246, 45, 81)','rgb(251, 140, 0)']}]">
+                        </canvas>
+
+                    </div>
+
+                </div>
+
+            </mat-card-content>
+        </mat-card>
+    </div>
+    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;">
+        <mat-card>
+            <mat-card-content>
+                <mat-card-title>ACUMULADO</mat-card-title>
+                <div fxLayout="row wrap">
+
+
+                    <!-- Column-->
+                    <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
+
+
+                        <canvas baseChart height="300px" [data]="pieChartData" [labels]="pieChartLabels"
+                            [chartType]="pieChartType" (chartHover)="chartHovered($event)" [options]="pieChartOptions"
+                            [plugins]="pieChartPlugins" (chartClick)="chartClicked($event)"
+                            [colors]="[{backgroundColor: ['#1976d2', '#26dad2', '#dadada','rgb(246, 45, 81)','rgb(251, 140, 0)']}]">
+                        </canvas>
+
+                    </div>
+
+                </div>
+
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>

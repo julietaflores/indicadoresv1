@@ -1,0 +1,24 @@
+<!-- Breadcrumb -->
+
+<div class="page-breadcrumb p-t-20 p-b-20 p-l-30 p-r-30">
+	<div fxLayout="row wrap">
+        <div fxFlex.gt-sm="60" fxFlex.gt-xs="60" fxFlex="100" class="align-self-center">
+            <mat-icon class="breadcrumb-icon" *ngIf="pageInfo && pageInfo.title=='Dashboard 1'; else blockTitle">business</mat-icon>
+            <ng-template #blockTitle>
+                <h4 class="page-title m-0">{{pageInfo?.title}}</h4>
+            </ng-template>
+		</div>
+		<div fxFlex.gt-sm="40" fxFlex.gt-xs="40" fxFlex="100" class="align-self-center"  *ngIf="pageInfo && pageInfo.title !='Dashboard 1'">
+            <div class="breadcrumb d-flex align-items-center float-right float-sm-left">
+                <ul class="list-style-none d-flex align-items-center">
+                    <ng-template ngFor let-url [ngForOf]="pageInfo?.urls" let-last="last">
+                        <li class="breadcrumb-item" *ngIf="!last" [routerLink]="url.url">
+                            <a [routerLink]='url.url'><mat-icon>home</mat-icon></a>
+                        </li>
+                        <li class="breadcrumb-item active" *ngIf="last">{{url.title}}</li>
+                    </ng-template>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

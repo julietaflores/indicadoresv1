@@ -1,0 +1,113 @@
+<div fxLayout="row wrap">
+    <div fxFlex.gt-sm="50" fxFlex.gt-xs="100" fxFlex="100">
+        <mat-card>
+            <mat-card-content>
+                <mat-card-title>MES</mat-card-title>
+                <div class="responsive-table">
+                    <table mat-table [dataSource]="dataSourceMes" class="mat-elevation-z8">
+
+                        <!--- Note that these columns can be defined in any order.
+                                        The actual rendered columns are set as a property on the row definition" -->
+
+                        <!-- Position Column -->
+                        <ng-container matColumnDef="producto">
+                            <th mat-header-cell *matHeaderCellDef> PRODUCTO</th>
+                            <td mat-cell *matCellDef="let element"> {{element.producto}} </td>
+                        </ng-container>
+
+                        <!-- Name Column -->
+                        <ng-container matColumnDef="porcentaje_margen">
+                            <th mat-header-cell *matHeaderCellDef> % </th>
+                            <td mat-cell *matCellDef="let element"> {{element.porcentaje_margen}} </td>
+                        </ng-container>
+
+                        <!-- Weight Column -->
+                        <ng-container matColumnDef="bps">
+                            <th mat-header-cell *matHeaderCellDef> (bps) </th>
+                            <td mat-cell *matCellDef="let element"> {{element.bps}} </td>
+                        </ng-container>
+
+                        <!-- Symbol Column -->
+                        <ng-container matColumnDef="importe_actual">
+                            <th mat-header-cell *matHeaderCellDef> US$ (000)</th>
+                            <td mat-cell *matCellDef="let element"> {{element.moneda}} </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                    </table>
+                </div>
+
+            </mat-card-content>
+        </mat-card>
+       
+    </div>
+    <div fxFlex.gt-sm="50" fxFlex.gt-xs="100" fxFlex="100">
+        <mat-card>
+          <mat-card-content>
+            <mat-card-title>Bar Sales Chart</mat-card-title>
+            
+            <canvas baseChart [datasets]="barChartData" [labels]="barChartLabels" [options]="barChartOptions"
+             [legend]="barChartLegend"
+              [chartType]="barChartType" (chartHover)="chartHovered($event)" [colors]="barChartColors" (chartClick)="chartClicked($event)">
+            </canvas>
+          </mat-card-content>
+        </mat-card>
+      </div>
+</div>
+<div fxLayout="row wrap">
+    <div fxFlex.gt-sm="50" fxFlex.gt-xs="100" fxFlex="100">
+        <mat-card>
+            <mat-card-content>
+                <mat-card-title>ACUMULADO</mat-card-title>
+                <div class="responsive-table">
+                    <table mat-table [dataSource]="dataSourceAcumulado" class="mat-elevation-z8">
+
+                        <!--- Note that these columns can be defined in any order.
+                                        The actual rendered columns are set as a property on the row definition" -->
+
+                        <!-- Position Column -->
+                        <ng-container matColumnDef="producto">
+                            <th mat-header-cell *matHeaderCellDef> PRODUCTO</th>
+                            <td mat-cell *matCellDef="let element"> {{element.producto}} </td>
+                        </ng-container>
+
+                        <!-- Name Column -->
+                        <ng-container matColumnDef="porcentaje_margen">
+                            <th mat-header-cell *matHeaderCellDef> % </th>
+                            <td mat-cell *matCellDef="let element"> {{element.porcentaje_margen}} </td>
+                        </ng-container>
+
+                        <!-- Weight Column -->
+                        <ng-container matColumnDef="bps">
+                            <th mat-header-cell *matHeaderCellDef> (bps) </th>
+                            <td mat-cell *matCellDef="let element"> {{element.bps}} </td>
+                        </ng-container>
+
+                        <!-- Symbol Column -->
+                        <ng-container matColumnDef="importe_actual">
+                            <th mat-header-cell *matHeaderCellDef> US$ (000)</th>
+                            <td mat-cell *matCellDef="let element"> {{element.moneda}} </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                    </table>
+                </div>
+
+            </mat-card-content>
+        </mat-card>
+       
+    </div>
+    <div fxFlex.gt-sm="50" fxFlex.gt-xs="100" fxFlex="100">
+        <mat-card>
+          <mat-card-content>
+            <mat-card-title>Bar Sales Chart</mat-card-title>
+            
+            <canvas baseChart [datasets]="barChartData" [labels]="barChartLabels" [options]="barChartOptions" [legend]="barChartLegend"
+              [chartType]="barChartType" (chartHover)="chartHovered($event)" [colors]="barChartColors" (chartClick)="chartClicked($event)">
+            </canvas>
+          </mat-card-content>
+        </mat-card>
+      </div>
+</div>

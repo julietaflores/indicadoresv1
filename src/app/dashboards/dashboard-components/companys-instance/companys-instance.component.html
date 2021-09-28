@@ -1,0 +1,35 @@
+<div *ngIf="listCompanys != undefined">
+    <div fxLayout="row wrap" *ngIf="listCompanys.length==1" >
+        <div style="margin: auto" fxFlex.gt-lg="25" fxFlex.gt-md="40" fxFlex.gt-xs="100" fxFlex="100">
+            <mat-card style="min-height: 150px;">
+                <mat-card-content>
+                    <mat-card-title  class="m-t-2">{{listCompanys[0].name}}</mat-card-title>
+                    <mat-card-subtitle >{{listCompanys[0].name}}</mat-card-subtitle>
+                </mat-card-content>
+                <hr />
+            </mat-card>
+        </div>
+    </div>
+    <div fxLayout="row wrap" *ngIf="listCompanys.length>1">
+        <!-- column -->
+        <div fxFlex.gt-lg="33.33" fxFlex.gt-sm="33.33"  fxFlex.gt-xs="100" fxFlex="100" *ngFor="let company of listCompanys">
+            <mat-card  style="min-height: 140px">
+                <mat-card-content>
+                    <!-- Row -->
+                    <mat-car-title>{{listCompanys[0].name}}</mat-car-title>
+                    <!-- <div class="d-flex block">
+                        <div>
+                            <h3 class="m-0">386</h3>
+                            <h6 class="text-muted m-0">{{listCompanys[0].name}}</h6>
+                        </div>
+                    </div> -->
+                </mat-card-content>
+                <hr />
+            </mat-card>
+        </div>
+      
+ 
+    
+    </div>
+</div>
+

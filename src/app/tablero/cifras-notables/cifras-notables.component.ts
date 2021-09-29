@@ -472,8 +472,3 @@ export interface Element {
   name: string;
   position: number;
 }
-
-const ELEMENT_DATA: Element[] = [
-  { position: 1, name: 'Hydrogen' },
-  { position: 2, name: 'Helium' }
-];

@@ -103,13 +103,12 @@
         </mat-card>
 
     </div>
-    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;" *ngIf="listamesVAR.length>=7">
+    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;" 
+    *ngIf="listamesVAR.length>=7">
         <mat-card>
             <mat-card-content>
-
                 <div fxLayout="row wrap">
                     <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
-
                         <div class="responsive-table">
                             <table mat-table *ngIf="dataSourceVARS" [dataSource]="dataSourceVARS"
                                 class="mat-elevation-z8 m-t-10" style="margin: 0;padding: 0;">
@@ -129,24 +128,30 @@
                                     <td mat-footer-cell *matFooterCellDef> </td>
                                 </ng-container>
 
-
-
                                 <!-- Index Column -->
                                 <ng-container matColumnDef="p_ventas">
                                     <th mat-header-cell *matHeaderCellDef>VAR (m3) %</th>
-                                    <td mat-cell *matCellDef="let value">  
-                                    <p style="margin: 0;padding: 0;" *ngIf="value.p_ventas>=0">
-                                        {{value.p_ventas | percent:'1.2-5' }}</p>
+                                    <td mat-cell *matCellDef="let value">
+                                        <p style="margin: 0;padding: 0;" *ngIf="value.p_ventas>=0">
+                                            {{value.p_ventas | percent:'1.2-5' }}</p>
 
-                                    <p style="margin: 0;padding: 0;" *ngIf="value.p_ventas<0"
-                                        class="negative_value">
-                                        ({{value.p_ventas | percent:'1.2-5' }})</p></td>
+                                        <p style="margin: 0;padding: 0;" *ngIf="value.p_ventas<0"
+                                            class="negative_value">
+                                            ({{value.p_ventas | percent:'1.2-5' }})</p>
+                                    </td>
                                     <td mat-footer-cell *matFooterCellDef> </td>
                                 </ng-container>
                                 <!-- Index Column -->
                                 <ng-container matColumnDef="p_precio">
                                     <th mat-header-cell *matHeaderCellDef>VAR (pp) %</th>
-                                    <td mat-cell *matCellDef="let value"> {{value.p_precio | percent:'1.2-5' }} </td>
+                                    <td mat-cell *matCellDef="let value">
+                                        <p style="margin: 0;padding: 0;" *ngIf="value.p_ventas>=0">
+                                            {{value.p_precio | percent:'1.2-5' }}</p>
+
+                                        <p style="margin: 0;padding: 0;" *ngIf="value.p_ventas<0"
+                                            class="negative_value">
+                                            ({{value.p_precio | percent:'1.2-5' }})</p>
+                                    </td>
                                     <td mat-footer-cell *matFooterCellDef> </td>
                                 </ng-container>
 
@@ -221,7 +226,8 @@
 
 
     </div>
-    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;" *ngIf="listamesVAR.length>=7">
+    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;"
+    *ngIf="newlistyear.length>=7">
         <mat-card>
             <mat-card-content>
                 <div fxLayout="row wrap">
@@ -232,26 +238,45 @@
                                 <!-- Index Column -->
                                 <ng-container matColumnDef="p_cantidad">
                                     <th mat-header-cell *matHeaderCellDef>VAR $ %</th>
-                                    <td mat-cell *matCellDef="let value"> {{value.p_cantidad | percent:'1.2-5' }}</td>
+                                    <td mat-cell *matCellDef="let value">
+                                        <p style="margin: 0;padding: 0;" *ngIf="value.p_cantidad>=0">{{value.p_cantidad
+                                            | percent:'1.2-5' }}</p>
+
+                                        <p style="margin: 0;padding: 0;" *ngIf="value.p_cantidad<0"
+                                            class="negative_value">
+                                            ({{value.p_cantidad | percent:'1.2-5' }})</p>
+
+                                    </td>
 
                                     <td mat-footer-cell *matFooterCellDef> </td>
                                 </ng-container>
-
-
 
                                 <!-- Index Column -->
                                 <ng-container matColumnDef="p_ventas">
                                     <th mat-header-cell *matHeaderCellDef>VAR (m3) %</th>
-                                    <td mat-cell *matCellDef="let value"> {{value.p_ventas | percent:'1.2-5' }} </td>
-                                    <td mat-footer-cell *matFooterCellDef></td>
+                                    <td mat-cell *matCellDef="let value">
+                                        <p style="margin: 0;padding: 0;" *ngIf="value.p_ventas>=0">
+                                            {{value.p_ventas | percent:'1.2-5' }}</p>
+
+                                        <p style="margin: 0;padding: 0;" *ngIf="value.p_ventas<0"
+                                            class="negative_value">
+                                            ({{value.p_ventas | percent:'1.2-5' }})</p>
+                                    </td>
+                                    <td mat-footer-cell *matFooterCellDef> </td>
                                 </ng-container>
                                 <!-- Index Column -->
                                 <ng-container matColumnDef="p_precio">
                                     <th mat-header-cell *matHeaderCellDef>VAR (pp) %</th>
-                                    <td mat-cell *matCellDef="let value"> {{value.p_precio | percent:'1.2-5' }} </td>
+                                    <td mat-cell *matCellDef="let value">
+                                        <p style="margin: 0;padding: 0;" *ngIf="value.p_ventas>=0">
+                                            {{value.p_precio | percent:'1.2-5' }}</p>
+
+                                        <p style="margin: 0;padding: 0;" *ngIf="value.p_ventas<0"
+                                            class="negative_value">
+                                            ({{value.p_precio | percent:'1.2-5' }})</p>
+                                    </td>
                                     <td mat-footer-cell *matFooterCellDef> </td>
                                 </ng-container>
-
                                 <tr mat-header-row *matHeaderRowDef="displayedColumnsVars"
                                     class="example-first-header-row">
                                 </tr>

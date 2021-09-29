@@ -486,8 +486,8 @@ export class MenuItems{
       
             }
         }
-        this.menuitems.push(PerformanceLineas);
-        this.menuitems.push(MargenesBrutos);
+        // this.menuitems.push(PerformanceLineas);
+        // this.menuitems.push(MargenesBrutos);
 		
       
     }

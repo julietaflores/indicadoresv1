@@ -46,33 +46,7 @@ query margenbruto_region($idrol1:Int!,$anioo:Int!,$mess:String,$companiaa:Int!, 
   } 
 }
 `;
-const QIMBANUAL = gql`
-query margenbruto_regionanual($idrol1:Int!,$anioo:Int!,$mess:String,$companiaa:Int!, $monedadestinoo:Int!) {
-  margenbruto_regionanual(idrol1:$idrol1,anioo:$anioo,mess:$mess,companiaa:$companiaa, monedadestinoo:$monedadestinoo){
-    tablero{
-      idTablero
-      nombreTablero
-      estadoTablero
-      urlTablero
-      idCategoria
-      
-    }
-    lista{
-      id
-      nombre
-      importe_actual
-      coste_actual
-      porcentaje_margen_actual
-      importe_anterior
-      coste_anterior
-      porcentaje_margen_anterior
-      bPS
-      calculo_grafico
-      porcentajetorta
-    }
-  } 
-}
-`;
+
 @Component({
   selector: 'app-margenes-brutos-regiones',
   templateUrl: './margenes-brutos-regiones.component.html',
@@ -172,7 +146,7 @@ export class MargenesBrutosRegionesComponent implements OnInit {
         }
       });
       this.queryMesRegion.valueChanges.subscribe((result: any) => {
-        console.log(result);
+       
         let listabar:any=[];
         let listames = result.data.margenbruto_region.lista_mes;
         let listaanual = result.data.margenbruto_region.lista_anual;
@@ -198,6 +172,7 @@ export class MargenesBrutosRegionesComponent implements OnInit {
           this.listyearVAR.push(item);
         });
         this.dataSourceAcumulado= new MatTableDataSource<MargenBrutoRegion>(this.listyearVAR);
+      
         this.barChartColors.push( { backgroundColor: '#1976d2' });
         this.barChartData[0]={
           data:listabar,

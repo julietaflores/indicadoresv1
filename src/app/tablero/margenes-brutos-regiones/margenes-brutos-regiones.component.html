@@ -43,7 +43,7 @@
     </div>
 </div>
 
-<div fxLayout="row wrap">
+<div fxLayout="row wrap" >
     <div fxFlex.gt-sm="50" fxFlex.gt-xs="100" fxFlex="100">
         <mat-card>
             <mat-card-content>
@@ -90,11 +90,12 @@
     <div fxFlex.gt-sm="50" fxFlex.gt-xs="100" fxFlex="100">
         <mat-card>
           <mat-card-content>
-            <mat-card-title>Bar Sales Chart</mat-card-title>
+            <!-- <mat-card-title>Bar Sales Chart</mat-card-title> -->
             
             <canvas baseChart [datasets]="barChartData" [labels]="barChartLabels" [options]="barChartOptions"
              [legend]="barChartLegend"
-              [chartType]="barChartType" (chartHover)="chartHovered($event)" [colors]="barChartColors" (chartClick)="chartClicked($event)">
+              [chartType]="barChartType" (chartHover)="chartHovered($event)" [colors]="barChartColors" 
+              (chartClick)="chartClicked($event)">
             </canvas>
           </mat-card-content>
         </mat-card>
@@ -147,7 +148,7 @@
     <div fxFlex.gt-sm="50" fxFlex.gt-xs="100" fxFlex="100">
         <mat-card>
           <mat-card-content>
-            <mat-card-title>Bar Sales Chart</mat-card-title>
+            <!-- <mat-card-title>Bar Sales Chart</mat-card-title> -->
             
             <canvas baseChart [datasets]="barChartData" [labels]="barChartLabels" [options]="barChartOptions"
              [legend]="barChartLegend"

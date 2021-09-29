@@ -151,6 +151,8 @@ export class MargenesBrutosRegionesComponent implements OnInit, OnDestroy {
         let listabar: any = [];
         this.barChartData=[];
         this.barChartLabels=[];
+        this.listamesMB=[];
+        this.listyearVAR=[];
         this.dataSourceMes=new MatTableDataSource<MargenBrutoRegion>();
         this.dataSourceAcumulado=new MatTableDataSource<MargenBrutoRegion>();
         let listames = result.data.margenbruto_region.lista_mes;

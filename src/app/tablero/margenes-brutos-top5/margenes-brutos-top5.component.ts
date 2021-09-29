@@ -149,6 +149,8 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
         let listabar: any = [];
         this.barChartData=[];
         this.barChartLabels=[];
+        this.listamesMB=[];
+        this.listyearVAR=[];
         let listames = result.data.margenbruto_top5.lista_mes;
         let listaanual = result.data.margenbruto_top5.lista_anual;
         this.dataSourceMes=new MatTableDataSource<MargenBruto>();

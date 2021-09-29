@@ -103,8 +103,7 @@ export class PerformanceGeneralRegionesComponent implements OnInit {
   queryMes: any;//get first list products
   queryMesVars: any;//query list for each product
   queryYear: any;
-  queryYearVariacion: any;
-
+ 
   selectedyear = String(new Date().getFullYear());
   selectedMonth = String(this.getCurrenlyMonth());
   MesActual: any = this.getCurrenlyMonth();
@@ -203,19 +202,7 @@ export class PerformanceGeneralRegionesComponent implements OnInit {
 
 
     if (this.userservice.responseLogin) {
-      this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
-      let arraymonedas = this.userservice.responseLogin.monedass;
-      this.selectedCoinTable = arraymonedas.find((e: any) => e.idMonedaEmpresaOdoo ==
-      this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo).name;
-
-      arraymonedas.forEach((e: any) => {
-        let coin = {
-          value: e.idMonedaEmpresaOdoo,
-          viewValue: e.name
-        };
-        this.coins.push(coin);
-      });
-
+      this.initialSetup();
       this.queryMes = this.apollo.watchQuery({
         query: QIPTMES,
         variables: {
@@ -249,22 +236,18 @@ export class PerformanceGeneralRegionesComponent implements OnInit {
               let diff = Number(listaPerformanceMes[i].importeactual) -
                 Number(listaPerformanceMes[i].importeanterior);
 
-              // varsmes[i].region=listaPerformanceMes[i].nombre;
 
               this.listaitem.push(performance_producto);
               this.listIdMes.push(posicion);
 
               this.barChartLabels.push(listaPerformanceMes[i].nombre);
-
-              //this.listavariacionmes.push(diff);
               listBarPercentaje.push(diff);
 
             }
             this.fillbarchart(listBarPercentaje);
 
             this.dataSource = new MatTableDataSource<PerformanceGR>(this.listaitem);
-            // this.listamesVAR = [];
-            // this.newlistmes=[];
+
             this.listIdMes.forEach(item => {
               //setting property region in itemvarsmes object
               let valueregion = item.region;
@@ -311,25 +294,15 @@ export class PerformanceGeneralRegionesComponent implements OnInit {
 
                 this.listamesVAR.push(topvarMes);
                 this.listyearVAR.push(topvarYear);
-                this.orderList(varsyear, this.listaitem);
+                this.orderList(varsmes, this.listaitem);
                 // this.orderList(varsyear,this.list);
 
               });
-
-
 
             }
 
             );
 
-            // this.orderList(varsmes,this.listaitem);
-            // this.listamesVAR = this.listamesVAR.sort(function (a:any, b:any) {
-            //   return a - b;
-            // });
-
-
-            //  this.dataSourceVARS = new MatTableDataSource<VarPerformance>(this.newlistmes);
-          //  this.dataSourceVARSAc = new MatTableDataSource<VarPerformance>(this.newlistyear);
 
 
             //query acumulate OR YEAR
@@ -382,12 +355,24 @@ export class PerformanceGeneralRegionesComponent implements OnInit {
 
         }
 
-
-        //console.log(result.data.performancetopmes['lista']);
-
       });
 
     }
+
+  }
+  private initialSetup() {
+    this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
+    let arraymonedas = this.userservice.responseLogin.monedass;
+    this.selectedCoinTable = arraymonedas.find((e: any) => e.idMonedaEmpresaOdoo ==
+      this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo).name;
+
+    arraymonedas.forEach((e: any) => {
+      let coin = {
+        value: e.idMonedaEmpresaOdoo,
+        viewValue: e.name
+      };
+      this.coins.push(coin);
+    });
 
   }
   private validaState(responsePGR: any) {
@@ -422,7 +407,7 @@ export class PerformanceGeneralRegionesComponent implements OnInit {
 
   }
   private orderListYear(listaVars: any, listaRegions: any) {
- 
+
     let listVARSYEAR: VarPerformance[] = [];
 
     listaRegions.forEach((item: any) => {
@@ -441,6 +426,7 @@ export class PerformanceGeneralRegionesComponent implements OnInit {
 
   }
   private fillbarchart(listabar: any) {
+    this.barChartData=[];
     this.barChartColors.push({ backgroundColor: 'rgb(31,78,120)' });
 
     this.barChartData[0] = {
@@ -450,7 +436,7 @@ export class PerformanceGeneralRegionesComponent implements OnInit {
     };
   }
   private fillbarchartAc(listabar: any) {
-  
+
     this.barChartColors.push({ backgroundColor: 'rgb(31,78,120)' });
 
     this.barChartDataAc[0] = {
@@ -486,19 +472,128 @@ export class PerformanceGeneralRegionesComponent implements OnInit {
     }
   }
   onYearChange(event: any) {
-
-
-
-
+    this.refreshQuery();
   }
   onMonthChange(event: any) {
-
-
+    this.refreshQuery();
   }
   onCoinChange(event: any) {
-
+    this.refreshQuery();
   }
+  refreshQuery() {
+    this.barChartLabels=[];
+    let arraymonedas = this.userservice.responseLogin.monedass;
+    this.selectedCoinTable = arraymonedas.find((e: any) => e.idMonedaEmpresaOdoo ==
+      this.selectedCoin).name
+      //getting data from Login
+      if (this.userservice.responseLogin) {
+        this.queryMes = this.apollo.watchQuery({
+          query: QIPTMES,
+          variables: {
+            idrol1: this.userservice.responseLogin.idUsuario,
+            anioo: Number(this.selectedyear),
+            mess: this.selectedMonth,
+            companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
+            monedadestinoo: this.selectedCoin
+          }
+        }).valueChanges.subscribe((result: any) => {
+         console.log(result);
+          if (this.validaState(result)) {
+            this.listaitem = [];
+            this.listIdMes = [];
+            let listBarPercentaje: any = [];
+            let varsmes: Var[] = [];
+            let varsyear: Var[] = [];
+  
+            if (result.data.performanceregionmes.lista != null) {
+              let listaPerformanceMes = result.data.performanceregionmes.lista;
+              for (let i: number = 0; i < listaPerformanceMes.length; i++) {
+  
+                let performance_producto = {
+                  region: listaPerformanceMes[i].nombre,
+                  moneda: Number(listaPerformanceMes[i].importeactual)
+                };
+                let posicion = {
+                  idPosicion: listaPerformanceMes[i].idPosicion,
+                  region: listaPerformanceMes[i].nombre
+                }
+                let diff = Number(listaPerformanceMes[i].importeactual) -
+                  Number(listaPerformanceMes[i].importeanterior);
+  
+  
+                this.listaitem.push(performance_producto);
+                this.listIdMes.push(posicion);
+  
+                this.barChartLabels.push(listaPerformanceMes[i].nombre);
+                listBarPercentaje.push(diff);
+  
+              }
+              this.fillbarchart(listBarPercentaje);
+  
+              this.dataSource = new MatTableDataSource<PerformanceGR>(this.listaitem);
+  
+              this.listIdMes.forEach(item => {
+                //setting property region in itemvarsmes object
+                let valueregion = item.region;
+                this.queryMesVars = this.apollo.watchQuery({
+                  query: QIVARS,
+                  variables: {
+                    idrol1: this.userservice.responseLogin.idUsuario,
+                    anioo: new Date().getFullYear(),
+                    mess: "0" + new Date().getMonth(),
+                    companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
+                    monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo,
+                    ciudadid: item.idPosicion
+  
+                  }
+  
+                }).valueChanges.subscribe((result: any) => {
+  
+                  let listVarMes = result.data.raking_lista_mesanual_region.lista;
+  
+                  let topvarMes = {
+                    p_cantidad: Number(listVarMes[0].porcentaje_Monto_Mes.replace(',', '.')),
+                    p_ventas: Number(listVarMes[1].porcentaje_Monto_Mes.replace(',', '.')),
+                    p_precio: Number(listVarMes[2].porcentaje_Monto_Mes.replace(',', '.'))
+  
+                  }
+                  let topvarYear = {
+                    p_cantidad: Number(listVarMes[0].porcentaje_Monto_Acumulado.replace(',', '.')),
+                    p_ventas: Number(listVarMes[1].porcentaje_Monto_Acumulado.replace(',', '.')),
+                    p_precio: Number(listVarMes[2].porcentaje_Monto_Acumulado.replace(',', '.'))
+  
+                  }
+  
+                  let valuemes = {
+                    region: valueregion,
+                    topvar: topvarMes
+                  }
+                  let valueyear = {
+                    region: valueregion,
+                    topvar: topvarYear
+                  }
+  
+                  varsmes.push(valuemes);
+                  varsyear.push(valueyear);
+  
+                  this.listamesVAR.push(topvarMes);
+                  this.listyearVAR.push(topvarYear);
+                  this.orderList(varsmes, this.listaitem);
+                  // this.orderList(varsyear,this.list);
+  
+                });
+  
+              }
+  
+              );
+  
 
+            }
+
+          }
+        });  
+      }
+  }
 
 
 }

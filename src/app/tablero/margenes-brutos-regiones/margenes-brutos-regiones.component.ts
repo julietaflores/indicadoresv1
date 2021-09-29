@@ -5,10 +5,10 @@ import gql from 'graphql-tag';
 import { UserService } from 'src/app/services/user.service';
 import { Label } from 'ng2-charts';
 import * as pluginDataLabels from 'chartjs-plugin-datalabels';
-const QIMBMES = gql`
-query margenbruto_regionmes($idrol1:Int!,$anioo:Int!,$mess:String,$companiaa:Int!, $monedadestinoo:Int!) {
-  margenbruto_regionmes(idrol1:$idrol1,anioo:$anioo,mess:$mess,companiaa:$companiaa, monedadestinoo:$monedadestinoo){
-  tablero{
+const QIMBREGION = gql`
+query margenbruto_region($idrol1:Int!,$anioo:Int!,$mess:String,$companiaa:Int!, $monedadestinoo:Int!) {
+  margenbruto_region(idrol1:$idrol1,anioo:$anioo,mess:$mess,companiaa:$companiaa, monedadestinoo:$monedadestinoo){
+    tablero{
       idTablero
       nombreTablero
       estadoTablero
@@ -16,7 +16,21 @@ query margenbruto_regionmes($idrol1:Int!,$anioo:Int!,$mess:String,$companiaa:Int
       idCategoria
       
     }
-    lista{
+    lista_mes{
+      id
+      nombre
+      importe_actual
+      coste_actual
+      porcentaje_margen_actual
+      importe_anterior
+      coste_anterior
+      porcentaje_margen_anterior
+      bPS
+      calculo_grafico
+      porcentajetorta
+    }
+    
+      lista_anual{
       id
       nombre
       importe_actual
@@ -66,6 +80,30 @@ query margenbruto_regionanual($idrol1:Int!,$anioo:Int!,$mess:String,$companiaa:I
 })
 export class MargenesBrutosRegionesComponent implements OnInit {
 
+  
+  coins: any[] = [];
+  years: any[] = [
+    { value: '2021', viewValue: '2021' },
+    { value: '2020', viewValue: '2020' },
+    { value: '2019', viewValue: '2019' },
+    { value: '2018', viewValue: '2018' },
+    { value: '2017', viewValue: '2017' },
+    { value: '2016', viewValue: '2016' }
+  ];
+  months: any[] = [
+    { value: '01', viewValue: 'Enero' },
+    { value: '02', viewValue: 'Febrero' },
+    { value: '03', viewValue: 'Marzo' },
+    { value: '04', viewValue: 'Abril' },
+    { value: '05', viewValue: 'Mayo' },
+    { value: '06', viewValue: 'Junio' },
+    { value: '07', viewValue: 'Julio' },
+    { value: '08', viewValue: 'Agosto' },
+    { value: '09', viewValue: 'Septiembre' },
+    { value: '10', viewValue: 'Octubre' },
+    { value: '11', viewValue: 'Noviembre' },
+    { value: '12', viewValue: 'Marzo' }
+  ];
 
   // This is line chart
   // bar chart
@@ -99,14 +137,32 @@ export class MargenesBrutosRegionesComponent implements OnInit {
   queryMesRegion: any;//get first list products
   queryAnualRegion: any;//get first list products
 
+  selectedyear = String(new Date().getFullYear());
+  selectedMonth = String(this.getCurrenlyMonth());
+  MesActual: any = this.getCurrenlyMonth();
+  selectedCoin = 0;
+  selectedCoinTable: String = '';//Variable en table
+
   constructor(public userservice: UserService,
     private apollo: Apollo) { }
 
   ngOnInit(): void {
     if (this.userservice.responseLogin) {
+      this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
+      let arraymonedas = this.userservice.responseLogin.monedass;
+      this.selectedCoinTable = arraymonedas.find((e: any) => e.idMonedaEmpresaOdoo ==
+        this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo).name;
+  
+      arraymonedas.forEach((e: any) => {
+        let coin = {
+          value: e.idMonedaEmpresaOdoo,
+          viewValue: e.name
+        };
+        this.coins.push(coin);
+      });
 
       this.queryMesRegion = this.apollo.watchQuery({
-        query: QIMBMES,
+        query: QIMBREGION,
         variables: {
           idrol1: this.userservice.responseLogin.idUsuario,
           anioo: new Date().getFullYear(),
@@ -116,8 +172,10 @@ export class MargenesBrutosRegionesComponent implements OnInit {
         }
       });
       this.queryMesRegion.valueChanges.subscribe((result: any) => {
+        console.log(result);
         let listabar:any=[];
-        let listames = result.data.margenbruto_regionmes.lista;
+        let listames = result.data.margenbruto_region.lista_mes;
+        let listaanual = result.data.margenbruto_region.lista_anual;
         listames.forEach((value: any) => {
           let item = {
             division: value.nombre,
@@ -130,36 +188,24 @@ export class MargenesBrutosRegionesComponent implements OnInit {
           this.barChartLabels.push(value.nombre);
         
         });
+        listaanual.forEach((value: any) => {
+          let item = {
+            division: value.nombre,
+            porcentaje_margen: value.porcentaje_margen_actual,
+            bps: value.bPS,
+            moneda: value.importe_actual
+          }
+          this.listyearVAR.push(item);
+        });
+        this.dataSourceAcumulado= new MatTableDataSource<MargenBrutoRegion>(this.listyearVAR);
         this.barChartColors.push( { backgroundColor: '#1976d2' });
         this.barChartData[0]={
           data:listabar,
-          label:"procentaje"
+          label:'VAR. vs.' + (new Date().getFullYear() - 1)
         }
         this.dataSourceMes = new MatTableDataSource<MargenBrutoRegion>(this.listamesMB);
 
-        this.queryAnualRegion = this.apollo.watchQuery({
-          query: QIMBANUAL,
-          variables: {
-            idrol1: this.userservice.responseLogin.idUsuario,
-            anioo: new Date().getFullYear(),
-            mess: "0" + new Date().getMonth(),
-            companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
-            monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
-          }
-        });
-        this.queryAnualRegion.valueChanges.subscribe((result: any) => {
-          let listaanual = result.data.margenbruto_regionanual.lista;
-          listaanual.forEach((value: any) => {
-            let item = {
-              division: value.nombre,
-              porcentaje_margen: value.porcentaje_margen_actual,
-              bps: value.bPS,
-              moneda: value.importe_actual
-            }
-            this.listyearVAR.push(item);
-          });
-          this.dataSourceAcumulado= new MatTableDataSource<MargenBrutoRegion>(this.listyearVAR);
-        });
+    
       });
 
     }
@@ -171,6 +217,24 @@ export class MargenesBrutosRegionesComponent implements OnInit {
   // events
   public chartClicked(e: any): void {
     // console.log(e);
+  }
+  getCurrenlyMonth() {
+    let month = new Date().getMonth() + 1;
+    if (month < 10) {
+      return "0" + month;
+    }
+    else {
+      return month;
+    }
+  }
+  onYearChange(event: any) {
+    
+  }
+  onMonthChange(event: any) {
+   
+  }
+  onCoinChange(event: any) {
+ 
   }
 
 }

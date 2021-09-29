@@ -605,7 +605,7 @@ export class PerformanceGeneralRegionesComponent implements OnInit {
                 let listBarPercentajeAc: any[] = [];
                 if (result.data.performanceregionanual.lista != null) {
                   let listaPerformanceYear = result.data.performanceregionanual.lista;
-  
+                 
                   for (let i: number = 0; i < listaPerformanceYear.length; i++) {
                     let performance_producto = {
                       region: listaPerformanceYear[i].nombre,
@@ -626,6 +626,7 @@ export class PerformanceGeneralRegionesComponent implements OnInit {
   
   
                     // this.barChartLabels.push( listaPerformanceYear[i].nombre);
+              
                     this.orderListYear(varsyear, this.listItemYear);
                   }
                   this.fillbarchartAc(listBarPercentajeAc);

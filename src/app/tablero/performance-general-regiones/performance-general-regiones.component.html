@@ -191,7 +191,7 @@
                                 <!-- Index Column -->
                                 <ng-container matColumnDef="moneda">
                                     <th mat-header-cell *matHeaderCellDef>{{selectedCoinTable}} (000)</th>
-                                    <td mat-cell *matCellDef="let value"> {{value.moneda}} </td>
+                                    <td mat-cell *matCellDef="let value"> {{value.moneda | currency}} </td>
                                     <td mat-footer-cell *matFooterCellDef> </td>
                                 </ng-container>
 

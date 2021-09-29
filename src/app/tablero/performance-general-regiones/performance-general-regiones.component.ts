@@ -343,6 +343,7 @@ export class PerformanceGeneralRegionesComponent implements OnInit {
 
 
                   // this.barChartLabels.push( listaPerformanceYear[i].nombre);
+                  console.log(this.listItemYear);
                   this.orderListYear(varsyear, this.listItemYear);
                 }
                 this.fillbarchartAc(listBarPercentajeAc);
@@ -413,15 +414,17 @@ export class PerformanceGeneralRegionesComponent implements OnInit {
     listaRegions.forEach((item: any) => {
 
       let value = listaVars.find((e: any) => e.region == item.region);
+      console.log(value);
       if (value && value != undefined) {
         listVARSYEAR.push(value.topvar);
       }
 
 
     });
+    console.log(listVARSYEAR.length);
     this.newlistyear = listVARSYEAR;
     this.dataSourceVARSAc = new MatTableDataSource<VarPerformance>(this.newlistyear);
-
+   
     // return listVARS;
 
   }
@@ -499,8 +502,8 @@ export class PerformanceGeneralRegionesComponent implements OnInit {
           monedadestinoo: this.selectedCoin
         }
       }).valueChanges.subscribe((response: any) => {
-        console.log(response);
-        if (this.validaState(response)) {
+
+       
           this.listaitem = [];
           this.listIdMes = [];
           let listBarPercentaje: any = [];
@@ -639,7 +642,7 @@ export class PerformanceGeneralRegionesComponent implements OnInit {
 
           }
 
-        }
+        
       });
     }
   }

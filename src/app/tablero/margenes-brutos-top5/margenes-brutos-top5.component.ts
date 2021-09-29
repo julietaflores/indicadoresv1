@@ -80,7 +80,7 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
     { value: '12', viewValue: 'Marzo' }
   ];
 
-  private queryMesRegion: any;//get first list products
+  private queryMesRegion: Subscription;//get first list products
 
   listamesMB: MargenBruto[] = [];
   listyearVAR: MargenBruto[] = [];
@@ -117,8 +117,8 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
 
   }
   ngOnDestroy(): void {
-    // this.queryMesRegion.unsubscribe();
-    // this.queryAnualRegion.unsubscribe();
+     this.queryMesRegion.unsubscribe();
+   
   }
 
   ngOnInit(): void {
@@ -143,15 +143,16 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
           mess: "0" + new Date().getMonth(),
           companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
           monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
-        }
-      });
-      this.queryMesRegion.valueChanges.subscribe((result: any) => {
-
+        },
+        pollInterval: 500
+      }).valueChanges.subscribe((result: any) => {
         let listabar: any = [];
-
+        this.barChartData=[];
+        this.barChartLabels=[];
         let listames = result.data.margenbruto_top5.lista_mes;
         let listaanual = result.data.margenbruto_top5.lista_anual;
-
+        this.dataSourceMes=new MatTableDataSource<MargenBruto>();
+        this.dataSourceAcumulado=new MatTableDataSource<MargenBruto>();
         listames.forEach((value: any) => {
           let item = {
             producto: value.nombre,
@@ -177,7 +178,7 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
         this.dataSourceMes = new MatTableDataSource<MargenBruto>(this.listamesMB);
 
         this.barChartColors.push({ backgroundColor: '#1976d2' });
-        console.log(listabar);
+    
         this.barChartData[0] = {
           data: listabar,
           label: 'VAR. vs.' + (new Date().getFullYear() - 1)

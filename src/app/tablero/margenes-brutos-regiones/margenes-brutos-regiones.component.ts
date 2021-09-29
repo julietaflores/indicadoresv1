@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { Apollo, QueryRef } from 'apollo-angular';
 import gql from 'graphql-tag';
 import { UserService } from 'src/app/services/user.service';
 import { Label } from 'ng2-charts';
 import * as pluginDataLabels from 'chartjs-plugin-datalabels';
+import { Subscription } from 'rxjs';
 const QIMBREGION = gql`
 query margenbruto_region($idrol1:Int!,$anioo:Int!,$mess:String,$companiaa:Int!, $monedadestinoo:Int!) {
   margenbruto_region(idrol1:$idrol1,anioo:$anioo,mess:$mess,companiaa:$companiaa, monedadestinoo:$monedadestinoo){
@@ -52,9 +53,9 @@ query margenbruto_region($idrol1:Int!,$anioo:Int!,$mess:String,$companiaa:Int!, 
   templateUrl: './margenes-brutos-regiones.component.html',
   styleUrls: ['./margenes-brutos-regiones.component.scss']
 })
-export class MargenesBrutosRegionesComponent implements OnInit {
+export class MargenesBrutosRegionesComponent implements OnInit, OnDestroy {
 
-  
+
   coins: any[] = [];
   years: any[] = [
     { value: '2021', viewValue: '2021' },
@@ -88,16 +89,16 @@ export class MargenesBrutosRegionesComponent implements OnInit {
   };
 
   public barChartLabels: string[] = [
-  
+
   ];
   public barChartType = 'horizontalBar';
   public barChartLegend = true;
 
   public barChartData: any[] = [
- 
+
   ];
   public barChartColors: Array<any> = [
- 
+
   ];
   displayedColumns = ['division', 'porcentaje_margen', 'bps', 'importe_actual'];
 
@@ -108,8 +109,7 @@ export class MargenesBrutosRegionesComponent implements OnInit {
   dataSourceAcumulado = new MatTableDataSource<MargenBrutoRegion>();
 
 
-  queryMesRegion: any;//get first list products
-  queryAnualRegion: any;//get first list products
+  queryMesRegion: Subscription;//get first list products
 
   selectedyear = String(new Date().getFullYear());
   selectedMonth = String(this.getCurrenlyMonth());
@@ -118,15 +118,17 @@ export class MargenesBrutosRegionesComponent implements OnInit {
   selectedCoinTable: String = '';//Variable en table
 
   constructor(public userservice: UserService,
-    private apollo: Apollo) { }
+    private apollo: Apollo) {
+    this.queryMesRegion = new Subscription();
+  }
 
   ngOnInit(): void {
     if (this.userservice.responseLogin) {
       this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
       let arraymonedas = this.userservice.responseLogin.monedass;
       this.selectedCoinTable = arraymonedas.find((e: any) => e.idMonedaEmpresaOdoo ==
-        this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo).name;
-  
+      this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo).name;
+
       arraymonedas.forEach((e: any) => {
         let coin = {
           value: e.idMonedaEmpresaOdoo,
@@ -143,11 +145,14 @@ export class MargenesBrutosRegionesComponent implements OnInit {
           mess: "0" + new Date().getMonth(),
           companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
           monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
-        }
-      });
-      this.queryMesRegion.valueChanges.subscribe((result: any) => {
-       
-        let listabar:any=[];
+        },
+        pollInterval: 500
+      }).valueChanges.subscribe((result: any) => {
+        let listabar: any = [];
+        this.barChartData=[];
+        this.barChartLabels=[];
+        this.dataSourceMes=new MatTableDataSource<MargenBrutoRegion>();
+        this.dataSourceAcumulado=new MatTableDataSource<MargenBrutoRegion>();
         let listames = result.data.margenbruto_region.lista_mes;
         let listaanual = result.data.margenbruto_region.lista_anual;
         listames.forEach((value: any) => {
@@ -160,7 +165,7 @@ export class MargenesBrutosRegionesComponent implements OnInit {
           listabar.push(value.porcentaje_margen_actual);
           this.listamesMB.push(item);
           this.barChartLabels.push(value.nombre);
-        
+
         });
         listaanual.forEach((value: any) => {
           let item = {
@@ -171,16 +176,16 @@ export class MargenesBrutosRegionesComponent implements OnInit {
           }
           this.listyearVAR.push(item);
         });
-        this.dataSourceAcumulado= new MatTableDataSource<MargenBrutoRegion>(this.listyearVAR);
-      
-        this.barChartColors.push( { backgroundColor: '#1976d2' });
-        this.barChartData[0]={
-          data:listabar,
-          label:'VAR. vs.' + (new Date().getFullYear() - 1)
+        this.dataSourceAcumulado = new MatTableDataSource<MargenBrutoRegion>(this.listyearVAR);
+
+        this.barChartColors.push({ backgroundColor: '#1976d2' });
+        this.barChartData[0] = {
+          data: listabar,
+          label: 'VAR. vs.' + (new Date().getFullYear() - 1)
         }
         this.dataSourceMes = new MatTableDataSource<MargenBrutoRegion>(this.listamesMB);
 
-    
+
       });
 
     }
@@ -203,13 +208,16 @@ export class MargenesBrutosRegionesComponent implements OnInit {
     }
   }
   onYearChange(event: any) {
-    
+
   }
   onMonthChange(event: any) {
-   
+
   }
   onCoinChange(event: any) {
- 
+
+  }
+  ngOnDestroy() {
+    this.queryMesRegion.unsubscribe()
   }
 
 }

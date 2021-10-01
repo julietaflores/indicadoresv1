@@ -195,7 +195,7 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
         variables: {
           idrol1: this.userservice.responseLogin.idUsuario,
           anioo: new Date().getFullYear(),
-          mess: "08",
+          mess: this.getCurrenlyMonth(),
           companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
           monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
         }
@@ -205,8 +205,8 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
          console.log(indicadores);
 
         indicadores.forEach((item: any) => {
-          let listpercentagesmes: any = [];
-          let listpercentagesanual: any = [];
+          this.listpercentagesmes= [];
+          this.listpercentagesyear= [];
           let pieChartData: any[] = [];
           let pieChartDataYear: any[] = [];
           let pieChartLabels: string[] = [];
@@ -218,23 +218,21 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
           if(listaanual==null){
              listaanual=[];
           }
-          console.log(listames);
-          console.log(listaanual);
 
 
           listames.forEach((item: any) => {
-            listpercentagesmes.push(Number(item.porcentajetorta.replace(",", ".")));
+            this.listpercentagesmes.push(Number(item.porcentajetorta.replace(",", ".")));
            
             pieChartLabels.push(item.nombre);
           });
           
           listaanual.forEach((item: any) => {
-            listpercentagesanual.push(Number(item.porcentajetorta.replace(",", ".")));
+            this.listpercentagesyear.push(Number(item.porcentajetorta.replace(",", ".")));
 
           });
-          pieChartData = listpercentagesmes;
+          pieChartData = this.listpercentagesmes;
           console.log(pieChartData);
-          pieChartDataYear = listpercentagesanual;
+          pieChartDataYear = this.listpercentagesyear;
 
           let pieRegion = {
             name: item.indicador.nombreIndicador,
@@ -302,8 +300,8 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
         this.listChartsPie=[];
         let indicadores = response.data.composicion_margenes.lista;
         indicadores.forEach((item: any) => {
-          let listpercentagesmes: any = [];
-          let listpercentagesanual: any = [];
+          this.listpercentagesmes= [];
+          this.listpercentagesyear= [];
           let pieChartData: any[] = [];
           let pieChartDataYear: any[] = [];
           let pieChartLabels: string[] = [];
@@ -317,18 +315,18 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
           }
   
           listames.forEach((item: any) => {
-            listpercentagesmes.push(Number(item.porcentajetorta.replace(",", ".")));
+            this.listpercentagesmes.push(Number(item.porcentajetorta.replace(",", ".")));
            
             pieChartLabels.push(item.nombre);
           });
           
           listaanual.forEach((item: any) => {
-            listpercentagesanual.push(Number(item.porcentajetorta.replace(",", ".")));
+            this.listpercentagesyear.push(Number(item.porcentajetorta.replace(",", ".")));
   
           });
-          pieChartData = listpercentagesmes;
+          pieChartData = this.listpercentagesmes;
           console.log(pieChartData);
-          pieChartDataYear = listpercentagesanual;
+          pieChartDataYear = this.listpercentagesyear;
   
           let pieRegion = {
             name: item.indicador.nombreIndicador,

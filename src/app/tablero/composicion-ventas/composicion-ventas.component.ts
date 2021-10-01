@@ -186,7 +186,7 @@ export class ComposicionVentasComponent implements OnInit, OnDestroy  {
         variables: {
           idrol1: this.userservice.responseLogin.idUsuario,
           anioo: new Date().getFullYear(),
-          mess: "08",
+          mess: this.getCurrenlyMonth(),
           companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
           monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
         }
@@ -196,8 +196,8 @@ export class ComposicionVentasComponent implements OnInit, OnDestroy  {
           let indicadores = response.data.composicion_ventas.lista;
           console.log(indicadores);
           indicadores.forEach((item: any) => {
-            let listpercentagesmes: any = [];
-            let listpercentagesanual: any = [];
+            this.listpercentagesmes = [];
+            this.listpercentagesyear = [];
             let pieChartData: any[] = [];
             let pieChartDataYear: any[] = [];
             let pieChartLabels: string[] = [];
@@ -211,17 +211,17 @@ export class ComposicionVentasComponent implements OnInit, OnDestroy  {
             }
  
             listames.forEach((item: any) => {
-              listpercentagesmes.push(Number(item.porcentajetorta.replace(",", ".")));
+              this.listpercentagesmes.push(Number(item.porcentajetorta.replace(",", ".")));
               pieChartLabels.push(item.nombre);
             });
             
             listaanual.forEach((item: any) => {
-              listpercentagesanual.push(Number(item.porcentajetorta.replace(",", ".")));
+              this.listpercentagesyear.push(Number(item.porcentajetorta.replace(",", ".")));
   
             });
-            pieChartData = listpercentagesmes;
+            pieChartData = this.listpercentagesmes;
             console.log(pieChartData);
-            pieChartDataYear = listpercentagesanual;
+            pieChartDataYear = this.listpercentagesyear;
   
             let pieRegion = {
               name: item.indicador.nombreIndicador,
@@ -288,8 +288,8 @@ export class ComposicionVentasComponent implements OnInit, OnDestroy  {
         this.listChartsPie=[];
         let indicadores = response.data.composicion_ventas.lista;
         indicadores.forEach((item: any) => {
-          let listpercentagesmes: any = [];
-          let listpercentagesanual: any = [];
+          this.listpercentagesmes = [];
+          this.listpercentagesyear = [];
           let pieChartData: any[] = [];
           let pieChartDataYear: any[] = [];
           let pieChartLabels: string[] = [];
@@ -303,18 +303,18 @@ export class ComposicionVentasComponent implements OnInit, OnDestroy  {
           }
   
           listames.forEach((item: any) => {
-            listpercentagesmes.push(Number(item.porcentajetorta.replace(",", ".")));
+            this.listpercentagesmes.push(Number(item.porcentajetorta.replace(",", ".")));
            
             pieChartLabels.push(item.nombre);
           });
           
           listaanual.forEach((item: any) => {
-            listpercentagesanual.push(Number(item.porcentajetorta.replace(",", ".")));
+            this.listpercentagesyear.push(Number(item.porcentajetorta.replace(",", ".")));
   
           });
-          pieChartData = listpercentagesmes;
-          console.log(pieChartData);
-          pieChartDataYear = listpercentagesanual;
+          pieChartData = this.listpercentagesmes;
+ 
+          pieChartDataYear = this.listpercentagesyear;
   
           let pieRegion = {
             name: item.indicador.nombreIndicador,

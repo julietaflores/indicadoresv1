@@ -98,7 +98,6 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
         color: '#ffffff',
         align: 'end',
         display: true,
-        borderWidth: 6600,
         precision: 2
         
       },

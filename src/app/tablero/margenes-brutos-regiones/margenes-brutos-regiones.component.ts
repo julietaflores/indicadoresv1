@@ -153,8 +153,7 @@ export class MargenesBrutosRegionesComponent implements OnInit, OnDestroy {
           mess: this.getCurrenlyMonth(),
           companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
           monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
-        },
-        pollInterval: 5000
+        }
       }).valueChanges.subscribe((result: any) => {
         if (result.data.margenbruto_region.lista_mes && result.data.margenbruto_region.lista_anual) {
           let listabar: any = [];
@@ -250,8 +249,7 @@ export class MargenesBrutosRegionesComponent implements OnInit, OnDestroy {
           mess: this.selectedMonth,
           companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
           monedadestinoo: this.selectedCoin
-        },
-        pollInterval: 5000
+        }
       }).valueChanges.subscribe((result: any) => {
         if (result.data.margenbruto_region.lista_mes && result.data.margenbruto_region.lista_anual) {
           let listabar: any = [];

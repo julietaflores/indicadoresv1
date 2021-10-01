@@ -157,8 +157,7 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
           mess: this.getCurrenlyMonth(),
           companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
           monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
-        },
-        pollInterval: 5000
+        }
       }).valueChanges.subscribe((result: any) => {
 
         if (result.data.margenbruto_top5.lista_mes && result.data.margenbruto_top5.lista_anual) {
@@ -267,8 +266,7 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
           mess: this.selectedMonth,
           companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
           monedadestinoo: this.selectedCoin
-        },
-        pollInterval: 5000
+        }
       }).valueChanges.subscribe((result: any) => {
         console.log(result);
         if (result.data.margenbruto_top5.lista_mes && result.data.margenbruto_top5.lista_anual) {

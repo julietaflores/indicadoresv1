@@ -75,7 +75,7 @@
 
                                 <!-- Index Column -->
                                 <ng-container matColumnDef="us">
-                                    <th mat-header-cell *matHeaderCellDef> US$ (000) </th>
+                                    <th mat-header-cell *matHeaderCellDef> {{selectedCoinTable}} (000) </th>
                                     <td mat-cell *matCellDef="let value"> {{value.us | currency}} </td>
                                     <td mat-footer-cell *matFooterCellDef> {{getTotalCost() | currency}} </td>
 
@@ -220,7 +220,7 @@
 
                                 <!-- Index Column -->
                                 <ng-container matColumnDef="us">
-                                    <th mat-header-cell *matHeaderCellDef> US$ (000) </th>
+                                    <th mat-header-cell *matHeaderCellDef> {{selectedCoinTable}} (000)</th>
                                     <td mat-cell *matCellDef="let value"> {{value.us | currency}} </td>
                                     <td mat-footer-cell *matFooterCellDef> {{getTotalCost() | currency}} </td>
 

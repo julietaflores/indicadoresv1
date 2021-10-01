@@ -107,6 +107,14 @@ export class ComposicionVentasComponent implements OnInit, OnDestroy  {
     legend: {
       position: 'top',
     },
+    plugins: {
+      datalabels: {
+        color: '#ffffff',
+        formatter: function (value: any) {
+          return Number.parseFloat(value).toFixed(2);
+        },
+      }
+    }
     // plugins: {
     //   datalabels: {
     //     formatter: (value, ctx) => {

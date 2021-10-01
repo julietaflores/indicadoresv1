@@ -497,6 +497,9 @@ export class PerformanceTop5Component implements OnInit {
 
     this.queryPerformanceTop5.unsubscribe();
   }
+  getAbsoluto(value: number) {
+    return Math.abs(value);
+  }
 
 }
 export interface PerformanceTopFive {

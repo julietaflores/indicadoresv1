@@ -180,7 +180,16 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (this.userservice.responseLogin) {
+      this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
+      let arraymonedas = this.userservice.responseLogin.monedass;
 
+      arraymonedas.forEach((e: any) => {
+        let coin = {
+          value: e.idMonedaEmpresaOdoo,
+          viewValue: e.name
+        };
+        this.coins.push(coin);
+      });
       this.queryComposition = this.apoll.watchQuery({
         query: QICM,
         variables: {
@@ -278,7 +287,7 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
     // this.queryTop5.unsubscribe();
   }
   private refreshQuery(){
-   
+    this.listChartsPie=[];
     this.queryComposition=this.apoll.watchQuery({
       query: QICM,
       variables: {
@@ -291,7 +300,7 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
     }).valueChanges.subscribe((response: any) => {
       if(response){
         this.listChartsPie=[];
-        let indicadores = response.data.composicion_ventas.lista;
+        let indicadores = response.data.composicion_margenes.lista;
         indicadores.forEach((item: any) => {
           let listpercentagesmes: any = [];
           let listpercentagesanual: any = [];

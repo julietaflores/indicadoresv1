@@ -22,3 +22,9 @@ tr.mat-footer-row {
   .mat-table .mat-header-cell:nth-child(2){
     border-right: 1px solid #e0e0e0;
   }
+  .negative_value{
+    color: red;
+}
+tr.mat-footer-row {
+    font-weight: bold;
+  }

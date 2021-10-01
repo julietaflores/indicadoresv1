@@ -130,7 +130,16 @@
 
                                 <ng-container matColumnDef="p_ventas">
                                     <th mat-header-cell *matHeaderCellDef>VAR $ %</th>
-                                    <td mat-cell *matCellDef="let value"> {{value.p_ventas | percent:'1.2-5' }} </td>
+                                    <td mat-cell *matCellDef="let value"> 
+                                        <p style="margin: 0;padding: 0;" *ngIf="value.p_cantidad>=0">
+                                            {{value.p_ventas
+                                            | percent:'1.2-5' }}</p>
+
+                                        <p style="margin: 0;padding: 0;" *ngIf="value.p_cantidad<0"
+                                            class="negative_value">
+                                            ({{getAbsoluto(value.p_ventas) | percent:'1.2-5' }})</p>
+
+                                       </td>
 
                                     <td mat-footer-cell *matFooterCellDef> </td>
                                 </ng-container>
@@ -138,14 +147,30 @@
 
                                 <ng-container matColumnDef="p_cantidad">
                                     <th mat-header-cell *matHeaderCellDef> VAR (m3) %</th>
-                                    <td mat-cell *matCellDef="let value">{{value.p_cantidad | percent:'1.2-5'}} </td>
+                                    <td mat-cell *matCellDef="let value">
+                                        <p style="margin: 0;padding: 0;" *ngIf="value.p_cantidad>=0">
+                                            {{value.p_cantidad
+                                            | percent:'1.2-5' }}</p>
+
+                                        <p style="margin: 0;padding: 0;" *ngIf="value.p_cantidad<0"
+                                            class="negative_value">
+                                            ({{getAbsoluto(value.p_cantidad) | percent:'1.2-5' }})</p>
+                                    </td>
                                     <td mat-footer-cell *matFooterCellDef> </td>
                                 </ng-container>
 
 
                                 <ng-container matColumnDef="p_precio">
                                     <th mat-header-cell *matHeaderCellDef> VAR (pp) %</th>
-                                    <td mat-cell *matCellDef="let value"> {{value.p_precio | percent:'1.2-5'}} </td>
+                                    <td mat-cell *matCellDef="let value"> 
+                                        <p style="margin: 0;padding: 0;" *ngIf="value.p_cantidad>=0">
+                                            {{value.p_precio
+                                            | percent:'1.2-5' }}</p>
+
+                                        <p style="margin: 0;padding: 0;" *ngIf="value.p_cantidad<0"
+                                            class="negative_value">
+                                            ({{getAbsoluto(value.p_precio) | percent:'1.2-5' }})</p>
+                                        </td>
                                     <td mat-footer-cell *matFooterCellDef> </td>
 
                                 </ng-container>
@@ -242,27 +267,53 @@
                         <div class="responsive-table">
                             <table mat-table [dataSource]="dataSourceVARSAc" class="mat-elevation-z8"
                                 style="margin: 0;padding: 0;">
+                                <ng-container matColumnDef="p_ventas">
+                                    <th mat-header-cell *matHeaderCellDef>VAR $ %</th>
+                                    <td mat-cell *matCellDef="let value"> 
+                                        <p style="margin: 0;padding: 0;" *ngIf="value.p_cantidad>=0">
+                                            {{value.p_ventas
+                                            | percent:'1.2-5' }}</p>
+
+                                        <p style="margin: 0;padding: 0;" *ngIf="value.p_cantidad<0"
+                                            class="negative_value">
+                                            ({{getAbsoluto(value.p_ventas) | percent:'1.2-5' }})</p>
+
+                                       </td>
+
+                                    <td mat-footer-cell *matFooterCellDef> </td>
+                                </ng-container>
+
 
                                 <ng-container matColumnDef="p_cantidad">
-                                    <th mat-header-cell *matHeaderCellDef>VAR $ %</th>
-                                    <td mat-cell *matCellDef="let value"> {{value.p_ventas | percent:'1.2-5' }} </td>
-
-                                    <td mat-footer-cell *matFooterCellDef> </td>
-                                </ng-container>
-
-
-                                <ng-container matColumnDef="p_ventas">
                                     <th mat-header-cell *matHeaderCellDef> VAR (m3) %</th>
-                                    <td mat-cell *matCellDef="let value">{{value.p_cantidad | percent:'1.2-5'}} </td>
+                                    <td mat-cell *matCellDef="let value">
+                                        <p style="margin: 0;padding: 0;" *ngIf="value.p_cantidad>=0">
+                                            {{value.p_cantidad
+                                            | percent:'1.2-5' }}</p>
+
+                                        <p style="margin: 0;padding: 0;" *ngIf="value.p_cantidad<0"
+                                            class="negative_value">
+                                            ({{getAbsoluto(value.p_cantidad) | percent:'1.2-5' }})</p>
+                                    </td>
                                     <td mat-footer-cell *matFooterCellDef> </td>
                                 </ng-container>
+
 
                                 <ng-container matColumnDef="p_precio">
                                     <th mat-header-cell *matHeaderCellDef> VAR (pp) %</th>
-                                    <td mat-cell *matCellDef="let value"> {{value.p_precio | percent:'1.2-5'}} </td>
+                                    <td mat-cell *matCellDef="let value"> 
+                                        <p style="margin: 0;padding: 0;" *ngIf="value.p_cantidad>=0">
+                                            {{value.p_precio
+                                            | percent:'1.2-5' }}</p>
+
+                                        <p style="margin: 0;padding: 0;" *ngIf="value.p_cantidad<0"
+                                            class="negative_value">
+                                            ({{getAbsoluto(value.p_precio) | percent:'1.2-5' }})</p>
+                                        </td>
                                     <td mat-footer-cell *matFooterCellDef> </td>
 
                                 </ng-container>
+
 
 
                                 <tr mat-header-row *matHeaderRowDef="displayedColumnsMesVars">

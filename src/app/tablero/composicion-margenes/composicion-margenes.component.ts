@@ -256,13 +256,13 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
     }
   }
   onYearChange(event: any) {
-    //this.refreshQuery();
+    this.refreshQuery();
   }
   onMonthChange(event: any) {
-   // this.refreshQuery();
+    this.refreshQuery();
   }
   onCoinChange(event: any) {
-
+   this.refreshQuery();
   }
   // events
   public chartClicked(e: any): void {
@@ -277,6 +277,65 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
     this.queryComposition.unsubscribe();
     // this.queryTop5.unsubscribe();
   }
+  private refreshQuery(){
+   
+    this.queryComposition=this.apoll.watchQuery({
+      query: QICM,
+      variables: {
+        idrol1: this.userservice.responseLogin.idUsuario,
+        anioo: Number(this.selectedyear),
+        mess: this.selectedMonth,
+        companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
+        monedadestinoo: this.selectedCoin
+      }
+    }).valueChanges.subscribe((response: any) => {
+      if(response){
+        this.listChartsPie=[];
+        let indicadores = response.data.composicion_ventas.lista;
+        indicadores.forEach((item: any) => {
+          let listpercentagesmes: any = [];
+          let listpercentagesanual: any = [];
+          let pieChartData: any[] = [];
+          let pieChartDataYear: any[] = [];
+          let pieChartLabels: string[] = [];
+          let listames = item.lista_mes;
+          if(listames==null){
+           listames=[];
+          }
+          let listaanual = item.lista_anual;
+          if(listaanual==null){
+             listaanual=[];
+          }
+  
+          listames.forEach((item: any) => {
+            listpercentagesmes.push(Number(item.porcentajetorta.replace(",", ".")));
+           
+            pieChartLabels.push(item.nombre);
+          });
+          
+          listaanual.forEach((item: any) => {
+            listpercentagesanual.push(Number(item.porcentajetorta.replace(",", ".")));
+  
+          });
+          pieChartData = listpercentagesmes;
+          console.log(pieChartData);
+          pieChartDataYear = listpercentagesanual;
+  
+          let pieRegion = {
+            name: item.indicador.nombreIndicador,
+            listPie: pieChartData,
+            listPieAc: pieChartDataYear,
+            labels: pieChartLabels
+          }
+          this.listChartsPie.push(pieRegion);
+        
+       });
+      }
+    
+    });
+      
+  }
+
 
 
 }

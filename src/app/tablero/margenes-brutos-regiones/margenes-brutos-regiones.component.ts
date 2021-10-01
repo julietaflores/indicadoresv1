@@ -154,7 +154,7 @@ export class MargenesBrutosRegionesComponent implements OnInit, OnDestroy {
           companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
           monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
         },
-        pollInterval: 500
+        pollInterval: 5000
       }).valueChanges.subscribe((result: any) => {
         if (result.data.margenbruto_region.lista_mes && result.data.margenbruto_region.lista_anual) {
           let listabar: any = [];

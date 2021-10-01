@@ -162,7 +162,7 @@ export class MBTOP5Component implements OnInit , OnDestroy {
           companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
           monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
         },
-        pollInterval: 5000
+        pollInterval: 10000
       }).valueChanges.subscribe((result: any) => {
         if (result.data.margenbruto_top5.lista_mes && result.data.margenbruto_top5.lista_anual) {
           let listabar: any = [];

@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { GlobalConstants } from 'src/app/GLOBALS/GlobalConstants';
 import { UserService } from 'src/app/services/user.service';
 import { Apollo, QueryRef } from 'apollo-angular';
 import gql from 'graphql-tag';
 import { Label } from 'ng2-charts';
 import * as pluginDataLabels from 'chartjs-plugin-datalabels';
+import { Subscription } from 'rxjs';
 
 const MENUTABLERO = gql`
 query menu_Indicadores($idrolusuario:Int!) {
@@ -116,16 +117,54 @@ query performancetopanual($idrol1:Int!,$anioo:Int!,$mess:String,$companiaa:Int!,
   } 
 }
 `;
-
+const QICV=gql`
+query composicion_ventas($idrol1:Int!,$anioo:Int!,$mess:String,$companiaa:Int!, $monedadestinoo:Int!) {
+  composicion_ventas(idrol1:$idrol1,anioo:$anioo,mess:$mess,companiaa:$companiaa, monedadestinoo:$monedadestinoo){
+    tablero{
+      idTablero
+      nombreTablero
+      estadoTablero
+      urlTablero
+      idCategoria
+      
+    }
+    lista{
+     indicador{
+        idIndicador
+        nombreIndicador
+      estadoIndicador
+      iDTablero
+      }
+      
+     lista_mes{
+      idPosicion
+      nombre
+      porcentajetorta
+    }
+    
+      lista_anual{
+      idPosicion
+      nombre
+      porcentajetorta
+    }
+      
+      
+      
+    }
+  } 
+}
+`;
 @Component({
   selector: 'app-composicion-ventas',
   templateUrl: './composicion-ventas.component.html',
   styleUrls: ['./composicion-ventas.component.scss']
 })
-export class ComposicionVentasComponent implements OnInit {
+export class ComposicionVentasComponent implements OnInit, OnDestroy  {
 
   constructor(public userservice: UserService,
-    private apollo: Apollo) { }
+    private apollo: Apollo) { 
+      this.queryCompositionV=new Subscription();
+    }
 
   listIndicadores: any = [];//Lista Indicadores Composicion Ventas
   listpercentagesmes: any = [];//lista porcentajes torta
@@ -164,6 +203,7 @@ export class ComposicionVentasComponent implements OnInit {
 
   private queryPieYear: any;
   private queryPieYearTop5:any;
+  private queryCompositionV: Subscription;
   // dataSource = new MatTableDataSource<PerformanceGL>(ELEMENT_DATA);
   // dataSourceAc = new MatTableDataSource<PerformanceGLAcumulado>(ELEMENT_DATA_AC);
   // dataSourceVARS = new MatTableDataSource<VarPerformance>(ELEMENT_VAR);
@@ -202,168 +242,6 @@ export class ComposicionVentasComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.userservice.responseLogin) {
-
-      this.queryTablero = this.apollo.watchQuery({
-        query: MENUTABLERO,
-        variables: { idrolusuario: this.userservice.responseLogin.iDRolUsuario }
-      });
-
-      this.queryTablero.valueChanges.subscribe((result: any) => {
-        let categorias;
-        let tablero;
-        categorias = result.data.menu_Indicadores[1].categoriass;
-        tablero = categorias.tableross;
-        GlobalConstants.detalleTablero = tablero;
-        this.listIndicadores = tablero.find((item: any) => item.nombreTablero === "Composición de ventas").indicadores;
-
-        this.queryPie = this.apollo.watchQuery({
-          query: QIPIE,
-          variables: {
-            idrol1: this.userservice.responseLogin.idUsuario,
-            anioo: new Date().getFullYear(),
-            mess: "0" + new Date().getMonth(),
-            companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
-            monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
-          }
-        });
-        this.queryPie.valueChanges.subscribe((result: any) => {
-          let listpercentagesmes:any = [];
-          let pieChartDataRegion:number[] = [];
-          
-          let pieChartLabels: string[] = [];
-          let listames = result.data.performanceregionmes.lista;
-
-          listames.forEach((item: any) => {
-            //alert(item.porcentajetorta);
-            listpercentagesmes.push(Number(item.porcentajetorta.replace(",", ".")));
-            pieChartLabels.push(item.nombre);
-          });
-          // this.colors= ['#1976d2', '#26dad2', 'rgba(255,0,0,0.3)','rgba(196,79,244,0.3)', '#dadada','rgb(246, 45, 81)','rgb(251, 140, 0)'];
-          //  this.pieChartData=this.listpercentagesmes;
-           pieChartDataRegion = listpercentagesmes;
-
-          //  let pieRegion={
-          //    name:"Region",
-          //    listPie:pieChartDataRegion,
-          //    labels:pieChartLabels
-          //  }
-           //Query for month Top5
-           this.queryTop5 = this.apollo.watchQuery({
-            query: QIPT5,
-            variables: {
-              idrol1: this.userservice.responseLogin.idUsuario,
-              anioo: new Date().getFullYear(),
-              mess: "0" + new Date().getMonth(),
-              companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
-              monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
-            }
-          });
-          this.queryTop5.valueChanges.subscribe((result: any) => {
-
-            let listpercentagesmes:any = [];
-            let pieChartDataTop5:number[] = [];
-            let pieChartLabels: string[] = [];
-            let listames = result.data.performancetopmes.lista;
-            listames.forEach((item: any) => {
-              //alert(item.porcentajetorta);
-              listpercentagesmes.push(Number(item.porcentajetorta.replace(",", ".")));
-              pieChartLabels.push(item.nombre);
-            });
-            pieChartDataTop5 = listpercentagesmes;
-   
-            // let pieTop5={
-            //   name:"Top5",
-            //   listPie:pieChartDataTop5,
-            //   labels:pieChartLabels
-            // }
-            
-          
-          
-            this.queryPieYear = this.apollo.watchQuery({
-              query: QIPIEYEAR,
-              variables: {
-                idrol1: this.userservice.responseLogin.idUsuario,
-                anioo: new Date().getFullYear(),
-                mess: "0" + new Date().getMonth(),
-                companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
-                monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
-              }
-            });
-            this.queryPieYear.valueChanges.subscribe((result: any) => {
-              let listpercentagesyear:any= [];
-              let listayear = result.data.performanceregionanual.lista;
-              let pieChartDataRegionYear:number[] = [];
-              let pieChartLabelsYear:string[] = [];
-    
-              listayear.forEach((item: any) => {
-                listpercentagesyear.push(Number(item.porcentajetorta.replace(",", ".")));
-                pieChartLabelsYear.push(item.nombre);
-              });
-              pieChartDataRegionYear = listpercentagesyear;
-              //pieChartLabels=this.listlabel;
-              let pieRegion={
-                name:"Region",
-                listPie:pieChartDataRegion,
-                listPieAc:pieChartDataRegionYear,
-                labels:pieChartLabelsYear,
-                
-              }
-              // this.listChartsPie.push(pieTop5);
-              // this.listChartsPie.push(pieRegion);
-              // for (let i= 0; i <= this.listIndicadores.length; i++) {
-              //   this.listChartsPie[i].nameIndicador=this.listIndicadores[i].nombreIndicador;
-              // }
-              //Query for month Top5
-              this.queryPieYearTop5= this.apollo.watchQuery({
-               query: QIPT5YEAR,
-               variables: {
-                 idrol1: this.userservice.responseLogin.idUsuario,
-                 anioo: new Date().getFullYear(),
-                 mess: "0" + new Date().getMonth(),
-                 companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
-                 monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
-               }
-             });
-             this.queryPieYearTop5.valueChanges.subscribe((result: any) => {
-               let listpercentagesyear:any= [];
-               let listayear = result.data.performancetopanual.lista;
-               let pieChartDataTop5Year:number[] = [];
-              //  let pieChartLabelsYear:string[] = [];
-     
-               listayear.forEach((item: any) => {
-                 //alert(item.porcentajetorta);
-                 listpercentagesyear.push(Number(item.porcentajetorta.replace(",", ".")));
-                //  pieChartLabels.push(item.nombre);
-               });
-               pieChartDataTop5Year = listpercentagesyear;
-
-               let pieTop5={
-                 name:"Top5",
-                 listPie:pieChartDataTop5,
-                 listPieAc:pieChartDataTop5Year,
-                 labels:pieChartLabels
-               }
-               
-               this.listChartsPie.push(pieTop5);
-               this.listChartsPie.push(pieRegion);
-    
-               for (let i= 0; i <= this.listIndicadores.length; i++) {
-                 
-                 this.listChartsPie[i].nameIndicador=this.listIndicadores[i].nombreIndicador;
-               }
-              
-             });
-      
-            });
-           
-          });
-               
-         
-        
-        });
-      
-
-      });
       this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
       let arraymonedas = this.userservice.responseLogin.monedass;
 
@@ -374,12 +252,68 @@ export class ComposicionVentasComponent implements OnInit {
         };
         this.coins.push(coin);
       });
+      this.queryCompositionV=this.apollo.watchQuery({
+        query: QICV,
+        variables: {
+          idrol1: this.userservice.responseLogin.idUsuario,
+          anioo: new Date().getFullYear(),
+          mess: "08",
+          companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
+          monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
+        }
+      }).valueChanges.subscribe((response: any) => {
+        let indicadores = response.data.composicion_ventas.lista;
+
+        indicadores.forEach((item: any) => {
+          console.log(item);
+          let listpercentagesmes: any = [];
+          let listpercentagesanual: any = [];
+          let pieChartData: any[] = [];
+          let pieChartDataYear: any[] = [];
+          let pieChartLabels: string[] = [];
+          let listames = item.lista_mes;
+          if(listames==null){
+           listames=[];
+          }
+          let listaanual = item.lista_anual;
+          if(listaanual==null){
+             listaanual=[];
+          }
+          console.log(listames);
+          console.log(listaanual);
 
 
+          listames.forEach((item: any) => {
+            listpercentagesmes.push(Number(item.porcentajetorta.replace(",", ".")));
+           
+            pieChartLabels.push(item.nombre);
+          });
+          
+          listaanual.forEach((item: any) => {
+            listpercentagesanual.push(Number(item.porcentajetorta.replace(",", ".")));
 
+          });
+          pieChartData = listpercentagesmes;
+          console.log(pieChartData);
+          pieChartDataYear = listpercentagesanual;
+
+          let pieRegion = {
+            name: item.indicador.nombreIndicador,
+            listPie: pieChartData,
+            listPieAc: pieChartDataYear,
+            labels: pieChartLabels
+          }
+          this.listChartsPie.push(pieRegion);
+        
+       });
+      });
+        
      
 
     }
+  }
+  ngOnDestroy(): void {
+    this.queryCompositionV.unsubscribe();
   }
 
   getCurrenlyMonth() {

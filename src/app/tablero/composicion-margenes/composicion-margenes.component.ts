@@ -186,7 +186,7 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
         variables: {
           idrol1: this.userservice.responseLogin.idUsuario,
           anioo: new Date().getFullYear(),
-          mess: "0" + new Date().getMonth(),
+          mess: "08",
           companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
           monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
         }
@@ -256,11 +256,10 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
     }
   }
   onYearChange(event: any) {
-
+    //this.refreshQuery();
   }
   onMonthChange(event: any) {
-
-
+   // this.refreshQuery();
   }
   onCoinChange(event: any) {
 

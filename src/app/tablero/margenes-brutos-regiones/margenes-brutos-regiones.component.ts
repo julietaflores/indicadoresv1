@@ -6,6 +6,7 @@ import { UserService } from 'src/app/services/user.service';
 import { Label } from 'ng2-charts';
 import * as pluginDataLabels from 'chartjs-plugin-datalabels';
 import { Subscription } from 'rxjs';
+import { AuthServiceService } from 'src/app/services/auth-service.service';
 const QIMBREGION = gql`
 query margenbruto_region($idrol1:Int!,$anioo:Int!,$mess:String,$companiaa:Int!, $monedadestinoo:Int!) {
   margenbruto_region(idrol1:$idrol1,anioo:$anioo,mess:$mess,companiaa:$companiaa, monedadestinoo:$monedadestinoo){
@@ -47,7 +48,31 @@ query margenbruto_region($idrol1:Int!,$anioo:Int!,$mess:String,$companiaa:Int!, 
   } 
 }
 `;
-
+const LOGIN = gql`
+  query validarlogin($usuario:String,$clave:String) {
+    validarlogin(usuario: $usuario, clave: $clave) {
+      idUsuario
+      nombreUsuario
+      usuario
+      iDRolUsuario
+      codIdioma
+      monedass{
+        idMonedaEmpresaOdoo
+        name
+        symbol
+        rate
+        estado
+      }
+      companiaa{
+        idCompaniaOdoo
+        name
+        idMonedaEmpresaOdoo
+        estado
+    }
+  
+    }
+  }
+  `;
 @Component({
   selector: 'app-margenes-brutos-regiones',
   templateUrl: './margenes-brutos-regiones.component.html',
@@ -116,7 +141,7 @@ export class MargenesBrutosRegionesComponent implements OnInit, OnDestroy {
   dataSourceMes = new MatTableDataSource<MargenBrutoRegion>();
   dataSourceAcumulado = new MatTableDataSource<MargenBrutoRegion>();
 
-
+  private queryLogin: Subscription;
   queryMesRegion: Subscription;//get first list products
 
   selectedyear = String(new Date().getFullYear());
@@ -126,8 +151,9 @@ export class MargenesBrutosRegionesComponent implements OnInit, OnDestroy {
   selectedCoinTable: String = '';//Variable en table
 
   constructor(public userservice: UserService,
-    private apollo: Apollo) {
+    private apollo: Apollo,private serviceAuth: AuthServiceService) {
     this.queryMesRegion = new Subscription();
+    this.queryLogin=new Subscription();
   }
 
   ngOnInit(): void {
@@ -202,6 +228,84 @@ export class MargenesBrutosRegionesComponent implements OnInit, OnDestroy {
       });
 
     }
+    else{
+        this.queryLogin = this.apollo.watchQuery({
+          query: LOGIN,
+          variables: { usuario: this.serviceAuth.userData?.name, clave: this.serviceAuth.userData?.password }
+        }).valueChanges.subscribe((response: any) => {
+          this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
+          this.userservice.responseLogin = response.data.validarlogin;
+          let arraymonedas = this.userservice.responseLogin.monedass;
+          this.selectedCoinTable = arraymonedas.find((e: any) => e.idMonedaEmpresaOdoo ==
+            this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo).name;
+    
+          arraymonedas.forEach((e: any) => {
+            let coin = {
+              value: e.idMonedaEmpresaOdoo,
+              viewValue: e.name
+            };
+            this.coins.push(coin);
+          });
+    
+          this.queryMesRegion = this.apollo.watchQuery({
+            query: QIMBREGION,
+            variables: {
+              idrol1: this.userservice.responseLogin.idUsuario,
+              anioo: new Date().getFullYear(),
+              mess: this.getCurrenlyMonth(),
+              companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
+              monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
+            }
+          }).valueChanges.subscribe((result: any) => {
+            if (result.data.margenbruto_region.lista_mes && result.data.margenbruto_region.lista_anual) {
+              let listabar: any = [];
+              this.barChartData = [];
+              this.barChartLabels = [];
+              this.listamesMB = [];
+              this.listyearVAR = [];
+              this.dataSourceMes = new MatTableDataSource<MargenBrutoRegion>();
+              this.dataSourceAcumulado = new MatTableDataSource<MargenBrutoRegion>();
+              let listames = result.data.margenbruto_region.lista_mes;
+              let listaanual = result.data.margenbruto_region.lista_anual;
+    
+              listames.forEach((value: any) => {
+                let item = {
+                  division: value.nombre,
+                  porcentaje_margen: value.porcentaje_margen_actual,
+                  bps: value.bPS,
+                  moneda: value.importe_actual
+                }
+                listabar.push(value.porcentaje_margen_actual);
+                this.listamesMB.push(item);
+                this.barChartLabels.push(value.nombre);
+    
+              });
+              listaanual.forEach((value: any) => {
+                let item = {
+                  division: value.nombre,
+                  porcentaje_margen: value.porcentaje_margen_actual,
+                  bps: value.bPS,
+                  moneda: value.importe_actual
+                }
+                this.listyearVAR.push(item);
+              });
+              this.dataSourceAcumulado = new MatTableDataSource<MargenBrutoRegion>(this.listyearVAR);
+    
+              this.barChartColors.push({ backgroundColor: 'rgb(31,78,120)' });
+              this.barChartData[0] = {
+                data: listabar,
+                label: 'VAR. vs.' + (new Date().getFullYear() - 1)
+              }
+              this.dataSourceMes = new MatTableDataSource<MargenBrutoRegion>(this.listamesMB);
+    
+            }
+    
+    
+          });
+    
+        });
+    }
+    
   }
 
   public chartHovered(e: any): void {
@@ -217,7 +321,7 @@ export class MargenesBrutosRegionesComponent implements OnInit, OnDestroy {
       return "0" + month;
     }
     else {
-      return month;
+      return String(month);
     }
   }
   onYearChange(event: any) {
@@ -284,7 +388,7 @@ export class MargenesBrutosRegionesComponent implements OnInit, OnDestroy {
           });
           this.dataSourceAcumulado = new MatTableDataSource<MargenBrutoRegion>(this.listyearVAR);
 
-          this.barChartColors.push({ backgroundColor: '#1976d2' });
+          this.barChartColors.push({ backgroundColor: 'rgb(31,78,120)' });
           this.barChartData[0] = {
             data: listabar,
             label: 'VAR. vs.' + (new Date().getFullYear() - 1)

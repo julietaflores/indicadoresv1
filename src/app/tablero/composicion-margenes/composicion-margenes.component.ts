@@ -7,6 +7,7 @@ import { Label } from 'ng2-charts';
 import * as pluginDataLabels from 'chartjs-plugin-datalabels';
 import { NEVER, Subscription, Observable, forkJoin, combineLatest } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
+import { AuthServiceService } from 'src/app/services/auth-service.service';
 
 
 const QICM = gql`
@@ -90,7 +91,31 @@ query menu_Indicadores($idrolusuario:Int!) {
 } 
 }
 `;
-
+const LOGIN = gql`
+  query validarlogin($usuario:String,$clave:String) {
+    validarlogin(usuario: $usuario, clave: $clave) {
+      idUsuario
+      nombreUsuario
+      usuario
+      iDRolUsuario
+      codIdioma
+      monedass{
+        idMonedaEmpresaOdoo
+        name
+        symbol
+        rate
+        estado
+      }
+      companiaa{
+        idCompaniaOdoo
+        name
+        idMonedaEmpresaOdoo
+        estado
+    }
+  
+    }
+  }
+  `;
 
 @Component({
   selector: 'app-composicion-margenes',
@@ -100,8 +125,9 @@ query menu_Indicadores($idrolusuario:Int!) {
 export class ComposicionMargenesComponent implements OnInit, OnDestroy {
 
   constructor(public userservice: UserService,
-    private apoll: Apollo) {
+    private apoll: Apollo, private serviceAuth: AuthServiceService) {
     this.queryComposition = new Subscription();
+    this.queryLogin= new Subscription();
   }
 
   listIndicadores: any = [];//Lista Indicadores Composicion Ventas
@@ -139,14 +165,9 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
 
   private queryTablero: any;
 
-  private queryPie: any;
-
-  private queryTop5: any;
-
-  private queryPieYear: any;
-  private queryPieYearTop5: any;
-
   private queryComposition: Subscription;
+  private queryLogin:Subscription;
+
 
   coins: any[] = [];
   years: any[] = [
@@ -200,10 +221,7 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
           monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
         }
       }).valueChanges.subscribe((response: any) => {
-
         let indicadores = response.data.composicion_margenes.lista;
-         console.log(indicadores);
-
         indicadores.forEach((item: any) => {
           this.listpercentagesmes= [];
           this.listpercentagesyear= [];
@@ -249,6 +267,81 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
       });
 
   
+    }
+    else{
+      this.queryLogin = this.apoll.watchQuery({
+        query: LOGIN,
+        variables: { usuario: this.serviceAuth.userData?.name, clave: this.serviceAuth.userData?.password }
+      }).valueChanges.subscribe((response: any) => {
+        this.userservice.responseLogin = response.data.validarlogin;
+        this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
+        let arraymonedas = this.userservice.responseLogin.monedass;
+
+        arraymonedas.forEach((e: any) => {
+          let coin = {
+            value: e.idMonedaEmpresaOdoo,
+            viewValue: e.name
+          };
+          this.coins.push(coin);
+        });
+        this.queryComposition = this.apoll.watchQuery({
+          query: QICM,
+          variables: {
+            idrol1: this.userservice.responseLogin.idUsuario,
+            anioo: new Date().getFullYear(),
+            mess: this.getCurrenlyMonth(),
+            companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
+            monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
+          }
+        }).valueChanges.subscribe((response: any) => {
+  
+          let indicadores = response.data.composicion_margenes.lista;
+           console.log(indicadores);
+  
+          indicadores.forEach((item: any) => {
+            this.listpercentagesmes= [];
+            this.listpercentagesyear= [];
+            let pieChartData: any[] = [];
+            let pieChartDataYear: any[] = [];
+            let pieChartLabels: string[] = [];
+            let listames = item.lista_mes;
+            if(listames==null){
+             listames=[];
+            }
+            let listaanual = item.lista_anual;
+            if(listaanual==null){
+               listaanual=[];
+            }
+  
+  
+            listames.forEach((item: any) => {
+              this.listpercentagesmes.push(Number(item.porcentajetorta.replace(",", ".")));
+             
+              pieChartLabels.push(item.nombre);
+            });
+            
+            listaanual.forEach((item: any) => {
+              this.listpercentagesyear.push(Number(item.porcentajetorta.replace(",", ".")));
+  
+            });
+            pieChartData = this.listpercentagesmes;
+            console.log(pieChartData);
+            pieChartDataYear = this.listpercentagesyear;
+  
+            let pieRegion = {
+              name: item.indicador.nombreIndicador,
+              listPie: pieChartData,
+              listPieAc: pieChartDataYear,
+              labels: pieChartLabels
+            }
+            this.listChartsPie.push(pieRegion);
+          
+  
+          });
+          
+  
+        });
+      });
     }
   }
 

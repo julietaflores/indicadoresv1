@@ -22,6 +22,8 @@ import { MargenesBrutosTop5Component } from './margenes-brutos-top5/margenes-bru
 import { ComposicionMargenesComponent } from './composicion-margenes/composicion-margenes.component';
 import { GastoComponent } from './gasto/gasto.component';
 import { MBTOP5Component } from './mbtop5/mbtop5.component';
+import { APOLLO_OPTIONS } from 'apollo-angular';
+import {InMemoryCache} from '@apollo/client/core';
 
 @NgModule({
   imports: [

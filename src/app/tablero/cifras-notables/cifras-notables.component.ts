@@ -202,13 +202,9 @@ export class CifrasNotablesComponent implements OnInit {
         this.queryLogin = this.apollo.watchQuery({
           query: LOGIN,
           variables: { usuario: this.serviceAuth.userData?.name, clave: this.serviceAuth.userData?.password }
-        });
-
-        this.queryLogin.valueChanges.subscribe((result: any) => {
+        }).valueChanges.subscribe((result: any) => {
           this.userservice.responseLogin = result.data.validarlogin;
-          // GlobalConstants.listCompanys=result.data.validarlogin.companiaa;
           this.listCompanys = result.data.validarlogin.companiaa;
-          // this.moneda=result.data.validarlogin.monedass[0].name;
           this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
           let arraymonedas = this.userservice.responseLogin.monedass;
 

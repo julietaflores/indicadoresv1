@@ -44,7 +44,7 @@
 </div>
 
 <div fxLayout="row wrap" >
-    <div fxFlex.gt-sm="50" fxFlex.gt-xs="100" fxFlex="100">
+    <div fxFlex.gt-sm="50" fxFlex.gt-xs="100" fxFlex="100" *ngIf="listamesMB.length>0">
         <mat-card>
             <mat-card-content>
                 <mat-card-title>MES</mat-card-title>
@@ -93,7 +93,7 @@
         </mat-card>
        
     </div>
-    <div fxFlex.gt-sm="50" fxFlex.gt-xs="100" fxFlex="100">
+    <div fxFlex.gt-sm="50" fxFlex.gt-xs="100" fxFlex="100" *ngIf="listamesMB.length>0">
         <mat-card>
           <mat-card-content>
             <!-- <mat-card-title>Bar Sales Chart</mat-card-title> -->
@@ -108,7 +108,7 @@
       </div>
 </div>
 <div fxLayout="row wrap">
-    <div fxFlex.gt-sm="50" fxFlex.gt-xs="100" fxFlex="100">
+    <div fxFlex.gt-sm="50" fxFlex.gt-xs="100" fxFlex="100" *ngIf="listyearVAR.length>0">
         <mat-card>
             <mat-card-content>
                 <mat-card-title>ACUMULADO</mat-card-title>
@@ -158,7 +158,7 @@
         </mat-card>
        
     </div>
-    <div fxFlex.gt-sm="50" fxFlex.gt-xs="100" fxFlex="100">
+    <div fxFlex.gt-sm="50" fxFlex.gt-xs="100" fxFlex="100" *ngIf="listyearVAR.length>0">
         <mat-card>
           <mat-card-content>
             <!-- <mat-card-title>Bar Sales Chart</mat-card-title> -->

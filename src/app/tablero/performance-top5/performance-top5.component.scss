@@ -12,10 +12,13 @@ tr.mat-footer-row {
   .mat-table .mat-cell:nth-child(3){
     text-align: end;
   }  
+
   .mat-table .mat-header-cell, .mat-table .mat-footer-cell{
     text-align: center;
   }
-  
+  .mat-table .mat-footer-cell{
+    text-align: end;
+  }
   .mat-table .mat-header-cell:first-child{
     border-right: 1px solid #e0e0e0;
   }

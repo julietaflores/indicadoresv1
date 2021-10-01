@@ -45,8 +45,9 @@
 <!-- ============================================================== -->
 <!-- Performance General MES-->
 <!-- ============================================================== -->
-<div fxLayout="row wrap">
-    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;">
+<div fxLayout="row wrap" >
+    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;"
+    *ngIf="listaitem.length>0 ">
         <mat-card>
             <mat-card-content>
                 <div fxLayout="row wrap">
@@ -54,17 +55,17 @@
 
                         <div class="responsive-table">
                             <table mat-table [dataSource]="dataSource" class="mat-elevation-z8"
-                             style="margin: 0;padding: 0;">
+                                style="margin: 0;padding: 0;">
                                 <!-- Index Column -->
                                 <ng-container matColumnDef="conta">
                                     <th mat-header-cell *matHeaderCellDef> #</th>
                                     <td mat-cell *matCellDef="let value"> {{value.conta}}</td>
-                                
+
                                     <td mat-footer-cell *matFooterCellDef> </td>
                                 </ng-container>
-                               
 
-                   
+
+
                                 <!-- Index Column -->
                                 <ng-container matColumnDef="producto">
                                     <th mat-header-cell *matHeaderCellDef> PRODUCTO</th>
@@ -75,46 +76,47 @@
                                 <!-- Index Column -->
                                 <ng-container matColumnDef="us">
                                     <th mat-header-cell *matHeaderCellDef> US$ (000) </th>
-                                    <td mat-cell *matCellDef="let value"> {{value.us | currency:'':''}} </td>
+                                    <td mat-cell *matCellDef="let value"> {{value.us | currency}} </td>
                                     <td mat-footer-cell *matFooterCellDef> {{getTotalCost() | currency}} </td>
 
                                 </ng-container>
 
-                               
-                               
-                                <tr mat-header-row *matHeaderRowDef="displayedColumns"
-                                class="example-first-header-row">
+
+
+                                <tr mat-header-row *matHeaderRowDef="displayedColumns" class="example-first-header-row">
                                 </tr>
 
-                               
+
                                 <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
                                 <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
                             </table>
                         </div>
-                      
+
                     </div>
                 </div>
 
             </mat-card-content>
         </mat-card>
     </div>
-    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;">
+    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;"
+    *ngIf="listaitem.length>0 ">
+
         <mat-card>
-            <mat-card-content style="margin: 0;padding:0;"> 
+            <mat-card-content style="margin: 0;padding-left:0;padding-right: 0;" class="p-t-10">
                 <div fxLayout="row wrap">
                     <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
-                    <canvas id="canvas" baseChart height="260" width="300" [datasets]="barChartData" [labels]="barChartLabels"
-                        [options]="barChartOptions" [plugins]="barChartPlugins" [legend]="barChartLegend"
-                        [chartType]="barChartType" [colors]="barChartColors">
-                    </canvas>
+                        <canvas id="canvas" baseChart height="250" width="300" [datasets]="barChartData"
+                            [labels]="barChartLabels" [options]="barChartOptions" [legend]="barChartLegend"
+                            [chartType]="barChartType" [colors]="barChartColors" >
+                        </canvas>
+                    </div>
                 </div>
-                </div>
-             </mat-card-content>
-        </mat-card> 
+            </mat-card-content>
+        </mat-card>
 
     </div>
-  <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;"
-     *ngIf="listamesVAR.length>=3">
+    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;"
+     *ngIf="listamesVAR.length>0">
 
         <mat-card>
             <mat-card-content>
@@ -124,7 +126,7 @@
                         <div class="responsive-table">
                             <table mat-table [dataSource]="dataSourceVARS" class="mat-elevation-z8"
                                 style="margin: 0;padding: 0;">
-                               
+
 
                                 <ng-container matColumnDef="p_ventas">
                                     <th mat-header-cell *matHeaderCellDef>VAR $ %</th>
@@ -133,14 +135,14 @@
                                     <td mat-footer-cell *matFooterCellDef> </td>
                                 </ng-container>
 
-                         
+
                                 <ng-container matColumnDef="p_cantidad">
                                     <th mat-header-cell *matHeaderCellDef> VAR (m3) %</th>
                                     <td mat-cell *matCellDef="let value">{{value.p_cantidad | percent:'1.2-5'}} </td>
-                                    <td mat-footer-cell *matFooterCellDef> Total</td>
+                                    <td mat-footer-cell *matFooterCellDef> </td>
                                 </ng-container>
 
-                              
+
                                 <ng-container matColumnDef="p_precio">
                                     <th mat-header-cell *matHeaderCellDef> VAR (pp) %</th>
                                     <td mat-cell *matCellDef="let value"> {{value.p_precio | percent:'1.2-5'}} </td>
@@ -163,47 +165,48 @@
             </mat-card-content>
         </mat-card>
     </div>
-      <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;">
+    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;"
+    *ngIf="listItemYear.length>0 ">
         <mat-card>
             <mat-card-content>
+                <mat-card-title>ACUMULADO</mat-card-title>
                 <div fxLayout="row wrap">
                     <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
 
                         <div class="responsive-table">
                             <table mat-table [dataSource]="dataSourceAc" class="mat-elevation-z8"
-                             style="margin: 0;padding: 0;">
+                                style="margin: 0;padding: 0;">
                                 <!-- Index Column -->
                                 <ng-container matColumnDef="conta">
                                     <th mat-header-cell *matHeaderCellDef> #</th>
                                     <td mat-cell *matCellDef="let value"> {{value.conta}}</td>
-                                
+
                                     <td mat-footer-cell *matFooterCellDef> </td>
                                 </ng-container>
-                               
 
-                   
+
+
                                 <!-- Index Column -->
                                 <ng-container matColumnDef="producto">
                                     <th mat-header-cell *matHeaderCellDef> PRODUCTO</th>
                                     <td mat-cell *matCellDef="let value"> {{value.producto}} </td>
-                                    <td mat-footer-cell *matFooterCellDef>  </td>
+                                    <td mat-footer-cell *matFooterCellDef> Total </td>
                                 </ng-container>
 
                                 <!-- Index Column -->
                                 <ng-container matColumnDef="us">
                                     <th mat-header-cell *matHeaderCellDef> US$ (000) </th>
-                                    <td mat-cell *matCellDef="let value"> {{value.us | currency:'':''}} </td>
+                                    <td mat-cell *matCellDef="let value"> {{value.us | currency}} </td>
                                     <td mat-footer-cell *matFooterCellDef> {{getTotalCost() | currency}} </td>
 
                                 </ng-container>
 
-                               
-                               
-                                <tr mat-header-row *matHeaderRowDef="displayedColumns"
-                                class="example-first-header-row">
+
+
+                                <tr mat-header-row *matHeaderRowDef="displayedColumns" class="example-first-header-row">
                                 </tr>
 
-                               
+
                                 <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
                                 <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
                             </table>
@@ -214,33 +217,32 @@
             </mat-card-content>
         </mat-card>
     </div>
-    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;">
+    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;"
+    *ngIf="listItemYear.length>0 ">
         <mat-card>
-            <mat-card-content style="margin: 0;padding:0;"> 
+            <mat-card-content style="margin: 0;padding-left:0;padding-right: 0;" class="p-t-10">
                 <div fxLayout="row wrap">
                     <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
-                
-                    <canvas id="canvas" baseChart height="260" width="300" [datasets]="barChartData"
-                        [labels]="barChartLabels" [options]="barChartOptions" [plugins]="barChartPlugins"
-                        [legend]="barChartLegend" [chartType]="barChartType" [colors]="barChartColors">
-                    </canvas>
+                        <canvas id="canvas" baseChart height="250" width="300" [datasets]="barChartDataAc"
+                            [labels]="barChartLabels" [options]="barChartOptions" [legend]="barChartLegend"
+                            [chartType]="barChartType" [colors]="barChartColors" >
+                        </canvas>
+                    </div>
                 </div>
-                </div>
-                </mat-card-content>
-                </mat-card>
-          
-
+            </mat-card-content>
+        </mat-card>
     </div>
-    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;"
-    *ngIf="listyearVAR.length>=3">
+    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;" 
+    *ngIf="listyearVAR.length>0">
         <mat-card>
             <mat-card-content>
+                <mat-card-title>ACUMULADO</mat-card-title>
                 <div fxLayout="row wrap">
                     <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
                         <div class="responsive-table">
-                            <table mat-table [dataSource]="dataSourceVARSAc" class="mat-elevation-z8" 
-                            style="margin: 0;padding: 0;">
-                           
+                            <table mat-table [dataSource]="dataSourceVARSAc" class="mat-elevation-z8"
+                                style="margin: 0;padding: 0;">
+
                                 <ng-container matColumnDef="p_cantidad">
                                     <th mat-header-cell *matHeaderCellDef>VAR $ %</th>
                                     <td mat-cell *matCellDef="let value"> {{value.p_ventas | percent:'1.2-5' }} </td>
@@ -248,7 +250,7 @@
                                     <td mat-footer-cell *matFooterCellDef> </td>
                                 </ng-container>
 
-                          
+
                                 <ng-container matColumnDef="p_ventas">
                                     <th mat-header-cell *matHeaderCellDef> VAR (m3) %</th>
                                     <td mat-cell *matCellDef="let value">{{value.p_cantidad | percent:'1.2-5'}} </td>
@@ -261,8 +263,8 @@
                                     <td mat-footer-cell *matFooterCellDef> </td>
 
                                 </ng-container>
-                               
-                               
+
+
                                 <tr mat-header-row *matHeaderRowDef="displayedColumnsMesVars">
                                 </tr>
 
@@ -277,5 +279,3 @@
         </mat-card>
     </div>
 </div>
-
-

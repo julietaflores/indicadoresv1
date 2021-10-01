@@ -85,7 +85,15 @@ export class MargenesBrutosRegionesComponent implements OnInit, OnDestroy {
   public barChartOptions: any = {
     scaleShowVerticalLines: false,
     responsive: true,
-    barThickness: 10
+
+    plugins: {
+      datalabels: {
+        color: '#ffffff',
+        formatter: function (value: any) {
+          return Number.parseFloat(value).toFixed(2);
+        },
+      }
+    }
   };
 
   public barChartLabels: string[] = [
@@ -127,7 +135,7 @@ export class MargenesBrutosRegionesComponent implements OnInit, OnDestroy {
       this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
       let arraymonedas = this.userservice.responseLogin.monedass;
       this.selectedCoinTable = arraymonedas.find((e: any) => e.idMonedaEmpresaOdoo ==
-      this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo).name;
+        this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo).name;
 
       arraymonedas.forEach((e: any) => {
         let coin = {
@@ -142,50 +150,54 @@ export class MargenesBrutosRegionesComponent implements OnInit, OnDestroy {
         variables: {
           idrol1: this.userservice.responseLogin.idUsuario,
           anioo: new Date().getFullYear(),
-          mess: "0" + new Date().getMonth(),
+          mess: this.getCurrenlyMonth(),
           companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
           monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
         },
         pollInterval: 500
       }).valueChanges.subscribe((result: any) => {
-        let listabar: any = [];
-        this.barChartData=[];
-        this.barChartLabels=[];
-        this.listamesMB=[];
-        this.listyearVAR=[];
-        this.dataSourceMes=new MatTableDataSource<MargenBrutoRegion>();
-        this.dataSourceAcumulado=new MatTableDataSource<MargenBrutoRegion>();
-        let listames = result.data.margenbruto_region.lista_mes;
-        let listaanual = result.data.margenbruto_region.lista_anual;
-        listames.forEach((value: any) => {
-          let item = {
-            division: value.nombre,
-            porcentaje_margen: value.porcentaje_margen_actual,
-            bps: value.bPS,
-            moneda: value.importe_actual
-          }
-          listabar.push(value.porcentaje_margen_actual);
-          this.listamesMB.push(item);
-          this.barChartLabels.push(value.nombre);
+        if (result.data.margenbruto_region.lista_mes && result.data.margenbruto_region.lista_anual) {
+          let listabar: any = [];
+          this.barChartData = [];
+          this.barChartLabels = [];
+          this.listamesMB = [];
+          this.listyearVAR = [];
+          this.dataSourceMes = new MatTableDataSource<MargenBrutoRegion>();
+          this.dataSourceAcumulado = new MatTableDataSource<MargenBrutoRegion>();
+          let listames = result.data.margenbruto_region.lista_mes;
+          let listaanual = result.data.margenbruto_region.lista_anual;
 
-        });
-        listaanual.forEach((value: any) => {
-          let item = {
-            division: value.nombre,
-            porcentaje_margen: value.porcentaje_margen_actual,
-            bps: value.bPS,
-            moneda: value.importe_actual
-          }
-          this.listyearVAR.push(item);
-        });
-        this.dataSourceAcumulado = new MatTableDataSource<MargenBrutoRegion>(this.listyearVAR);
+          listames.forEach((value: any) => {
+            let item = {
+              division: value.nombre,
+              porcentaje_margen: value.porcentaje_margen_actual,
+              bps: value.bPS,
+              moneda: value.importe_actual
+            }
+            listabar.push(value.porcentaje_margen_actual);
+            this.listamesMB.push(item);
+            this.barChartLabels.push(value.nombre);
 
-        this.barChartColors.push({ backgroundColor: '#1976d2' });
-        this.barChartData[0] = {
-          data: listabar,
-          label: 'VAR. vs.' + (new Date().getFullYear() - 1)
+          });
+          listaanual.forEach((value: any) => {
+            let item = {
+              division: value.nombre,
+              porcentaje_margen: value.porcentaje_margen_actual,
+              bps: value.bPS,
+              moneda: value.importe_actual
+            }
+            this.listyearVAR.push(item);
+          });
+          this.dataSourceAcumulado = new MatTableDataSource<MargenBrutoRegion>(this.listyearVAR);
+
+          this.barChartColors.push({ backgroundColor: '#1976d2' });
+          this.barChartData[0] = {
+            data: listabar,
+            label: 'VAR. vs.' + (new Date().getFullYear() - 1)
+          }
+          this.dataSourceMes = new MatTableDataSource<MargenBrutoRegion>(this.listamesMB);
+
         }
-        this.dataSourceMes = new MatTableDataSource<MargenBrutoRegion>(this.listamesMB);
 
 
       });
@@ -210,16 +222,82 @@ export class MargenesBrutosRegionesComponent implements OnInit, OnDestroy {
     }
   }
   onYearChange(event: any) {
-
+    this.refreshQuery();
   }
   onMonthChange(event: any) {
-
+    this.refreshQuery();
   }
   onCoinChange(event: any) {
-
+    this.refreshQuery();
   }
   ngOnDestroy() {
     this.queryMesRegion.unsubscribe()
+  }
+  getAbsoluto(value:number){
+    return Math.abs(value);
+  }
+  private refreshQuery() {
+    if (this.userservice.responseLogin) {
+      this.barChartLabels = [];
+      let arraymonedas = this.userservice.responseLogin.monedass;
+      this.selectedCoinTable = arraymonedas.find((e: any) => e.idMonedaEmpresaOdoo ==
+        this.selectedCoin).name
+      this.queryMesRegion = this.apollo.watchQuery({
+        query: QIMBREGION,
+        variables: {
+          idrol1: this.userservice.responseLogin.idUsuario,
+          anioo: Number(this.selectedyear),
+          mess: this.selectedMonth,
+          companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
+          monedadestinoo: this.selectedCoin
+        },
+        pollInterval: 500
+      }).valueChanges.subscribe((result: any) => {
+        if (result.data.margenbruto_region.lista_mes && result.data.margenbruto_region.lista_anual) {
+          let listabar: any = [];
+          this.barChartData = [];
+          this.barChartLabels = [];
+          this.listamesMB = [];
+          this.listyearVAR = [];
+          this.dataSourceMes = new MatTableDataSource<MargenBrutoRegion>();
+          this.dataSourceAcumulado = new MatTableDataSource<MargenBrutoRegion>();
+          let listames = result.data.margenbruto_region.lista_mes;
+          let listaanual = result.data.margenbruto_region.lista_anual;
+          listames.forEach((value: any) => {
+            let item = {
+              division: value.nombre,
+              porcentaje_margen: value.porcentaje_margen_actual,
+              bps: value.bPS,
+              moneda: value.importe_actual
+            }
+            listabar.push(value.porcentaje_margen_actual);
+            this.listamesMB.push(item);
+            this.barChartLabels.push(value.nombre);
+
+          });
+          listaanual.forEach((value: any) => {
+            let item = {
+              division: value.nombre,
+              porcentaje_margen: value.porcentaje_margen_actual,
+              bps: value.bPS,
+              moneda: value.importe_actual
+            }
+            this.listyearVAR.push(item);
+          });
+          this.dataSourceAcumulado = new MatTableDataSource<MargenBrutoRegion>(this.listyearVAR);
+
+          this.barChartColors.push({ backgroundColor: '#1976d2' });
+          this.barChartData[0] = {
+            data: listabar,
+            label: 'VAR. vs.' + (new Date().getFullYear() - 1)
+          }
+          this.dataSourceMes = new MatTableDataSource<MargenBrutoRegion>(this.listamesMB);
+
+        }
+
+
+      });
+    }
   }
 
 }

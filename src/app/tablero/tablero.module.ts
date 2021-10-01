@@ -21,6 +21,7 @@ import { MargenesBrutosRegionesComponent } from './margenes-brutos-regiones/marg
 import { MargenesBrutosTop5Component } from './margenes-brutos-top5/margenes-brutos-top5.component';
 import { ComposicionMargenesComponent } from './composicion-margenes/composicion-margenes.component';
 import { GastoComponent } from './gasto/gasto.component';
+import { MBTOP5Component } from './mbtop5/mbtop5.component';
 
 @NgModule({
   imports: [
@@ -47,7 +48,8 @@ declarations: [
     MargenesBrutosRegionesComponent,
     MargenesBrutosTop5Component,
     ComposicionMargenesComponent,
-    GastoComponent
+    GastoComponent,
+    MBTOP5Component
   ]
 })
 export class TableroModule { }

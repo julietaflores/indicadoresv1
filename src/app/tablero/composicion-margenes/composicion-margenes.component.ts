@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Apollo, QueryRef } from 'apollo-angular';
+import { Apollo } from 'apollo-angular';
 import gql from 'graphql-tag';
 import { GlobalConstants } from 'src/app/GLOBALS/GlobalConstants';
 import { UserService } from 'src/app/services/user.service';
@@ -9,7 +9,57 @@ import { NEVER, Subscription, Observable, forkJoin, combineLatest } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
 
-
+const QICM = gql`
+query  composicion_margenes($idrol1:Int!,$anioo:Int!,$mess:String,$companiaa:Int!, $monedadestinoo:Int!) {
+  composicion_margenes(idrol1:$idrol1,anioo:$anioo,mess:$mess,companiaa:$companiaa, monedadestinoo:$monedadestinoo){
+    tablero{
+      idTablero
+      nombreTablero
+      estadoTablero
+      urlTablero
+      idCategoria
+      
+    }
+    lista{
+     indicador{
+        idIndicador
+        nombreIndicador
+      estadoIndicador
+      iDTablero
+      }
+      
+     lista_mes{
+      id
+      nombre
+      importe_actual
+      coste_actual
+      porcentaje_margen_actual
+      importe_anterior
+      coste_anterior
+      porcentaje_margen_anterior
+      bPS
+      calculo_grafico
+      porcentajetorta
+    }
+    
+      lista_anual{
+      id
+      nombre
+      importe_actual
+      coste_actual
+      porcentaje_margen_actual
+      importe_anterior
+      coste_anterior
+      porcentaje_margen_anterior
+      bPS
+      calculo_grafico
+      porcentajetorta
+      }
+    }
+  }
+  
+}
+`;
 const MENUTABLERO = gql`
 query menu_Indicadores($idrolusuario:Int!) {
   menu_Indicadores(idrolusuario: $idrolusuario){
@@ -40,88 +90,7 @@ query menu_Indicadores($idrolusuario:Int!) {
 } 
 }
 `;
-const QIPIE = gql`
-query margenbruto_region($idrol1:Int!,$anioo:Int!,$mess:String,$companiaa:Int!, $monedadestinoo:Int!) {
-  margenbruto_region(idrol1:$idrol1,anioo:$anioo,mess:$mess,companiaa:$companiaa, monedadestinoo:$monedadestinoo){
-    tablero{
-      idTablero
-      nombreTablero
-      estadoTablero
-      urlTablero
-      idCategoria
-      
-    }
-    lista_mes{
-      id
-      nombre
-      importe_actual
-      coste_actual
-      porcentaje_margen_actual
-      importe_anterior
-      coste_anterior
-      porcentaje_margen_anterior
-      bPS
-      calculo_grafico
-      porcentajetorta
-    }
-    
-      lista_anual{
-      id
-      nombre
-      importe_actual
-      coste_actual
-      porcentaje_margen_actual
-      importe_anterior
-      coste_anterior
-      porcentaje_margen_anterior
-      bPS
-      calculo_grafico
-      porcentajetorta
-    }
-  } 
-}
-`;
-const QIPT5 = gql`
-query  margenbruto_top5($idrol1:Int!,$anioo:Int!,$mess:String,$companiaa:Int!, $monedadestinoo:Int!) {
-   margenbruto_top5(idrol1:$idrol1,anioo:$anioo,mess:$mess,companiaa:$companiaa, monedadestinoo:$monedadestinoo){
-    tablero{
-      idTablero
-      nombreTablero
-      estadoTablero
-      urlTablero
-      idCategoria
-      
-    }
-    lista_mes{
-      id
-      nombre
-      importe_actual
-      coste_actual
-      porcentaje_margen_actual
-      importe_anterior
-      coste_anterior
-      porcentaje_margen_anterior
-      bPS
-      calculo_grafico
-      porcentajetorta
-    }
-    
-      lista_anual{
-      id
-      nombre
-      importe_actual
-      coste_actual
-      porcentaje_margen_actual
-      importe_anterior
-      coste_anterior
-      porcentaje_margen_anterior
-      bPS
-      calculo_grafico
-      porcentajetorta
-    }
-  } 
-}
-`;
+
 
 @Component({
   selector: 'app-composicion-margenes',
@@ -131,10 +100,8 @@ query  margenbruto_top5($idrol1:Int!,$anioo:Int!,$mess:String,$companiaa:Int!, $
 export class ComposicionMargenesComponent implements OnInit, OnDestroy {
 
   constructor(public userservice: UserService,
-    private apollo: Apollo) {
-    this.queryPie = new Subscription();
-    this.queryTop5 = new Subscription();
-
+    private apoll: Apollo) {
+    this.queryComposition = new Subscription();
   }
 
   listIndicadores: any = [];//Lista Indicadores Composicion Ventas
@@ -158,17 +125,28 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
     legend: {
       position: 'top',
     },
-   
+    
+    plugins: {
+      datalabels: {
+        color: '#ffffff',
+        formatter: function (value: any) {
+          return Number.parseFloat(value).toFixed(2);
+        },
+      }
+    }
+
   }
-  public pieChartPlugins = [pluginDataLabels];
+
   private queryTablero: any;
 
-  private queryPie: Subscription;
-  
+  private queryPie: any;
+
   private queryTop5: any;
 
   private queryPieYear: any;
   private queryPieYearTop5: any;
+
+  private queryComposition: Subscription;
 
   coins: any[] = [];
   years: any[] = [
@@ -203,119 +181,67 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     if (this.userservice.responseLogin) {
 
-      this.queryTablero = this.apollo.watchQuery({
-        query: MENUTABLERO,
-        variables: { idrolusuario: this.userservice.responseLogin.iDRolUsuario }
-      });
+      this.queryComposition = this.apoll.watchQuery({
+        query: QICM,
+        variables: {
+          idrol1: this.userservice.responseLogin.idUsuario,
+          anioo: new Date().getFullYear(),
+          mess: "0" + new Date().getMonth(),
+          companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
+          monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
+        }
+      }).valueChanges.subscribe((response: any) => {
 
-      this.queryTablero.valueChanges.subscribe((resulttablero: any) => {
+        let indicadores = response.data.composicion_margenes.lista;
+         console.log(indicadores);
 
-        let pieChartDataTop5: number[] = [];
-        let pieChartDataRegion: number[] = [];
-        let categorias;
-        let tablero;
-        let pieTop5: any;
-        let pieRegion: any;
-        categorias = resulttablero.data.menu_Indicadores[1].categoriass;
-        tablero = categorias.tableross;
-        GlobalConstants.detalleTablero = tablero;
-      //  this.listIndicadores = tablero.find((item: any) => item.nombreTablero == "Composición de Margenes").indicadores;
-  
-        this.queryPie = this.apollo.watchQuery({
-          query: QIPIE,
-          variables: {
-            idrol1: this.userservice.responseLogin.idUsuario,
-            anioo: new Date().getFullYear(),
-            mess: "0" + new Date().getMonth(),
-            companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
-            monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
-          }
-        }).valueChanges.subscribe((result: any) => {
+        indicadores.forEach((item: any) => {
           let listpercentagesmes: any = [];
           let listpercentagesanual: any = [];
-          let pieChartDataRegionyear:any=[];
-
+          let pieChartData: any[] = [];
+          let pieChartDataYear: any[] = [];
           let pieChartLabels: string[] = [];
-          let listames = result.data.margenbruto_region.lista_mes;
-          let listaanual=result.data.margenbruto_region.lista_anual;
-          
+          let listames = item.lista_mes;
+          if(listames==null){
+           listames=[];
+          }
+          let listaanual = item.lista_anual;
+          if(listaanual==null){
+             listaanual=[];
+          }
+          console.log(listames);
+          console.log(listaanual);
+
+
           listames.forEach((item: any) => {
             listpercentagesmes.push(Number(item.porcentajetorta.replace(",", ".")));
+           
             pieChartLabels.push(item.nombre);
           });
+          
           listaanual.forEach((item: any) => {
             listpercentagesanual.push(Number(item.porcentajetorta.replace(",", ".")));
-          //  pieChartLabels.push(item.nombre);
-          });
 
-          pieChartDataRegion = listpercentagesmes;
-          pieChartDataRegionyear = listpercentagesanual; 
+          });
+          pieChartData = listpercentagesmes;
+          console.log(pieChartData);
+          pieChartDataYear = listpercentagesanual;
 
           let pieRegion = {
-            name: "Region",
-            listPie: pieChartDataRegion,
-            listPieAc: pieChartDataRegionyear,
+            name: item.indicador.nombreIndicador,
+            listPie: pieChartData,
+            listPieAc: pieChartDataYear,
             labels: pieChartLabels
           }
           this.listChartsPie.push(pieRegion);
-        });
-       
-
-
-
-
-
-        this.queryTop5 = this.apollo.watchQuery({
-          query: QIPT5,
-          variables: {
-            idrol1: this.userservice.responseLogin.idUsuario,
-            anioo: new Date().getFullYear(),
-            mess: "0" + new Date().getMonth(),
-            companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
-            monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
-          }
-        }).valueChanges.subscribe((result: any) => {
-          let listpercentagesmestop5: any = [];
-          let pieChartLabels: string[] = [];
-          let listames = result.data.margenbruto_top5.lista_mes;
-        
-          listames.forEach((item: any) => {
-            listpercentagesmestop5.push(Number(item.porcentajetorta.replace(",", ".")));
-            pieChartLabels.push(item.nombre);
-          });
-         
-
-          pieChartDataTop5 = listpercentagesmestop5;
         
 
-          let pieRegion1 = {
-            name: "Region1",
-            listPie: pieChartDataTop5,
-            listPieAc:[],
-            labels: pieChartLabels
-          }
-          this.listChartsPie.push(pieRegion1);
-          alert(this.listChartsPie.length);
-
-          localStorage.setItem("listar", this.listChartsPie);
         });
-       
-
-   
-
-
-        this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
-        let arraymonedas = this.userservice.responseLogin.monedass;
-
-        arraymonedas.forEach((e: any) => {
-          let coin = {
-            value: e.idMonedaEmpresaOdoo,
-            viewValue: e.name
-          };
-          this.coins.push(coin);
-        });
+        
 
       });
+
+  
     }
   }
 
@@ -326,7 +252,7 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
       return "0" + month;
     }
     else {
-      return month;
+      return String(month);
     }
   }
   onYearChange(event: any) {
@@ -348,7 +274,8 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
     // console.log(e);
   }
   ngOnDestroy(): void {
-    this.queryPie.unsubscribe();
+    // this.queryPie.unsubscribe();
+    this.queryComposition.unsubscribe();
     // this.queryTop5.unsubscribe();
   }
 

@@ -47,8 +47,7 @@
     <div fxFlex.gt-sm="50" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;" *ngFor="let indicador of listChartsPie">
         <mat-card>
             <mat-card-content>
-                <hr style="margin-top:20px;margin-bottom: 20px;">
-                <mat-card-title>MES</mat-card-title>
+                <mat-card-title>{{indicador.name}}</mat-card-title>
                 <div fxLayout="row wrap">
                    
                     <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">

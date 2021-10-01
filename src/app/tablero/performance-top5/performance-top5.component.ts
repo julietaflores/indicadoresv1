@@ -9,64 +9,70 @@ import { UserService } from 'src/app/services/user.service';
 import { Apollo, QueryRef } from 'apollo-angular';
 import gql from 'graphql-tag';
 import * as pluginDataLabels from 'chartjs-plugin-datalabels';
+import { Subscription } from 'rxjs';
 
-const QIVARS = gql`
-query raking_lista_mesanual($idrol1:Int!,$anioo:Int!,$mess:String,$companiaa:Int!, $monedadestinoo:Int!,
-  $proidd:Int!) {
-  raking_lista_mesanual(idrol1:$idrol1,anioo:$anioo,mess:$mess,companiaa:$companiaa,
-     monedadestinoo:$monedadestinoo,proidd:$proidd){
-      lista{
-        idIndicador
-        nombreIndicador
-        monto_Mes
-        porcentaje_Monto_Mes
-        monto_Acumulado
-        porcentaje_Monto_Acumulado
-        vs
+const QIPTOP5 = gql`
+query performancetop5($idrol1:Int!,$anioo:Int!,$mess:String,$companiaa:Int!, $monedadestinoo:Int!) {
+  performancetop5(idrol1:$idrol1,anioo:$anioo,mess:$mess,companiaa:$companiaa, monedadestinoo:$monedadestinoo){
+    tablero{
+      idTablero
+      nombreTablero
+      estadoTablero
+      urlTablero
+      idCategoria
+      
+    }
+    listames{
+      idPosicion
+      nombre
+       importeactual
+      importeanterior
+      porcentajetorta
+      detalle_Receptor{
+        lista{
+          idIndicador
+          nombreIndicador
+          monto_Mes
+          porcentaje_Monto_Mes
+          monto_Acumulado
+          porcentaje_Monto_Acumulado
+          vs
+        }
+        detallelista{
+          idPosicion
+          nombre
+          precio
+        }
       }
-  } 
-}
-`;
-const QIPTMES = gql`
-query performancetopmes($idrol1:Int!,$anioo:Int!,$mess:String,$companiaa:Int!, $monedadestinoo:Int!) {
-  performancetopmes(idrol1:$idrol1,anioo:$anioo,mess:$mess,companiaa:$companiaa, monedadestinoo:$monedadestinoo){
-    tablero{
-      idTablero
-      nombreTablero
-      estadoTablero
-      urlTablero
-      idCategoria
     }
-    lista{
-      idPosicion
+    
+      listaanual{
+   idPosicion
       nombre
-      precio
+       importeactual
       importeanterior
       porcentajetorta
+      detalle_Receptor{
+        lista{
+          idIndicador
+          nombreIndicador
+          monto_Mes
+          porcentaje_Monto_Mes
+          monto_Acumulado
+          porcentaje_Monto_Acumulado
+          vs
+        }
+        detallelista{
+          idPosicion
+          nombre
+          precio
+        }
+      }
     }
   } 
 }
 `;
-const QIPACUMULADO = gql`
-query performancetopanual($idrol1:Int!,$anioo:Int!,$mess:String,$companiaa:Int!, $monedadestinoo:Int!) {
-  performancetopanual(idrol1:$idrol1,anioo:$anioo,mess:$mess,companiaa:$companiaa, monedadestinoo:$monedadestinoo){
-    tablero{
-      idTablero
-      nombreTablero
-      estadoTablero
-      urlTablero
-      idCategoria
-    }
-    lista{
-      idPosicion
-      nombre
-      precio
-      importeanterior
-      porcentajetorta
-    }
-  } 
-}
-`;
+
 const LOGIN = gql`
   query validarlogin($usuario:String,$clave:String) {
     validarlogin(usuario: $usuario, clave: $clave) {
@@ -98,18 +104,25 @@ const LOGIN = gql`
   styleUrls: ['./performance-top5.component.scss']
 })
 export class PerformanceTop5Component implements OnInit {
-  constructor(public userservice: UserService,
-    private apollo: Apollo) { }
   //queries for GraphQL
   queryMes: any;//get first list products
   queryMesVars: any;//query list for each product
   queryYear: any;
   queryYearVariacion: any;
 
+  queryPerformanceTop5: Subscription;
+
+  constructor(public userservice: UserService,
+    private apollo: Apollo) {
+    //this.queryMes=new Subscription();
+    this.queryPerformanceTop5 = new Subscription();
+  }
+
   selectedyear = String(new Date().getFullYear());
   selectedMonth = String(this.getCurrenlyMonth());
   MesActual: any = this.getCurrenlyMonth();
   selectedCoin = 0;
+  selectedCoinTable: String = '';//Variable en table
   /*DataSource Month y Acumulate*/
   dataSource = new MatTableDataSource<PerformanceTopFive>();
   dataSourceVARS = new MatTableDataSource<TopVar>();
@@ -118,36 +131,41 @@ export class PerformanceTop5Component implements OnInit {
 
   displayedColumns: String[] = ['conta', 'producto', 'us'];
   displayedColumnsMesVars: String[] = ['p_cantidad', 'p_ventas', 'p_precio'];
-  
 
-  public barChartOptions: ChartOptions = {
+  public barChartOptions: any = {
+    scaleShowVerticalLines: false,
     responsive: true,
 
-
-
-    // We use these empty structures as placeholders for dynamic theming.
-    scales: { xAxes: [{}], yAxes: [{}] }
+    plugins: {
+      datalabels: {
+        color: '#ffffff',
+        formatter: function (value: any) {
+          return Number.parseFloat(value).toFixed(2);
+        },
+      }
+    }
   };
-  public barChartLabels: Label[] = [];
-  public barChartType: ChartType = 'horizontalBar';
+
+  public barChartLabels: string[] = [];
+  public barChartType = 'horizontalBar';
   public barChartLegend = true;
-  public barChartPlugins = [pluginDataLabels];
-  // public barChartPlugins = [];
+
+  //barchart region
+  public barChartData: any[] = [];
+  //barchart region acumulado
+  public barChartDataAc: any[] = [
+  ];
+  public barChartColors: Array<any> = [];
+
+
 
   listaitem: PerformanceTopFive[] = [];
   listItemYear: PerformanceTopFive[] = [];
-  listavariacionmes: any = [];
 
-  listIdMes: any[] = [];
-  listIdPosicionYear: any[] = [];
 
   listamesVAR: TopVar[] = [];
   listyearVAR: TopVar[] = [];
 
-  public barChartColors: Array<any> = [
-
-  ];
-  public barChartData: ChartDataSets[] = [];
   coins: any[] = [];
   years: any[] = [
     { value: '2021', viewValue: '2021' },
@@ -174,17 +192,19 @@ export class PerformanceTop5Component implements OnInit {
 
 
   ngOnInit(): void {
-    let canvas: any = <HTMLCanvasElement>document.getElementById('canvas');
-    var s = getComputedStyle(canvas);
-    var w = s.width;
-    var h = s.height;
-    canvas.width = w.split("px")[0];
-    canvas.height = h.split("px")[0];
+    // let canvas: any = <HTMLCanvasElement>document.getElementById('canvas');
+    // var s = getComputedStyle(canvas);
+    // var w = s.width;
+    // var h = s.height;
+    // canvas.width = w.split("px")[0];
+    // canvas.height = h.split("px")[0];
 
 
     if (this.userservice.responseLogin) {
       this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
       let arraymonedas = this.userservice.responseLogin.monedass;
+      this.selectedCoinTable = arraymonedas.find((e: any) => e.idMonedaEmpresaOdoo ==
+        this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo).name;
 
       arraymonedas.forEach((e: any) => {
         let coin = {
@@ -193,195 +213,113 @@ export class PerformanceTop5Component implements OnInit {
         };
         this.coins.push(coin);
       });
-      //calling graph for the first Month's table
-      this.queryMes = this.apollo.watchQuery({
-        query: QIPTMES,
+
+      this.queryPerformanceTop5 = this.apollo.watchQuery({
+        query: QIPTOP5,
         variables: {
           idrol1: this.userservice.responseLogin.idUsuario,
           anioo: new Date().getFullYear(),
-          mess: "0" + new Date().getMonth(),
+          mess: this.getCurrenlyMonth(),
           companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
           monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
         }
-      });
+      }).valueChanges.subscribe((response: any) => {
 
-      this.queryMes.valueChanges.subscribe((result: any) => {
-        //console.log(result.data.performancetopmes['lista']);
-        this.listaitem = [];
-        this.listIdMes = [];
-        let listBarPercentaje: any[] = [];
-        if (result.data.performancetopmes['lista'] != null) {
-          let listaPerformanceMes = result.data.performancetopmes.lista;
+        if (response.data.performancetop5.listames && response.data.performancetop5.listaanual) {
+          let listaPerformanceMes = response.data.performancetop5.listames;
+          let listaPerformanceYear = response.data.performancetop5.listaanual;
+
+          let listBarPercentaje: any = [];
+          let listBarPercentajeAc: any[] = [];
+
+          this.listaitem = [];
+          this.listItemYear = [];
+
           for (let i: number = 0; i < listaPerformanceMes.length; i++) {
             let performance_producto = {
               'conta': i + 1,
               'producto': listaPerformanceMes[i].nombre,
-              'us': Number(listaPerformanceMes[i].precio)
+              'us': Number(listaPerformanceMes[i].importeactual)
             };
-            let posicion = {
-              idPosicion: listaPerformanceMes[i].idPosicion,
 
-            }
-            let diff=Number(listaPerformanceMes[i].precio)-Number(listaPerformanceMes[i].importeanterior);
+            let diff = Number(listaPerformanceMes[i].importeactual) -
+              Number(listaPerformanceMes[i].importeanterior);
+
             listBarPercentaje.push(diff);
-            this.barChartLegend=true;
-            this.barChartColors.push( { backgroundColor: 'rgb(31,78,120)' });
-           
+            this.barChartColors.push({ backgroundColor: 'rgb(31,78,120)' });
+            this.barChartLabels.push(listaPerformanceMes[i].nombre);
 
-            this.barChartData[0]={
-              data:listBarPercentaje,
-              label:'VS ' + (new Date().getFullYear()-1),
+            this.barChartData[0] = {
+              data: listBarPercentaje,
+              label: 'VS ' + (new Date().getFullYear() - 1),
 
             };
 
             this.listaitem.push(performance_producto);
-            this.listIdMes.push(posicion);
 
-            this.barChartOptions = {
-              responsive: true,
-              // We use these empty structures as placeholders for dynamic theming.
-              scales: { xAxes: [{}], yAxes: [{}] },
-              plugins: {
-                datalabels: {
-                  anchor: 'end',
-                  align: 'end',
-                }
-              }
+            let listVarMes = listaPerformanceMes[i].detalle_Receptor.lista;
+            let cantidad = listVarMes.find((e: any) => e.nombreIndicador === "CANTIDAD DE VENTAS").porcentaje_Monto_Mes;
+            let ventas = listVarMes.find((e: any) => e.nombreIndicador == "VENTAS").porcentaje_Monto_Mes;
+            let precio = listVarMes.find((e: any) => e.nombreIndicador == "VENTAS").porcentaje_Monto_Mes;
+
+            let topvarMes = {
+              p_cantidad: Number(cantidad.replace(',', '.')),
+              p_ventas: Number(ventas.replace(',', '.')),
+              p_precio: Number(precio.replace(',', '.'))
+
+            }
+            this.listamesVAR.push(topvarMes);
+
+
+          }
+          for (let j: number = 0; j < listaPerformanceYear.length; j++) {
+            let performance_producto_year = {
+              'conta': j + 1,
+              'producto': listaPerformanceYear[j].nombre,
+              'us': Number(listaPerformanceYear[j].importeactual)
+            };
+            let diffyear = Number(listaPerformanceMes[j].importeactual) -
+              Number(listaPerformanceMes[j].importeanterior);
+
+            this.barChartColors.push({ backgroundColor: 'rgb(31,78,120)' });
+            listBarPercentajeAc.push(diffyear);
+
+            this.barChartDataAc[0] = {
+              data: listBarPercentajeAc,
+              label: 'VS ' + (new Date().getFullYear() - 1),
+
             };
 
-            this.barChartLabels.push(listaPerformanceMes[i].nombre);
+
+            this.listItemYear.push(performance_producto_year);
+
+            let listVarYear = listaPerformanceMes[j].detalle_Receptor.lista;
+            let cantidadyear = listVarYear.find((e: any) => e.nombreIndicador === "CANTIDAD DE VENTAS").porcentaje_Monto_Acumulado;
+            let ventasyear = listVarYear.find((e: any) => e.nombreIndicador == "VENTAS").porcentaje_Monto_Acumulado;
+            let precioyear = listVarYear.find((e: any) => e.nombreIndicador == "VENTAS").porcentaje_Monto_Acumulado;
+            let topvarYear = {
+              p_cantidad: Number(cantidadyear.replace(',', '.')),
+              p_ventas: Number(ventasyear.replace(',', '.')),
+              p_precio: Number(precioyear.replace(',', '.'))
+
+            }
+            this.listyearVAR.push(topvarYear);
+
 
           }
           this.dataSource = new MatTableDataSource<PerformanceTopFive>(this.listaitem);
-          
-          this.listIdMes.forEach(item => {
-            this.listamesVAR = [];
-            this.queryMesVars = this.apollo.watchQuery({
-              query: QIVARS,
-              variables: {
-                idrol1: this.userservice.responseLogin.idUsuario,
-                anioo: new Date().getFullYear(),
-                mess: "0" + new Date().getMonth(),
-                companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
-                monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo,
-                proidd: item.idPosicion
-
-              }
-
-            });
-
-            this.queryMesVars.valueChanges.subscribe((result: any) => {
-              let listVarMes = result.data.raking_lista_mesanual.lista;
-
-              let topvarMes = {
-                p_cantidad: Number(listVarMes[0].porcentaje_Monto_Mes.replace(',', '.')),
-                p_ventas: Number(listVarMes[1].porcentaje_Monto_Mes.replace(',', '.')),
-                p_precio: Number(listVarMes[2].porcentaje_Monto_Mes.replace(',', '.'))
-
-              }
-              let topvarYear = {
-                p_cantidad: Number(listVarMes[0].porcentaje_Monto_Acumulado.replace(',', '.')),
-                p_ventas: Number(listVarMes[1].porcentaje_Monto_Acumulado.replace(',', '.')),
-                p_precio: Number(listVarMes[2].porcentaje_Monto_Acumulado.replace(',', '.'))
-
-              }
-              this.listamesVAR.push(topvarMes);
-              this.listyearVAR.push(topvarYear);
-
-              // this.barChartData[0].push();
-              //  public barChartData: ChartDataSets[] = [
-              //    { data: [65, 59, 80, 81, 56], label: 'Series A' }
-              //  ]
-            });
-
-          });
           this.dataSourceVARS = new MatTableDataSource<TopVar>(this.listamesVAR);
+
+          this.dataSourceAc = new MatTableDataSource<PerformanceTopFive>(this.listItemYear);
           this.dataSourceVARSAc = new MatTableDataSource<TopVar>(this.listyearVAR);
 
-          // this.queryYearVariacion = this.apollo.watchQuery({
-          //   query: QIPTMES,
-          //   variables: {
-          //     idrol1: this.userservice.responseLogin.idUsuario,
-          //     anioo: Number(new Date().getFullYear()) - 1,
-          //     mess: "0" + new Date().getMonth(),
-          //     companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
-          //     monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
-          //   }
-          // });
-
-          // this.queryYearVariacion.valueChanges.subscribe((result: any) => {
-          //   // console.log(result.data.performancetopmes);
-          //   this.listavariacionmes = [];
-          //   this.listavariacionmes = result.data.performancetopmes.lista;
-
-          //   for (let i = 0; i < this.listaitem.length; i++) {
-
-          //     let var_actual: any = this.listaitem[i];
-          //     let var_anterior = this.listavariacionmes.find((e: any) => e.nombre == var_actual.producto);
-
-          //     let diff = Number(var_actual?.us) - Number(var_anterior.precio);
-          //     //listBarPercentaje.push(diff);
-
-          //   }
-
-          //   this.barChartLegend = true;
-          //   this.barChartColors.push({ backgroundColor: 'rgb(31,78,120)' });
-
-
-          //   this.barChartData[0] = {
-          //     data: listBarPercentaje,
-          //     label: 'VS ' + (new Date().getFullYear() - 1),
-
-          //   };
-
-          //   //     console.log(result);
-          // });
-
-
-
-
 
         }
+      }
 
-      });
-      //query acumulate
-      this.queryYear = this.apollo.watchQuery({
-        query: QIPACUMULADO,
-        variables: {
-          idrol1: this.userservice.responseLogin.idUsuario,
-          anioo: new Date().getFullYear(),
-          mess: "0" + new Date().getMonth(),
-          companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
-          monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
-        }
-      });
-      this.queryYear.valueChanges.subscribe((result: any) => {
-       
-        this.listItemYear = [];
-        this.listIdPosicionYear = [];
-        let listBarPercentaje: any[] = [];
-        if (result.data.performancetopanual.lista != null) {
-          let listaPerformanceYear = result.data.performancetopanual.lista;
-          for (let i: number = 0; i < listaPerformanceYear.length; i++) {
-            let performance_producto = {
-              'conta': i + 1,
-              'producto': listaPerformanceYear[i].nombre,
-              'us': Number(listaPerformanceYear[i].precio)
-            };
-            let posicion = {
-              idPosicion: listaPerformanceYear[i].idPosicion,
-
-            }
-            this.listItemYear.push(performance_producto);
-            this.listIdPosicionYear.push(posicion);
-            // this.barChartLabels.push( listaPerformanceYear[i].nombre);
-
-          }
-          this.dataSourceAc = new MatTableDataSource<PerformanceTopFive>(this.listItemYear);
+      );
 
 
-        }
-      });
 
     }
 
@@ -419,20 +357,145 @@ export class PerformanceTop5Component implements OnInit {
       return "0" + month;
     }
     else {
-      return month;
+      return String(month);
     }
   }
+
   onYearChange(event: any) {
-
-
+  this.refreshQuery();
 
   }
   onMonthChange(event: any) {
-
+    this.refreshQuery();
 
   }
   onCoinChange(event: any) {
+  this.refreshQuery();
+  }
+  refreshQuery() {
 
+    if (this.userservice.responseLogin) {
+      this.barChartLabels = [];
+
+      let arraymonedas = this.userservice.responseLogin.monedass;
+      this.selectedCoinTable = arraymonedas.find((e: any) => e.idMonedaEmpresaOdoo ==
+        this.selectedCoin).name
+      this.queryPerformanceTop5 = this.apollo.watchQuery({
+        query: QIPTOP5,
+        variables: {
+          idrol1: this.userservice.responseLogin.idUsuario,
+          anioo: Number(this.selectedyear),
+          mess: this.selectedMonth,
+          companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
+          monedadestinoo: this.selectedCoin
+        }
+      }).valueChanges.subscribe((response: any) => {
+        this.barChartData = [];
+      
+        this.listamesVAR = [];
+        this.listyearVAR = [];
+        if (response.data.performancetop5.listames && response.data.performancetop5.listaanual) {
+          let listaPerformanceMes = response.data.performancetop5.listames;
+          let listaPerformanceYear = response.data.performancetop5.listaanual;
+          let listBarPercentaje: any = [];
+          let listBarPercentajeAc: any[] = [];
+
+          this.listaitem = [];
+          this.listItemYear = [];
+
+          for (let i: number = 0; i < listaPerformanceMes.length; i++) {
+            let performance_producto = {
+              'conta': i + 1,
+              'producto': listaPerformanceMes[i].nombre,
+              'us': Number(listaPerformanceMes[i].importeactual)
+            };
+
+            let diff = Number(listaPerformanceMes[i].importeactual) -
+              Number(listaPerformanceMes[i].importeanterior);
+
+            listBarPercentaje.push(diff);
+            this.barChartColors.push({ backgroundColor: 'rgb(31,78,120)' });
+            this.barChartLabels.push(listaPerformanceMes[i].nombre);
+
+            this.barChartData[0] = {
+              data: listBarPercentaje,
+              label: 'VS ' + (new Date().getFullYear() - 1),
+
+            };
+
+            this.listaitem.push(performance_producto);
+
+            let listVarMes = listaPerformanceMes[i].detalle_Receptor.lista;
+            let cantidad = listVarMes.find((e: any) => e.nombreIndicador === "CANTIDAD DE VENTAS").porcentaje_Monto_Mes;
+            let ventas = listVarMes.find((e: any) => e.nombreIndicador == "VENTAS").porcentaje_Monto_Mes;
+            let precio = listVarMes.find((e: any) => e.nombreIndicador == "VENTAS").porcentaje_Monto_Mes;
+
+            let topvarMes = {
+              p_cantidad: Number(cantidad.replace(',', '.')),
+              p_ventas: Number(ventas.replace(',', '.')),
+              p_precio: Number(precio.replace(',', '.'))
+
+            }
+            this.listamesVAR.push(topvarMes);
+
+
+          }
+          this.barChartLabels = [];
+          for (let j: number = 0; j < listaPerformanceYear.length; j++) {
+            
+           
+            let performance_producto_year = {
+              'conta': j + 1,
+              'producto': listaPerformanceYear[j].nombre,
+              'us': Number(listaPerformanceYear[j].importeactual)
+            };
+            let diffyear = Number(listaPerformanceYear[j].importeactual) -
+              Number(listaPerformanceYear[j].importeanterior);
+            
+            this.barChartColors.push({ backgroundColor: 'rgb(31,78,120)' });
+            this.barChartLabels.push(listaPerformanceYear[j].nombre);
+            listBarPercentajeAc.push(diffyear);
+
+            this.barChartDataAc[0] = {
+              data: listBarPercentajeAc,
+              label: 'VS ' + (new Date().getFullYear() - 1),
+
+            };
+
+
+            this.listItemYear.push(performance_producto_year);
+
+            let listVarYear = listaPerformanceYear[j].detalle_Receptor.lista;
+            let cantidadyear = listVarYear.find((e: any) => e.nombreIndicador === "CANTIDAD DE VENTAS").porcentaje_Monto_Acumulado;
+            let ventasyear = listVarYear.find((e: any) => e.nombreIndicador == "VENTAS").porcentaje_Monto_Acumulado;
+            let precioyear = listVarYear.find((e: any) => e.nombreIndicador == "VENTAS").porcentaje_Monto_Acumulado;
+            let topvarYear = {
+              p_cantidad: Number(cantidadyear.replace(',', '.')),
+              p_ventas: Number(ventasyear.replace(',', '.')),
+              p_precio: Number(precioyear.replace(',', '.'))
+
+            }
+            this.listyearVAR.push(topvarYear);
+
+
+          }
+          this.dataSource = new MatTableDataSource<PerformanceTopFive>(this.listaitem);
+          this.dataSourceVARS = new MatTableDataSource<TopVar>(this.listamesVAR);
+
+          this.dataSourceAc = new MatTableDataSource<PerformanceTopFive>(this.listItemYear);
+          this.dataSourceVARSAc = new MatTableDataSource<TopVar>(this.listyearVAR);
+
+
+        }
+      }
+
+      );
+
+    }
+  }
+  ngOnDestroy(): void {
+
+    this.queryPerformanceTop5.unsubscribe();
   }
 
 }

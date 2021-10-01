@@ -47,8 +47,10 @@
           <mat-card-content>
             <mat-card-title>Bar Sales Chart</mat-card-title>
             
-            <canvas baseChart [datasets]="barChartData" [labels]="barChartLabels" [options]="barChartOptions" [legend]="barChartLegend"
-              [chartType]="barChartType" (chartHover)="chartHovered($event)" [colors]="barChartColors" (chartClick)="chartClicked($event)">
+            <canvas baseChart [datasets]="barChartData" [labels]="barChartLabels" [options]="barChartOptions" 
+            [legend]="barChartLegend"
+              [chartType]="barChartType" (chartHover)="chartHovered($event)" [colors]="barChartColors" 
+              (chartClick)="chartClicked($event)">
             </canvas>
           </mat-card-content>
         </mat-card>

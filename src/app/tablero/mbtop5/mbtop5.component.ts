@@ -7,9 +7,8 @@ import { Label } from 'ng2-charts';
 import * as pluginDataLabels from 'chartjs-plugin-datalabels';
 import { Subscription } from 'rxjs';
 import { ChartOptions } from 'chart.js';
-
 const QIMBTOP5 = gql`
-query margenbruto_top5($idrol1:Int!,$anioo:Int!,$mess:String,$companiaa:Int!, $monedadestinoo:Int!) {
+query  margenbruto_top5($idrol1:Int!,$anioo:Int!,$mess:String,$companiaa:Int!, $monedadestinoo:Int!) {
   margenbruto_top5(idrol1:$idrol1,anioo:$anioo,mess:$mess,companiaa:$companiaa, monedadestinoo:$monedadestinoo){
     tablero{
       idTablero
@@ -45,18 +44,20 @@ query margenbruto_top5($idrol1:Int!,$anioo:Int!,$mess:String,$companiaa:Int!, $m
       bPS
       calculo_grafico
       porcentajetorta
-    
     }
   } 
 }
 `;
 
+
 @Component({
-  selector: 'app-margenes-brutos-top5',
-  templateUrl: './margenes-brutos-top5.component.html',
-  styleUrls: ['./margenes-brutos-top5.component.scss']
+  selector: 'app-mbtop5',
+  templateUrl: './mbtop5.component.html',
+  styleUrls: ['./mbtop5.component.scss']
 })
-export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
+export class MBTOP5Component implements OnInit , OnDestroy {
+
+
   coins: any[] = [];
   years: any[] = [
     { value: '2021', viewValue: '2021' },
@@ -81,25 +82,15 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
     { value: '12', viewValue: 'Marzo' }
   ];
 
-  private queryMesRegion: Subscription;//get first list products
-
-  listamesMB: MargenBruto[] = [];
-  listyearVAR: MargenBruto[] = [];
-
-  // This is line chart
-  // bar chart
- 
   public barChartOptions: any = {
     scales: { xAxes: [{}], yAxes: [{}] },
     responsive: true,
-    maintainAspectRatio: true,
     plugins: {
       datalabels: {
         color: '#ffffff',
         align: 'end',
         display: true,
-        borderWidth: 6600,
-        precision: 2
+        borderWidth: 6700
         
       },
       labels:{
@@ -108,19 +99,33 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
   }
   };
 
-
   public barChartLabels: string[] = [
-
+    'A',
+    'B',
+    'C',
+   
   ];
   public barChartType = 'horizontalBar';
   public barChartLegend = true;
 
-  public barChartData: any[]= [];
-  public barChartDataAc: any[]=[];
-
-  public barChartColors: Array<any> = [
-
+  public barChartData: any[] = [
+    { data: [0.88,0.85, 0.88], label: 'Iphone 8' }
   ];
+  public barChartColors: Array<any> = [
+    { backgroundColor: '#1976d2' },
+    { backgroundColor: '#26dad2' }
+  ];
+  barChartPlugins = [];
+  displayedColumns = ['producto', 'porcentaje_margen', 'bps', 'importe_actual'];
+
+  listamesMB: MargenBruto[] = [];
+  listyearVAR: MargenBruto[] = [];
+
+  dataSourceMes = new MatTableDataSource<MargenBruto>();
+  dataSourceAcumulado = new MatTableDataSource<MargenBruto>();
+
+
+  queryMesRegion: Subscription;//get first list products
 
   selectedyear = String(new Date().getFullYear());
   selectedMonth = String(this.getCurrenlyMonth());
@@ -131,9 +136,7 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
   constructor(public userservice: UserService,
     private apollo: Apollo) {
     this.queryMesRegion = new Subscription();
-
   }
-
 
   ngOnInit(): void {
     if (this.userservice.responseLogin) {
@@ -149,6 +152,7 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
         };
         this.coins.push(coin);
       });
+
       this.queryMesRegion = this.apollo.watchQuery({
         query: QIMBTOP5,
         variables: {
@@ -160,20 +164,16 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
         },
         pollInterval: 500
       }).valueChanges.subscribe((result: any) => {
-
         if (result.data.margenbruto_top5.lista_mes && result.data.margenbruto_top5.lista_anual) {
           let listabar: any = [];
-          let listabarAc:any=[];
-          this.barChartData = [];
-          this.barChartDataAc=[];
-          this.barChartLabels = [];
+          // this.barChartData = [];
+          // this.barChartLabels = [];
           this.listamesMB = [];
           this.listyearVAR = [];
-
-          let listames = result.data.margenbruto_top5.lista_mes;
-          let listaanual = result.data.margenbruto_top5.lista_anual;
           this.dataSourceMes = new MatTableDataSource<MargenBruto>();
           this.dataSourceAcumulado = new MatTableDataSource<MargenBruto>();
+          let listames = result.data.margenbruto_top5.lista_mes;
+          let listaanual = result.data.margenbruto_top5.lista_anual;
 
           listames.forEach((value: any) => {
             let item = {
@@ -182,10 +182,10 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
               bps: value.bPS,
               moneda: value.importe_actual
             }
-
-            this.listamesMB.push(item);
             listabar.push(value.porcentaje_margen_actual);
-            this.barChartLabels.push(value.nombre);
+            this.listamesMB.push(item);
+            //this.barChartLabels.push(value.nombre);
+
           });
           listaanual.forEach((value: any) => {
             let item = {
@@ -195,34 +195,32 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
               moneda: value.importe_actual
             }
             this.listyearVAR.push(item);
-            listabarAc.push(value.porcentaje_margen_actual);
           });
-
-          this.dataSourceMes = new MatTableDataSource<MargenBruto>(this.listamesMB);
-         
-        
-          this.barChartColors.push({ backgroundColor: '#1976d2' });
-
-          this.barChartData[0] = {
-            data: listabar,
-            label: 'VAR. vs.' + (new Date().getFullYear() - 1)
-          }
-          this.barChartDataAc[0]={
-            data: listabarAc,
-            label: 'VAR. vs.' + (new Date().getFullYear() - 1)
-          }
           this.dataSourceAcumulado = new MatTableDataSource<MargenBruto>(this.listyearVAR);
 
+          // this.barChartOptions= {
+          //   responsive: true,
+        
+          //   plugins: {
+          //     datalabels: {
+          //       color: '#ffffff'
+          //     }
+          //   }
+          // };
+          // this.barChartColors.push({ backgroundColor: '#1976d2' });
+          // this.barChartData[0] = {
+          //   data: listabar,
+          //   label: 'VAR. vs.' + (new Date().getFullYear() - 1)
+          // }
+          this.dataSourceMes = new MatTableDataSource<MargenBruto>(this.listamesMB);
+
         }
+
 
       });
 
     }
   }
-
-  displayedColumns = ['producto', 'porcentaje_margen', 'bps', 'importe_actual'];
-  dataSourceMes = new MatTableDataSource<MargenBruto>();
-  dataSourceAcumulado = new MatTableDataSource<MargenBruto>();
 
   public chartHovered(e: any): void {
     // console.log(e);
@@ -249,16 +247,18 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
   onCoinChange(event: any) {
     this.refreshQuery();
   }
+  ngOnDestroy() {
+    this.queryMesRegion.unsubscribe()
+  }
   getAbsoluto(value:number){
     return Math.abs(value);
   }
-  refreshQuery() {
+  private refreshQuery() {
     if (this.userservice.responseLogin) {
-
+      // this.barChartLabels = [];
       let arraymonedas = this.userservice.responseLogin.monedass;
       this.selectedCoinTable = arraymonedas.find((e: any) => e.idMonedaEmpresaOdoo ==
         this.selectedCoin).name
-
       this.queryMesRegion = this.apollo.watchQuery({
         query: QIMBTOP5,
         variables: {
@@ -270,18 +270,16 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
         },
         pollInterval: 500
       }).valueChanges.subscribe((result: any) => {
-        console.log(result);
         if (result.data.margenbruto_top5.lista_mes && result.data.margenbruto_top5.lista_anual) {
           let listabar: any = [];
-          this.barChartLabels = [];
-          this.barChartData = [];
-          this.barChartLabels = [];
+          // this.barChartData = [];
+          // this.barChartLabels = [];
           this.listamesMB = [];
           this.listyearVAR = [];
-          let listames = result.data.margenbruto_top5.lista_mes;
-          let listaanual = result.data.margenbruto_top5.lista_anual;
           this.dataSourceMes = new MatTableDataSource<MargenBruto>();
           this.dataSourceAcumulado = new MatTableDataSource<MargenBruto>();
+          let listames = result.data.margenbruto_top5.lista_mes;
+          let listaanual = result.data.margenbruto_top5.lista_anual;
           listames.forEach((value: any) => {
             let item = {
               producto: value.nombre,
@@ -289,10 +287,10 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
               bps: value.bPS,
               moneda: value.importe_actual
             }
-  
-            this.listamesMB.push(item);
             listabar.push(value.porcentaje_margen_actual);
-            this.barChartLabels.push(value.nombre);
+            this.listamesMB.push(item);
+            // this.barChartLabels.push(value.nombre);
+
           });
           listaanual.forEach((value: any) => {
             let item = {
@@ -303,26 +301,20 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
             }
             this.listyearVAR.push(item);
           });
-  
-          this.dataSourceMes = new MatTableDataSource<MargenBruto>(this.listamesMB);
-  
-          this.barChartColors.push({ backgroundColor: '#1976d2' });
-  
-          this.barChartData[0] = {
-            data: listabar,
-            label: 'VAR. vs.' + (new Date().getFullYear() - 1)
-          }
           this.dataSourceAcumulado = new MatTableDataSource<MargenBruto>(this.listyearVAR);
-  
+
+          // this.barChartColors.push({ backgroundColor: '#1976d2' });
+          // this.barChartData[0] = {
+          //   data: listabar,
+          //   label: 'VAR. vs.' + (new Date().getFullYear() - 1)
+          // }
+          this.dataSourceMes = new MatTableDataSource<MargenBruto>(this.listamesMB);
+
         }
-     
+
+
       });
     }
-  }
-
-  ngOnDestroy(): void {
-    this.queryMesRegion.unsubscribe();
-
   }
 
 }
@@ -333,3 +325,4 @@ export interface MargenBruto {
   bps: string;
   moneda: number;
 }
+

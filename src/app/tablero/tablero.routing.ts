@@ -9,6 +9,7 @@ import { MargenesBrutosLineasComponent } from './margenes-brutos-lineas/margenes
 import { MargenesBrutosRegionesComponent } from './margenes-brutos-regiones/margenes-brutos-regiones.component';
 import { ComposicionMargenesComponent } from './composicion-margenes/composicion-margenes.component';
 import { MargenesBrutosTop5Component } from './margenes-brutos-top5/margenes-brutos-top5.component';
+import { MBTOP5Component } from './mbtop5/mbtop5.component';
 
 export const TableroRoutes: Routes = [
   /*  {
@@ -100,10 +101,22 @@ export const TableroRoutes: Routes = [
         path: 'Composición_de_ventas',
         component: ComposicionVentasComponent,
         data: {
-            title: 'Composicion de Ventas',
+            title: 'Composición de Ventas',
             urls: [
                 { title: 'Dashboard', url: '/dashboard' },
-                { title: 'Composicion de Ventas' }
+                { title: 'Composición de Ventas' }
+            ]
+        }
+        
+    },
+    {
+        path: 'Margenes_Brutos_Lineas',
+        component: MBTOP5Component,
+        data: {
+            title: 'Margen brutos (test)',
+            urls: [
+                { title: 'Dashboard', url: '/dashboard' },
+                { title: 'Margen brutos (test)' }
             ]
         }
         

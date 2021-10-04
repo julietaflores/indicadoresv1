@@ -248,7 +248,8 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
     else{
       this.queryLogin = this.apollo.watchQuery({
         query: LOGIN,
-        variables: { usuario: this.serviceAuth.userData?.name, clave: this.serviceAuth.userData?.password }
+        variables: { usuario: this.serviceAuth.userData?.name, clave: this.serviceAuth.userData?.password },
+        fetchPolicy: "network-only"
       }).valueChanges.subscribe((response: any) => {
         this.userservice.responseLogin = response.data.validarlogin;
         this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
@@ -270,7 +271,7 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
             companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
             monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
           },
-          errorPolicy: 'all'
+          fetchPolicy: "network-only"
         }).valueChanges.subscribe((result: any) => {
   
           if (result.data.margenbruto_top5.lista_mes && result.data.margenbruto_top5.lista_anual) {
@@ -381,7 +382,8 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
           mess: this.selectedMonth,
           companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
           monedadestinoo: this.selectedCoin
-        }
+        },
+        fetchPolicy: "network-only"
       }).valueChanges.subscribe((result: any) => {
  
         if (result.data.margenbruto_top5.lista_mes && result.data.margenbruto_top5.lista_anual) {

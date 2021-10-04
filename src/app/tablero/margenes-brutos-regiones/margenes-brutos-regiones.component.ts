@@ -171,7 +171,7 @@ export class MargenesBrutosRegionesComponent implements OnInit, OnDestroy {
         this.coins.push(coin);
       });
 
-      this.queryMesRegion = this.apollo.watchQuery({
+      this.queryMesRegion = this.apollo.query({
         query: QIMBREGION,
         variables: {
           idrol1: this.userservice.responseLogin.idUsuario,
@@ -181,7 +181,7 @@ export class MargenesBrutosRegionesComponent implements OnInit, OnDestroy {
           monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
         },
         fetchPolicy: "network-only"
-      }).valueChanges.subscribe((result: any) => {
+      }).subscribe((result: any) => {
         if (result.data.margenbruto_region.lista_mes && result.data.margenbruto_region.lista_anual) {
           let listabar: any = [];
           this.barChartData = [];
@@ -232,7 +232,8 @@ export class MargenesBrutosRegionesComponent implements OnInit, OnDestroy {
     else{
         this.queryLogin = this.apollo.watchQuery({
           query: LOGIN,
-          variables: { usuario: this.serviceAuth.userData?.name, clave: this.serviceAuth.userData?.password }
+          variables: { usuario: this.serviceAuth.userData?.name, clave: this.serviceAuth.userData?.password },
+          fetchPolicy: "network-only"
         }).valueChanges.subscribe((response: any) => {
           this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
           this.userservice.responseLogin = response.data.validarlogin;

@@ -176,7 +176,7 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
         };
         this.coins.push(coin);
       });
-      this.queryTop5= this.apollo.watchQuery({
+      this.queryTop5= this.apollo.query({
         query: QIMBTOP5,
         variables: {
           idrol1: this.userservice.responseLogin.idUsuario,
@@ -186,7 +186,7 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
           monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
         },
         fetchPolicy: "network-only"
-      }).valueChanges.subscribe((result: any) => {
+      }).subscribe((result: any) => {
 
         if (result.data.margenbruto_top5.lista_mes && result.data.margenbruto_top5.lista_anual) {
           let listabar: any = [];
@@ -246,11 +246,11 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
 
     }
     else{
-      this.queryLogin = this.apollo.watchQuery({
+      this.queryLogin = this.apollo.query({
         query: LOGIN,
         variables: { usuario: this.serviceAuth.userData?.name, clave: this.serviceAuth.userData?.password },
         fetchPolicy: "network-only"
-      }).valueChanges.subscribe((response: any) => {
+      }).subscribe((response: any) => {
         this.userservice.responseLogin = response.data.validarlogin;
         this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
         let arraymonedas = this.userservice.responseLogin.monedass;
@@ -262,7 +262,7 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
           };
           this.coins.push(coin);
         });
-        this.queryTop5 = this.apollo.watchQuery({
+        this.queryTop5 = this.apollo.query({
           query: QIMBTOP5,
           variables: {
             idrol1: this.userservice.responseLogin.idUsuario,
@@ -272,7 +272,7 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
             monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
           },
           fetchPolicy: "network-only"
-        }).valueChanges.subscribe((result: any) => {
+        }).subscribe((result: any) => {
   
           if (result.data.margenbruto_top5.lista_mes && result.data.margenbruto_top5.lista_anual) {
             let listabar: any = [];
@@ -374,7 +374,7 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
       this.selectedCoinTable = arraymonedas.find((e: any) => e.idMonedaEmpresaOdoo ==
         this.selectedCoin).name
 
-      this.queryTop5 = this.apollo.watchQuery({
+      this.queryTop5 = this.apollo.query({
         query: QIMBTOP5,
         variables: {
           idrol1: this.userservice.responseLogin.idUsuario,
@@ -384,7 +384,7 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
           monedadestinoo: this.selectedCoin
         },
         fetchPolicy: "network-only"
-      }).valueChanges.subscribe((result: any) => {
+      }).subscribe((result: any) => {
  
         if (result.data.margenbruto_top5.lista_mes && result.data.margenbruto_top5.lista_anual) {
           let listabar: any = [];

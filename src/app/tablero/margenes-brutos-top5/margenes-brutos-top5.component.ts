@@ -107,7 +107,7 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
     { value: '12', viewValue: 'Marzo' }
   ];
 
-  private queryMesRegion: Subscription;//get first list products
+  private queryTop5: Subscription;//get first list products
   private queryLogin: Subscription;
 
   listamesMB: MargenBruto[] = [];
@@ -156,7 +156,7 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
 
   constructor(public userservice: UserService,
     private apollo: Apollo,private serviceAuth: AuthServiceService) {
-    this.queryMesRegion = new Subscription();
+    this.queryTop5 = new Subscription();
     this.queryLogin= new Subscription();
 
   }
@@ -176,7 +176,7 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
         };
         this.coins.push(coin);
       });
-      this.queryMesRegion = this.apollo.watchQuery({
+      this.queryTop5= this.apollo.watchQuery({
         query: QIMBTOP5,
         variables: {
           idrol1: this.userservice.responseLogin.idUsuario,
@@ -184,7 +184,8 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
           mess: this.getCurrenlyMonth(),
           companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
           monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
-        }
+        },
+        fetchPolicy: "network-only"
       }).valueChanges.subscribe((result: any) => {
 
         if (result.data.margenbruto_top5.lista_mes && result.data.margenbruto_top5.lista_anual) {
@@ -260,7 +261,7 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
           };
           this.coins.push(coin);
         });
-        this.queryMesRegion = this.apollo.watchQuery({
+        this.queryTop5 = this.apollo.watchQuery({
           query: QIMBTOP5,
           variables: {
             idrol1: this.userservice.responseLogin.idUsuario,
@@ -268,7 +269,8 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
             mess: this.getCurrenlyMonth(),
             companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
             monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
-          }
+          },
+          errorPolicy: 'all'
         }).valueChanges.subscribe((result: any) => {
   
           if (result.data.margenbruto_top5.lista_mes && result.data.margenbruto_top5.lista_anual) {
@@ -371,7 +373,7 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
       this.selectedCoinTable = arraymonedas.find((e: any) => e.idMonedaEmpresaOdoo ==
         this.selectedCoin).name
 
-      this.queryMesRegion = this.apollo.watchQuery({
+      this.queryTop5 = this.apollo.watchQuery({
         query: QIMBTOP5,
         variables: {
           idrol1: this.userservice.responseLogin.idUsuario,
@@ -435,7 +437,7 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.queryMesRegion.unsubscribe();
+    this.queryTop5.unsubscribe();
 
   }
 

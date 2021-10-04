@@ -42,7 +42,7 @@
         </mat-card>
     </div>
 </div>
-<div fxLayout="row wrap" *ngIf="listChartsPie.length>0 && listChartsPie<=2">
+<div fxLayout="row wrap" *ngIf="listChartsPie.length>0 && listChartsPie.length<=2">
     <div fxFlex.gt-sm="50" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;" *ngFor="let indicador of listChartsPie">
         <mat-card>
             <mat-card-content>
@@ -82,7 +82,7 @@
   
 
 </div>
-<div fxLayout="row wrap" *ngIf="listChartsPie.length>0 && listChartsPie>2">
+<div fxLayout="row wrap" *ngIf="listChartsPie.length>0 && listChartsPie.length>2">
     <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;" *ngFor="let indicador of listChartsPie">
         <mat-card>
             <mat-card-content>

@@ -211,7 +211,7 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
         };
         this.coins.push(coin);
       });
-      this.queryComposition = this.apoll.watchQuery({
+      this.queryComposition = this.apoll.query({
         query: QICM,
         variables: {
           idrol1: this.userservice.responseLogin.idUsuario,
@@ -219,8 +219,9 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
           mess: this.getCurrenlyMonth(),
           companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
           monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
-        }
-      }).valueChanges.subscribe((response: any) => {
+        },
+        fetchPolicy: "network-only"
+      }).subscribe((response: any) => {
         let indicadores = response.data.composicion_margenes.lista;
         indicadores.forEach((item: any) => {
           this.listpercentagesmes= [];
@@ -269,10 +270,11 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
   
     }
     else{
-      this.queryLogin = this.apoll.watchQuery({
+      this.queryLogin = this.apoll.query({
         query: LOGIN,
-        variables: { usuario: this.serviceAuth.userData?.name, clave: this.serviceAuth.userData?.password }
-      }).valueChanges.subscribe((response: any) => {
+        variables: { usuario: this.serviceAuth.userData?.name, clave: this.serviceAuth.userData?.password },
+        fetchPolicy: "network-only"
+      }).subscribe((response: any) => {
         this.userservice.responseLogin = response.data.validarlogin;
         this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
         let arraymonedas = this.userservice.responseLogin.monedass;
@@ -284,7 +286,7 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
           };
           this.coins.push(coin);
         });
-        this.queryComposition = this.apoll.watchQuery({
+        this.queryComposition = this.apoll.query({
           query: QICM,
           variables: {
             idrol1: this.userservice.responseLogin.idUsuario,
@@ -293,7 +295,7 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
             companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
             monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
           }
-        }).valueChanges.subscribe((response: any) => {
+        }).subscribe((response: any) => {
   
           let indicadores = response.data.composicion_margenes.lista;
            console.log(indicadores);
@@ -379,7 +381,7 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
   }
   private refreshQuery(){
     this.listChartsPie=[];
-    this.queryComposition=this.apoll.watchQuery({
+    this.queryComposition=this.apoll.query({
       query: QICM,
       variables: {
         idrol1: this.userservice.responseLogin.idUsuario,
@@ -387,8 +389,9 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
         mess: this.selectedMonth,
         companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
         monedadestinoo: this.selectedCoin
-      }
-    }).valueChanges.subscribe((response: any) => {
+      },
+      fetchPolicy: "network-only"
+    }).subscribe((response: any) => {
       if(response){
         this.listChartsPie=[];
         let indicadores = response.data.composicion_margenes.lista;

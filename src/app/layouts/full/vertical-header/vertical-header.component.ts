@@ -202,8 +202,6 @@ export class VerticalAppHeaderComponent {
 
 
   private mutationLang(codIdioma: number) {
-alert(this.userservice.responseLogin.passwordd);
-alert(this.userservice.responseLogin.idUsuario);
     this.apollo.mutate({
       mutation: changeLANG,
       variables: {

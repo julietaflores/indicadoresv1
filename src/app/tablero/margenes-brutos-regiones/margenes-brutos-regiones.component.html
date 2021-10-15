@@ -104,7 +104,7 @@
                     <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
                         <canvas baseChart [datasets]="barChartData" [labels]="barChartLabels"
                             [options]="barChartOptions" [legend]="barChartLegend" [chartType]="barChartType"
-                            (chartHover)="chartHovered($event)" [colors]="barChartColors"
+                            (chartHover)="chartHovered($event)" 
                             (chartClick)="chartClicked($event)">
                         </canvas>
                     </div>
@@ -173,7 +173,7 @@
 
                         <canvas baseChart [datasets]="barChartDataAc" [labels]="barChartLabels"
                             [options]="barChartOptions" [legend]="barChartLegend" [chartType]="barChartType"
-                            [plugins]="barChartPlugins" (chartHover)="chartHovered($event)" [colors]="barChartColors"
+                            [plugins]="barChartPlugins" (chartHover)="chartHovered($event)" 
                             (chartClick)="chartClicked($event)">
                         </canvas>
                     </div>

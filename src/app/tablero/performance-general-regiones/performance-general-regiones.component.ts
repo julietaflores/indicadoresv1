@@ -150,7 +150,7 @@ const LOGIN = gql`
   templateUrl: './performance-general-regiones.component.html',
   styleUrls: ['./performance-general-regiones.component.scss']
 })
-export class PerformanceGeneralRegionesComponent implements OnInit, OnDestroy,DoCheck {
+export class PerformanceGeneralRegionesComponent implements OnInit, OnDestroy, DoCheck {
 
   //queries for GraphQL
   queryPerformanceRegion: Subscription;
@@ -193,10 +193,64 @@ export class PerformanceGeneralRegionesComponent implements OnInit, OnDestroy,Do
     },
     plugins: {
       datalabels: {
-        color: '#ffffff',
+        color: 'black',
+        font: {
+          weight: "bold",
+          size: 10
+        },
+        anchor: 'center',
+        display: true,
+        align: 'start',
+        padding: function (labor_anc: number) {
+          labor_anc = screen.width;
+          console.log('cc ' + labor_anc);
+
+          switch (true) {
+            case (labor_anc >= 320) && (labor_anc <= 575):
+              console.log('modo celular');
+              return 10;
+              break;
+            case (labor_anc >= 576) && (labor_anc <= 767):
+              console.log('modo celular version 1');
+              return 10;
+              break;
+            case (labor_anc >= 768) && (labor_anc <= 1023):
+              console.log('modo celular version 2');
+              return 9;
+              break;
+            case (labor_anc >= 1024) && (labor_anc <= 1439):
+              console.log('modo celular version 3');
+              return 8;
+              break;
+
+            case (labor_anc >= 1440):
+              console.log('modo celular version 4');
+              return 7;
+              break;
+
+          }
+
+          if (labor_anc >= 320 && labor_anc <= 516) {
+
+            console.log('modo celular');
+            return 10;
+          } else {
+
+            console.log('modo mayor');
+            return 30;
+          }
+
+
+        },
+
         formatter: function (value: any) {
           return Number.parseFloat(value).toFixed(2);
         },
+      },
+      labels: {
+        shadowColor: 'black',
+        shadowBlur: 10,
+        color: 'red'
       }
     }
   };
@@ -209,7 +263,7 @@ export class PerformanceGeneralRegionesComponent implements OnInit, OnDestroy,Do
   public barChartData: any[] = [];
   //barchart region acumulado
   public barChartDataAc: any[] = [];
-  public barChartColors: Array<any> = [];
+
 
   amoutIncremented: any;
   amoutIncrementedcanvas: any;
@@ -246,7 +300,7 @@ export class PerformanceGeneralRegionesComponent implements OnInit, OnDestroy,Do
   }
 
 
-  
+
 
   // dataSource = new MatTableDataSource<PerformanceTopFive>(this.data);
 
@@ -374,7 +428,7 @@ export class PerformanceGeneralRegionesComponent implements OnInit, OnDestroy,Do
         this.translateService.use(this.langDefault);
 
 
-    // alert('ddd 2');
+        // alert('ddd 2');
 
         let filtro: DataIndicador | null | any = null;
         filtro = localStorage.getItem('filtroAMM');
@@ -530,25 +584,28 @@ export class PerformanceGeneralRegionesComponent implements OnInit, OnDestroy,Do
 
   private fillbarchart(listabar: any) {
     this.barChartData = [];
-    this.barChartColors.push({ backgroundColor: 'rgb(31,78,120)' });
 
     this.barChartData[0] = {
       data: listabar,
       label: 'VS ' + (new Date().getFullYear() - 1),
       barThickness: 40,
-      barPercentage: 0.5
+      barPercentage: 0.5,
+      backgroundColor: '#F08B3B',
+      hoverBackgroundColor: '#F08B3B'
 
     };
   }
   private fillbarchartAc(listabar: any) {
     this.barChartDataAc = [];
-    this.barChartColors.push({ backgroundColor: 'rgb(31,78,120)' });
+
 
     this.barChartDataAc[0] = {
       data: listabar,
       label: 'VS ' + (new Date().getFullYear() - 1),
       barThickness: 40,
-      barPercentage: 0.5
+      barPercentage: 0.5,
+      backgroundColor: '#F08B3B',
+      hoverBackgroundColor: '#F08B3B'
     };
   }
   // events

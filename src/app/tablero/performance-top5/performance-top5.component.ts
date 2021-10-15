@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ChartEvent } from 'ng-chartist';
 import { ChartDataSets, ChartOptions, ChartType } from 'chart.js';
 
-import { Label, SingleDataSet } from 'ng2-charts';
+import { Color, Label, SingleDataSet } from 'ng2-charts';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { MatTableDataSource } from '@angular/material/table';
 import { UserService } from 'src/app/services/user.service';
@@ -187,6 +187,8 @@ export class PerformanceTop5Component implements OnInit {
   displayedColumnsMesVars: String[] = ['p_cantidad', 'p_ventas', 'p_precio'];
 
   public barChartOptions: any = {
+
+
     responsive: true,
     maintainAspectRatio: false,
     scales: {
@@ -205,19 +207,70 @@ export class PerformanceTop5Component implements OnInit {
     },
     plugins: {
       datalabels: {
-        color: 'red',
-        display: true,
-        
+        color: 'black',
+        font: {
+          weight: "bold",
+          size: 10
+        },
         anchor: 'center',
+        display: true,
         align: 'start',
+        padding: function (labor_anc: number) {
+          labor_anc = screen.width;
+          console.log('cc ' + labor_anc);
+
+          switch (true) {
+            case (labor_anc >= 320) && (labor_anc <= 575):
+              console.log('modo celular');
+              return 10;
+              break;
+            case (labor_anc >= 576) && (labor_anc <= 767):
+              console.log('modo celular version 1');
+              return 10;
+              break;
+            case (labor_anc >= 768) && (labor_anc <= 1023):
+              console.log('modo celular version 2');
+              return 9;
+              break;
+              case (labor_anc >= 1024) && (labor_anc <= 1439):
+                console.log('modo celular version 3');
+                return 25;
+                break;
+              
+            case (labor_anc >= 1440):
+              console.log('modo celular version 4');
+              return 32;
+              break;
+
+          }
+
+          if (labor_anc >= 320 && labor_anc <= 516) {
+
+            console.log('modo celular');
+            return 10;
+          } else {
+
+            console.log('modo mayor');
+            return 30;
+          }
+
+
+        },
+
         formatter: function (value: any) {
           return Number.parseFloat(value).toFixed(2);
         },
+      },
+      labels: {
+        shadowColor: 'black',
+        shadowBlur: 10,
+        color: 'red'
       }
     }
   };
 
   public barChartLabels: string[] = [];
+  public barChartLabelsAc: string[] = [];
   public barChartType = 'horizontalBar';
   public barChartLegend = true;
 
@@ -225,7 +278,7 @@ export class PerformanceTop5Component implements OnInit {
   public barChartData: any[] = [];
   //barchart region acumulado
   public barChartDataAc: any[] = [];
-  public barChartColors: Array<any> = [{ backgroundColor: 'rgb(31,78,120)' }];
+
 
 
   langDefault: any = '';
@@ -274,14 +327,7 @@ export class PerformanceTop5Component implements OnInit {
           let listaPerformanceMes = response.data.performancetop5.listames;
           let listaPerformanceYear = response.data.performancetop5.listaanual;
 
-
-          this.amoutIncremented = 200 + (50 * listaPerformanceMes.length) + "px";
-          this.amoutIncrementedAc = 200 + (50 * listaPerformanceYear.length) + "px";
-
-          this.amoutIncrementedcanvas = 150 + (50 * listaPerformanceMes.length) + "px";
-          this.amoutIncrementedcanvasAc = 150 + (50 * listaPerformanceYear.length) + "px";
-
-
+          this.getSizeCanvas(listaPerformanceMes, listaPerformanceYear);
 
           this.listBarPercentaje = [];
           this.listBarPercentajeAc = [];
@@ -296,18 +342,21 @@ export class PerformanceTop5Component implements OnInit {
               'us': Number(listaPerformanceMes[i].importeactual)
             };
 
-            let diff = Number(listaPerformanceMes[i].importeactual) -
-              Number(listaPerformanceMes[i].importeanterior);
-
+            let diff = Number(listaPerformanceMes[i].importeactual) - Number(listaPerformanceMes[i].importeanterior);
             this.listBarPercentaje.push(diff.toFixed(2));
-            this.barChartColors.push({ backgroundColor: 'rgb(31,78,120)' });
             this.barChartLabels.push(listaPerformanceMes[i].nombre);
 
             this.barChartData[0] = {
               data: this.listBarPercentaje,
               label: 'VS ' + (new Date().getFullYear() - 1),
-
+              backgroundColor: '#F08B3B',
+              hoverBackgroundColor: '#F08B3B',
             };
+
+
+
+
+
 
             this.listaitem.push(performance_producto);
 
@@ -332,24 +381,20 @@ export class PerformanceTop5Component implements OnInit {
               'producto': listaPerformanceYear[j].nombre,
               'us': Number(listaPerformanceYear[j].importeactual)
             };
+
+
             this.listItemYear.push(performance_producto_year);
-            let diffyear = Number(listaPerformanceYear[j].importeactual) -
-              Number(listaPerformanceYear[j].importeanterior);
 
+
+            let diffyear = Number(listaPerformanceYear[j].importeactual) - Number(listaPerformanceYear[j].importeanterior);
             this.listBarPercentajeAc.push(diffyear.toFixed(2));
-
-            if (listaPerformanceMes.length === 0) {
-              this.barChartLabels.push(listaPerformanceYear[j].nombre);
-            }
-
+            this.barChartLabelsAc.push(listaPerformanceYear[j].nombre);
             this.barChartDataAc[0] = {
               data: this.listBarPercentajeAc,
               label: 'VS ' + (new Date().getFullYear() - 1),
-
+              backgroundColor: '#F08B3B',
+              hoverBackgroundColor: '#F08B3B',
             };
-
-            this.barChartColors.push({ backgroundColor: 'rgb(31,78,120)' });
-
 
 
 
@@ -392,20 +437,20 @@ export class PerformanceTop5Component implements OnInit {
 
         this.langDefault = this.userservice.responseLogin.idioma.abreviaturaIdioma;
 
-        // alert("es dioma actual "+ this.langDefault);
+
         this.translateService.setDefaultLang(this.langDefault);
         this.translateService.use(this.langDefault);
 
-        let filtro:DataIndicador| null | any = null;
+        let filtro: DataIndicador | null | any = null;
         filtro = localStorage.getItem('filtroAMM');
         if (filtro) {
           filtro = JSON.parse(filtro);
         } else {
           filtro = null;
         }
-        this.selectedCoin = filtro.monedaActual ;
-        this.selectedyear=String(filtro.anioActual);
-        this.selectedMonth=filtro.mesActual;
+        this.selectedCoin = filtro.monedaActual;
+        this.selectedyear = String(filtro.anioActual);
+        this.selectedMonth = filtro.mesActual;
         let arrayMeses: any = this.userservice.responseLogin.mess.info_mes;
         let arraymonedas = this.userservice.responseLogin.monedass.info_moneda;
         this.placeholderYear = this.userservice.responseLogin.anioo.descripcion_anio.nombre;
@@ -445,12 +490,7 @@ export class PerformanceTop5Component implements OnInit {
             let listaPerformanceMes = response.data.performancetop5.listames;
             let listaPerformanceYear = response.data.performancetop5.listaanual;
 
-
-            this.amoutIncremented = 200 + (50 * listaPerformanceMes.length) + "px";
-            this.amoutIncrementedAc = 200 + (50 * listaPerformanceYear.length) + "px";
-
-            this.amoutIncrementedcanvas = 150 + (50 * listaPerformanceMes.length) + "px";
-            this.amoutIncrementedcanvasAc = 150 + (50 * listaPerformanceYear.length) + "px";
+            this.getSizeCanvas(listaPerformanceMes, listaPerformanceYear);
 
 
             let listBarPercentaje: any = [];
@@ -466,20 +506,24 @@ export class PerformanceTop5Component implements OnInit {
                 'us': Number(listaPerformanceMes[i].importeactual)
               };
 
-              let diff = Number(listaPerformanceMes[i].importeactual) -
-                Number(listaPerformanceMes[i].importeanterior);
 
+
+              let diff = Number(listaPerformanceMes[i].importeactual) - Number(listaPerformanceMes[i].importeanterior);
               listBarPercentaje.push(diff.toFixed(2));
-              this.barChartColors.push({ backgroundColor: 'rgb(31,78,120)' });
               this.barChartLabels.push(listaPerformanceMes[i].nombre);
-
-
-
               this.barChartData[0] = {
                 data: listBarPercentaje,
-                label: 'VS ' + (new Date().getFullYear() - 1),
-
+                label: 'VS ' + (filtro.anioActual - 1),
+                backgroundColor: '#F08B3B',
+                hoverBackgroundColor: '#F08B3B',
               };
+
+
+
+
+
+
+
 
               this.listaitem.push(performance_producto);
 
@@ -504,17 +548,21 @@ export class PerformanceTop5Component implements OnInit {
                 'producto': listaPerformanceYear[j].nombre,
                 'us': Number(listaPerformanceYear[j].importeactual)
               };
-              let diffyear = Number(listaPerformanceYear[j].importeactual) -
-                Number(listaPerformanceYear[j].importeanterior);
-
-              this.barChartColors.push({ backgroundColor: 'rgb(31,78,120)' });
-              listBarPercentajeAc.push(diffyear.toFixed(2));
-
-              if (listaPerformanceMes.length === 0) {
-                this.barChartLabels.push(listaPerformanceYear[j].nombre);
-              }
-
               this.listItemYear.push(performance_producto_year);
+
+              let diffyear = Number(listaPerformanceYear[j].importeactual) - Number(listaPerformanceYear[j].importeanterior);
+              listBarPercentajeAc.push(diffyear.toFixed(2));
+              this.barChartLabelsAc.push(listaPerformanceYear[j].nombre);
+              this.barChartDataAc[0] = {
+                data: listBarPercentajeAc,
+                label: 'VS ' + (filtro.anioActual - 1),
+                backgroundColor: '#F08B3B',
+                hoverBackgroundColor: '#F08B3B',
+              };
+
+
+
+
 
               let listVarYear = listaPerformanceYear[j].detalle_Receptor.lista;
               let cantidadyear = listVarYear.find((e: any) => e.nombreIndicador === "CANTIDAD DE VENTAS").porcentaje_Monto_Acumulado;
@@ -531,11 +579,12 @@ export class PerformanceTop5Component implements OnInit {
 
             }
 
-            this.barChartDataAc[0] = {
-              data: listBarPercentajeAc,
-              label: 'VS ' + (new Date().getFullYear() - 1),
 
-            };
+
+
+
+
+
             this.dataSource = new MatTableDataSource<PerformanceTopFive>(this.listaitem);
             this.dataSourceVARS = new MatTableDataSource<TopVar>(this.listamesVAR);
 
@@ -552,6 +601,14 @@ export class PerformanceTop5Component implements OnInit {
       });
     }
 
+  }
+  getSizeCanvas(listaPerformanceMes: any, listaPerformanceYear: any) {
+
+    this.amoutIncremented = 200 + (50 * listaPerformanceMes.length) + "px";
+    this.amoutIncrementedAc = 200 + (50 * listaPerformanceYear.length) + "px";
+
+    this.amoutIncrementedcanvas = 150 + (50 * listaPerformanceMes.length) + "px";
+    this.amoutIncrementedcanvasAc = 150 + (50 * listaPerformanceYear.length) + "px";
   }
   // events
   public chartClicked({ event, active }: { event: MouseEvent, active: {}[] }): void {
@@ -594,6 +651,7 @@ export class PerformanceTop5Component implements OnInit {
     this.refreshQuery();
   }
   refreshQuery() {
+
     const currentFiltros: DataIndicador = {
       anioActual: Number(this.selectedyear),
       mesActual: this.selectedMonth,
@@ -602,9 +660,15 @@ export class PerformanceTop5Component implements OnInit {
     }
     localStorage.removeItem('filtroAMM');
     localStorage.setItem('filtroAMM', JSON.stringify(currentFiltros));
+    this.listaitem = [];
+    this.listItemYear = [];
+    this.listamesVAR = [];
+    this.listyearVAR = [];
     if (this.userservice.responseLogin) {
+
       this.months = [];
       this.barChartLabels = [];
+      this.barChartLabelsAc = [];
       this.coins = [];
       let arraymonedas = this.userservice.responseLogin.monedass.info_moneda;
       let arrayMeses: any = this.userservice.responseLogin.mess.info_mes;
@@ -637,119 +701,119 @@ export class PerformanceTop5Component implements OnInit {
           monedadestino: this.selectedCoin
         }
       }).valueChanges.subscribe((response: any) => {
-        this.barChartData = [];
+        // console.log(response);
+        if (response) {
 
-        this.listamesVAR = [];
-        this.listyearVAR = [];
-        if (response.data.performancetop5.listames && response.data.performancetop5.listaanual) {
-          let listaPerformanceMes = response.data.performancetop5.listames;
-          let listaPerformanceYear = response.data.performancetop5.listaanual;
-          let listBarPercentaje: any = [];
-          let listBarPercentajeAc: any[] = [];
+          this.barChartData = [];
+          this.listamesVAR = [];
+          this.listyearVAR = [];
+          if (response.data.performancetop5.listames && response.data.performancetop5.listaanual) {
+            let listaPerformanceMes = response.data.performancetop5.listames;
+            let listaPerformanceYear = response.data.performancetop5.listaanual;
+            this.getSizeCanvas(listaPerformanceMes, listaPerformanceYear);
 
-          this.listaitem = [];
-          this.listItemYear = [];
-          this.amoutIncremented = 200 + (50 * listaPerformanceMes.length) + "px";
-          this.amoutIncrementedAc = 200 + (50 * listaPerformanceYear.length) + "px";
+            let listBarPercentaje: any = [];
+            let listBarPercentajeAc: any[] = [];
 
-          this.amoutIncrementedcanvas = 150 + (50 * listaPerformanceMes.length) + "px";
-          this.amoutIncrementedcanvasAc = 150 + (50 * listaPerformanceYear.length) + "px";
+            this.listaitem = [];
+            this.listItemYear = [];
 
-          for (let i: number = 0; i < listaPerformanceMes.length; i++) {
-            let performance_producto = {
-              'conta': i + 1,
-              'producto': listaPerformanceMes[i].nombre,
-              'us': Number(listaPerformanceMes[i].importeactual)
-            };
+            for (let i: number = 0; i < listaPerformanceMes.length; i++) {
+              let performance_producto = {
+                'conta': i + 1,
+                'producto': listaPerformanceMes[i].nombre,
+                'us': Number(listaPerformanceMes[i].importeactual)
+              };
 
-            let diff = Number(listaPerformanceMes[i].importeactual) -
-              Number(listaPerformanceMes[i].importeanterior);
+              let diff = Number(listaPerformanceMes[i].importeactual) - Number(listaPerformanceMes[i].importeanterior);
+              listBarPercentaje.push(diff.toFixed(2));
+              this.barChartLabels.push(listaPerformanceMes[i].nombre);
+              this.barChartData[0] = {
+                data: listBarPercentaje,
+                label: 'VS ' + (Number(this.selectedyear) - 1),
+                backgroundColor: '#F08B3B',
+                hoverBackgroundColor: '#F08B3B',
+              };
 
-            listBarPercentaje.push(diff.toFixed(2));
-            this.barChartColors.push({ backgroundColor: 'rgb(31,78,120)' });
-            this.barChartLabels.push(listaPerformanceMes[i].nombre);
 
 
 
-            this.barChartData[0] = {
-              data: listBarPercentaje,
-              label: 'VS ' + (new Date().getFullYear() - 1),
+              this.listaitem.push(performance_producto);
 
-            };
+              let listVarMes = listaPerformanceMes[i].detalle_Receptor.lista;
+              let cantidad = listVarMes.find((e: any) => e.nombreIndicador === "CANTIDAD DE VENTAS").porcentaje_Monto_Mes;
+              let ventas = listVarMes.find((e: any) => e.nombreIndicador == "VENTAS").porcentaje_Monto_Mes;
+              let precio = listVarMes.find((e: any) => e.nombreIndicador == "PRECIO DE VENTA PROMEDIO").porcentaje_Monto_Mes;
 
-            this.listaitem.push(performance_producto);
+              let topvarMes = {
+                p_cantidad: Number(cantidad.replace(',', '.')),
+                p_ventas: Number(ventas.replace(',', '.')),
+                p_precio: Number(precio.replace(',', '.'))
 
-            let listVarMes = listaPerformanceMes[i].detalle_Receptor.lista;
-            let cantidad = listVarMes.find((e: any) => e.nombreIndicador === "CANTIDAD DE VENTAS").porcentaje_Monto_Mes;
-            let ventas = listVarMes.find((e: any) => e.nombreIndicador == "VENTAS").porcentaje_Monto_Mes;
-            let precio = listVarMes.find((e: any) => e.nombreIndicador == "PRECIO DE VENTA PROMEDIO").porcentaje_Monto_Mes;
+              }
+              this.listamesVAR.push(topvarMes);
 
-            let topvarMes = {
-              p_cantidad: Number(cantidad.replace(',', '.')),
-              p_ventas: Number(ventas.replace(',', '.')),
-              p_precio: Number(precio.replace(',', '.'))
 
             }
-            this.listamesVAR.push(topvarMes);
+            for (let j: number = 0; j < listaPerformanceYear.length; j++) {
+              let performance_producto_year = {
+                'conta': j + 1,
+                'producto': listaPerformanceYear[j].nombre,
+                'us': Number(listaPerformanceYear[j].importeactual)
+              };
+
+
+              this.listItemYear.push(performance_producto_year);
+
+
+
+
+
+
+              let diffyear = Number(listaPerformanceYear[j].importeactual) - Number(listaPerformanceYear[j].importeanterior);
+              listBarPercentajeAc.push(diffyear.toFixed(2));
+
+              this.barChartLabelsAc.push(listaPerformanceYear[j].nombre);
+              this.barChartDataAc[0] = {
+                data: listBarPercentajeAc,
+                label: 'VS ' + (Number(this.selectedyear) - 1),
+                backgroundColor: '#F08B3B',
+                hoverBackgroundColor: '#F08B3B',
+              };
+
+
+
+              let listVarYear = listaPerformanceYear[j].detalle_Receptor.lista;
+              let cantidadyear = listVarYear.find((e: any) => e.nombreIndicador === "CANTIDAD DE VENTAS").porcentaje_Monto_Acumulado;
+              let ventasyear = listVarYear.find((e: any) => e.nombreIndicador == "VENTAS").porcentaje_Monto_Acumulado;
+              let precioyear = listVarYear.find((e: any) => e.nombreIndicador == "PRECIO DE VENTA PROMEDIO").porcentaje_Monto_Acumulado;
+              let topvarYear = {
+                p_cantidad: Number(cantidadyear.replace(',', '.')),
+                p_ventas: Number(ventasyear.replace(',', '.')),
+                p_precio: Number(precioyear.replace(',', '.'))
+
+              }
+              this.listyearVAR.push(topvarYear);
+
+
+            }
+
+
+            this.dataSource = new MatTableDataSource<PerformanceTopFive>(this.listaitem);
+            this.dataSourceVARS = new MatTableDataSource<TopVar>(this.listamesVAR);
+
+            this.dataSourceAc = new MatTableDataSource<PerformanceTopFive>(this.listItemYear);
+            this.dataSourceVARSAc = new MatTableDataSource<TopVar>(this.listyearVAR);
+
 
 
           }
-          for (let j: number = 0; j < listaPerformanceYear.length; j++) {
-            let performance_producto_year = {
-              'conta': j + 1,
-              'producto': listaPerformanceYear[j].nombre,
-              'us': Number(listaPerformanceYear[j].importeactual)
-            };
-            let diffyear = Number(listaPerformanceYear[j].importeactual) -
-              Number(listaPerformanceYear[j].importeanterior);
-
-            this.barChartColors.push({ backgroundColor: 'rgb(31,78,120)' });
-            listBarPercentajeAc.push(diffyear.toFixed(2));
-
-            if (listaPerformanceMes.length === 0) {
-              this.barChartLabels.push(listaPerformanceYear[j].nombre);
-            }
-
-            this.listItemYear.push(performance_producto_year);
-
-            let listVarYear = listaPerformanceYear[j].detalle_Receptor.lista;
-            let cantidadyear = listVarYear.find((e: any) => e.nombreIndicador === "CANTIDAD DE VENTAS").porcentaje_Monto_Acumulado;
-            let ventasyear = listVarYear.find((e: any) => e.nombreIndicador == "VENTAS").porcentaje_Monto_Acumulado;
-            let precioyear = listVarYear.find((e: any) => e.nombreIndicador == "PRECIO DE VENTA PROMEDIO").porcentaje_Monto_Acumulado;
-            let topvarYear = {
-              p_cantidad: Number(cantidadyear.replace(',', '.')),
-              p_ventas: Number(ventasyear.replace(',', '.')),
-              p_precio: Number(precioyear.replace(',', '.'))
-
-            }
-            this.listyearVAR.push(topvarYear);
-
-
-          }
-
-          this.barChartDataAc[0] = {
-            data: listBarPercentajeAc,
-            label: 'VS ' + (new Date().getFullYear() - 1),
-
-          };
-          this.dataSource = new MatTableDataSource<PerformanceTopFive>(this.listaitem);
-          this.dataSourceVARS = new MatTableDataSource<TopVar>(this.listamesVAR);
-
-          this.dataSourceAc = new MatTableDataSource<PerformanceTopFive>(this.listItemYear);
-          this.dataSourceVARSAc = new MatTableDataSource<TopVar>(this.listyearVAR);
-
-
-
-
-          this.dataSource = new MatTableDataSource<PerformanceTopFive>(this.listaitem);
-          this.dataSourceVARS = new MatTableDataSource<TopVar>(this.listamesVAR);
-
-          this.dataSourceAc = new MatTableDataSource<PerformanceTopFive>(this.listItemYear);
-          this.dataSourceVARSAc = new MatTableDataSource<TopVar>(this.listyearVAR);
-
-
         }
-      }
+
+      },
+        (error: any) => {
+          console.log(error);
+        }
 
       );
 

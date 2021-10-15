@@ -9,6 +9,7 @@ import { Subscription } from 'rxjs';
 import { AuthServiceService } from 'src/app/services/auth-service.service';
 import { GlobalConstants } from 'src/app/GLOBALS/GlobalConstants';
 import { TranslateService } from '@ngx-translate/core';
+import { DataIndicador } from 'src/app/models/dataIndicador.interface';
 const QIMBLINEAL = gql`
 query  margenbruto_lineal($idusuario:Int!,$anio:Int!,$mes:String,$compania:Int!, $monedadestino:Int!) {
   margenbruto_lineal(idusuario:$idusuario,anio:$anio,mes:$mes,compania:$compania, monedadestino:$monedadestino){
@@ -134,14 +135,15 @@ export class MargenesBrutosLineasComponent implements OnInit {
 
   listamesMB: MargenBrutoLineal[] = [];
   listyearVAR: MargenBrutoLineal[] = [];
-  
-  
+
+
   placeholderYear: String = 'Year';
   placeholderMonth: String = 'Month';
   placeholderCoin: String = 'Currency';
   public barChartOptions: any = {
     responsive: true,
     maintainAspectRatio: false,
+
     scales: {
       yAxes: [{
 
@@ -152,18 +154,81 @@ export class MargenesBrutosLineasComponent implements OnInit {
       xAxes: [{
         ticks: {
           fontSize: 12,
-          precision: 2
         }
       }],
     },
     plugins: {
       datalabels: {
-        color: '#ffffff',
-        anchor:'center',
-        align:'start',
+        color: 'black',
+        font: {
+          weight: "bold",
+          size: 10
+        },
+        anchor: 'center',
         display: true,
-        precision: 2
+        align: 'start',
 
+
+        padding:function (labor_anc: number )  {
+
+          labor_anc = screen.width;
+          console.log('cc ' + labor_anc);
+        return  10;
+      },
+
+
+
+        // padding: function (labor_anc: number ) {
+        //   labor_anc = screen.width;
+        //   console.log('cc ' + labor_anc);
+
+
+        //   switch (true) {
+        //     case (labor_anc >= 320) && (labor_anc <= 575):
+        //       console.log('modo celular');
+        //       return 10;
+        //       break;
+        //     case (labor_anc >= 576) && (labor_anc <= 767):
+        //       console.log('modo celular version 1');
+        //       return 10;
+        //       break;
+        //     case (labor_anc >= 768) && (labor_anc <= 1023):
+        //       console.log('modo celular version 2');
+        //       return 9;
+        //       break;
+        //     case (labor_anc >= 1024) && (labor_anc <= 1439):
+        //       console.log('modo celular version 3');
+        //       return 8;
+        //       break;
+
+        //     case (labor_anc >= 1440):
+        //       console.log('modo celular version 4');
+        //       return 0;
+        //       break;
+
+        //   }
+
+        //   if (labor_anc >= 320 && labor_anc <= 516) {
+
+        //     console.log('modo celular');
+        //     return 10;
+        //   } else {
+
+        //     console.log('modo mayor');
+        //     return 30;
+        //   }
+
+
+        // },
+
+        formatter: function (value: any) {
+          return Number.parseFloat(value).toFixed(2);
+        },
+      },
+      labels: {
+        shadowColor: 'black',
+        shadowBlur: 10,
+        color: 'red'
       }
     }
   };
@@ -177,9 +242,6 @@ export class MargenesBrutosLineasComponent implements OnInit {
   public barChartData: any[] = [];
   public barChartDataAc: any[] = [];
 
-  public barChartColors: Array<any> = [
-
-  ];
 
   langDefault: any = '';
   selectedyear = String(new Date().getFullYear());
@@ -204,7 +266,16 @@ export class MargenesBrutosLineasComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.userservice.responseLogin) {
+      this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
       this.setup();
+      const currentFiltros: DataIndicador = {
+        anioActual: Number(this.selectedyear),
+        mesActual: this.selectedMonth,
+        monedaActual: this.selectedCoin
+
+      }
+      localStorage.setItem('filtroAMM', JSON.stringify(currentFiltros));
+
       this.queryMBLineal = this.apollo.watchQuery({
         query: QIMBLINEAL,
         variables: {
@@ -217,9 +288,120 @@ export class MargenesBrutosLineasComponent implements OnInit {
         fetchPolicy: "no-cache"
       }).valueChanges.subscribe((response: any) => {
 
+        if (response.data.margenbruto_lineal.lista_mes && response.data.margenbruto_lineal.lista_anual) {
+          let listabar: any[] = [];
+          let listabarAc: any[] = [];
+          this.barChartData = [];
+          this.barChartDataAc = [];
+          this.barChartLabels = [];
+          this.listamesMB = [];
+          this.listyearVAR = [];
+
+          let listames = response.data.margenbruto_lineal.lista_mes;
+          let listaanual = response.data.margenbruto_lineal.lista_anual;
+          this.dataSourceMes = new MatTableDataSource<MargenBrutoLineal>();
+          this.dataSourceAcumulado = new MatTableDataSource<MargenBrutoLineal>();
+
+          this.getSizeCanvas(listames, listaanual);
+
+          listames.forEach((value: any) => {
+            let item = {
+              division: value.nombre,
+              porcentaje_margen: value.porcentaje_margen_actual,
+              bps: value.bPS,
+              moneda: value.importe_actual
+            }
+            let calculograficomes = Number(value.calculo_grafico.replace(',', '.'));
+
+            this.listamesMB.push(item);
+
+            listabar.push(Number(calculograficomes.toFixed(2)));
+            this.barChartLabels.push(value.nombre);
+          });
+          listaanual.forEach((value: any) => {
+            let itemac = {
+              division: value.nombre,
+              porcentaje_margen: value.porcentaje_margen_actual,
+              bps: value.bPS,
+              moneda: value.importe_actual
+            }
+            if (listames.length === 0) {
+              this.barChartLabels.push(value.nombre);
+            }
+            let calculografico = Number(value.calculo_grafico.replace(',', '.'));
+
+
+
+            this.listyearVAR.push(itemac);
+            listabarAc.push(calculografico.toFixed(2));
+
+            // listabarAc.push(value.porcentaje_margen_actual);
+          });
+
+          this.dataSourceMes = new MatTableDataSource<MargenBrutoLineal>(this.listamesMB);
+
+
+  
+
+          this.barChartData[0] = {
+            data: listabar,
+            label: 'VAR. vs.' + (new Date().getFullYear() - 1),
+            barThickness: 40,
+            barPercentage: 0.5,
+            backgroundColor: '#F08B3B',
+            hoverBackgroundColor: '#F08B3B',
+          }
+
+          this.barChartDataAc[0] = {
+            data: listabarAc,
+            label: 'VAR. vs.' + (new Date().getFullYear() - 1),
+            barThickness: 40,
+            barPercentage: 0.5,
+            backgroundColor: '#F08B3B',
+            hoverBackgroundColor: '#F08B3B',
+          }
+          this.dataSourceAcumulado = new MatTableDataSource<MargenBrutoLineal>(this.listyearVAR);
+
+
+
+
+        }
+
+      });
+    }
+    else {
+      this.queryLogin = this.apollo.watchQuery({
+        query: LOGIN,
+        variables: { usuario: this.serviceAuth.userData?.name, clave: this.serviceAuth.userData?.password },
+      }).valueChanges.subscribe((response: any) => {
+        this.setup();
+
+        let filtro: DataIndicador | null | any = null;
+        filtro = localStorage.getItem('filtroAMM');
+        if (filtro) {
+          filtro = JSON.parse(filtro);
+        } else {
+          filtro = null;
+        }
+        this.selectedCoin = filtro.monedaActual;
+        this.selectedyear = String(filtro.anioActual);
+        this.selectedMonth = filtro.mesActual;
+
+        this.queryMBLineal = this.apollo.watchQuery({
+          query: QIMBLINEAL,
+          variables: {
+            idusuario: this.userservice.responseLogin.idUsuario,
+            anio: filtro.anioActual,
+            mes: filtro.mesActual,
+            compania: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
+            monedadestino: filtro.monedaActual
+          },
+          fetchPolicy: "no-cache"
+        }).valueChanges.subscribe((response: any) => {
+
           if (response.data.margenbruto_lineal.lista_mes && response.data.margenbruto_lineal.lista_anual) {
-            let listabar: any[] = [];
-            let listabarAc: any[] = [];
+            let listabar: any = [];
+            let listabarAc: any = [];
             this.barChartData = [];
             this.barChartDataAc = [];
             this.barChartLabels = [];
@@ -230,7 +412,6 @@ export class MargenesBrutosLineasComponent implements OnInit {
             let listaanual = response.data.margenbruto_lineal.lista_anual;
             this.dataSourceMes = new MatTableDataSource<MargenBrutoLineal>();
             this.dataSourceAcumulado = new MatTableDataSource<MargenBrutoLineal>();
-
             this.getSizeCanvas(listames, listaanual);
 
             listames.forEach((value: any) => {
@@ -267,110 +448,26 @@ export class MargenesBrutosLineasComponent implements OnInit {
               // listabarAc.push(value.porcentaje_margen_actual);
             });
 
-            this.dataSourceMes = new MatTableDataSource<MargenBrutoLineal>(this.listamesMB);
-
-
-            this.barChartColors.push({ backgroundColor: 'rgb(31,78,120)' });
-
-            this.barChartData[0] = {
-              data: listabar,
-              label: 'VAR. vs.' + (new Date().getFullYear() - 1)
-            }
-
-            this.barChartDataAc[0] = {
-              data: listabarAc,
-              label: 'VAR. vs.' + (new Date().getFullYear() - 1)
-            }
-            this.dataSourceAcumulado = new MatTableDataSource<MargenBrutoLineal>(this.listyearVAR);
-
-
-
-
-          }
-
-        });
-    }
-    else {
-      this.queryLogin = this.apollo.watchQuery({
-        query: LOGIN,
-        variables: { usuario: this.serviceAuth.userData?.name, clave: this.serviceAuth.userData?.password },
-      }).valueChanges.subscribe((response: any) => {
-        this.setup();
-        this.queryMBLineal = this.apollo.watchQuery({
-          query: QIMBLINEAL,
-          variables: {
-            idusuario: this.userservice.responseLogin.idUsuario,
-            anio: new Date().getFullYear(),
-            mes: this.getCurrenlyMonth(),
-            compania: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
-            monedadestino: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
-          },
-          fetchPolicy: "no-cache"
-        }).valueChanges.subscribe((response: any) => {
-
-          if (response.data.margenbruto_lineal.lista_mes && response.data.margenbruto_lineal.lista_anual) {
-            let listabar: any = [];
-            let listabarAc: any = [];
-            this.barChartData = [];
-            this.barChartDataAc = [];
-            this.barChartLabels = [];
-            this.listamesMB = [];
-            this.listyearVAR = [];
-
-            let listames = response.data.margenbruto_lineal.lista_mes;
-            let listaanual = response.data.margenbruto_lineal.lista_anual;
-            this.dataSourceMes = new MatTableDataSource<MargenBrutoLineal>();
-            this.dataSourceAcumulado = new MatTableDataSource<MargenBrutoLineal>();
-            this.getSizeCanvas(listames,listaanual);
-
-            listames.forEach((value: any) => {
-              let item = {
-                division: value.nombre,
-                porcentaje_margen: value.porcentaje_margen_actual,
-                bps: value.bPS,
-                moneda: value.importe_actual
-              }
-              let calculograficomes = Number(value.calculo_grafico.replace(',', '.'));
-
-              this.listamesMB.push(item);
-
-              listabar.push(Number(calculograficomes.toFixed(2)));
-              this.barChartLabels.push(value.nombre);
-            });
-            listaanual.forEach((value: any) => {
-              let itemac = {
-                division: value.nombre,
-                porcentaje_margen: value.porcentaje_margen_actual,
-                bps: value.bPS,
-                moneda: value.importe_actual
-              }
-              if (listames.length === 0) {
-                this.barChartLabels.push(value.nombre);
-              }
-              let calculografico = Number(value.calculo_grafico.replace(',', '.'));
-
-
-
-              this.listyearVAR.push(itemac);
-              listabarAc.push(calculografico.toFixed(2));
-
-              // listabarAc.push(value.porcentaje_margen_actual);
-            });
-
 
 
             this.dataSourceMes = new MatTableDataSource<MargenBrutoLineal>(this.listamesMB);
 
 
-            this.barChartColors.push({ backgroundColor: 'rgb(31,78,120)' });
-
             this.barChartData[0] = {
               data: listabar,
-              label: 'VAR. vs.' + (new Date().getFullYear() - 1)
+              label: 'VAR. vs.' + (new Date().getFullYear() - 1),
+              barPercentage: 0.5,
+              backgroundColor: '#F08B3B',
+              hoverBackgroundColor: '#F08B3B',
             }
+
+            
             this.barChartDataAc[0] = {
               data: listabarAc,
-              label: 'VAR. vs.' + (new Date().getFullYear() - 1)
+              label: 'VAR. vs.' + (new Date().getFullYear() - 1),
+              barPercentage: 0.5,
+              backgroundColor: '#F08B3B',
+              hoverBackgroundColor: '#F08B3B',
             }
             this.dataSourceAcumulado = new MatTableDataSource<MargenBrutoLineal>(this.listyearVAR);
 
@@ -381,7 +478,7 @@ export class MargenesBrutosLineasComponent implements OnInit {
       });
     }
 
-    
+
   }
 
   displayedColumns = ['division', 'porcentaje_margen', 'bps', 'importe_actual'];
@@ -406,7 +503,6 @@ export class MargenesBrutosLineasComponent implements OnInit {
   }
   setup() {
     this.coins = [];
-    this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
     let arraymonedas = this.userservice.responseLogin.monedass.info_moneda;
     let arrayMeses: any = this.userservice.responseLogin.mess.info_mes;
     this.selectedCoinTable = arraymonedas.find((e: any) => e.idMonedaEmpresaOdoo ==
@@ -446,7 +542,7 @@ export class MargenesBrutosLineasComponent implements OnInit {
   }
 
   onYearChange(event: any) {
-     this.refreshQuery();
+    this.refreshQuery();
   }
   onMonthChange(event: any) {
     this.refreshQuery();
@@ -454,9 +550,22 @@ export class MargenesBrutosLineasComponent implements OnInit {
   onCoinChange(event: any) {
     this.refreshQuery();
   }
+  saveFiltros() {
+    const currentFiltros: DataIndicador = {
+      anioActual: Number(this.selectedyear),
+      mesActual: this.selectedMonth,
+      monedaActual: this.selectedCoin
+
+    }
+    localStorage.removeItem('filtroAMM');
+    localStorage.setItem('filtroAMM', JSON.stringify(currentFiltros));
+  }
   refreshQuery() {
+    this.saveFiltros();
+    this.listamesMB = [];
+    this.listyearVAR = [];
     if (this.userservice.responseLogin) {
-      this.coins=[];
+      this.coins = [];
       let arraymonedas = this.userservice.responseLogin.monedass.info_moneda;
       let arrayMeses: any = this.userservice.responseLogin.mess.info_mes;
       this.selectedCoinTable = arraymonedas.find((e: any) => e.idMonedaEmpresaOdoo ==
@@ -492,17 +601,15 @@ export class MargenesBrutosLineasComponent implements OnInit {
           let listabarAc: any[] = [];
           this.barChartLabels = [];
           this.barChartData = [];
-          this.barChartLabels = [];
-          this.listamesMB = [];
-          this.listyearVAR = [];
+
           let listames = result.data.margenbruto_lineal.lista_mes;
           let listaanual = result.data.margenbruto_lineal.lista_anual;
           this.dataSourceMes = new MatTableDataSource<MargenBrutoLineal>();
           this.dataSourceAcumulado = new MatTableDataSource<MargenBrutoLineal>();
-         
-          this.getSizeCanvas(listames,listaanual);
-          
-          
+
+          this.getSizeCanvas(listames, listaanual);
+
+
           listames.forEach((value: any) => {
             let item = {
               division: value.nombre,
@@ -539,29 +646,35 @@ export class MargenesBrutosLineasComponent implements OnInit {
 
 
 
-          this.dataSourceMes = new MatTableDataSource<MargenBrutoLineal>(this.listamesMB);
-
-
-          this.barChartColors.push({ backgroundColor: 'rgb(31,78,120)' });
-
           this.barChartData[0] = {
             data: listabar,
-            label: 'VAR. vs.' + (new Date().getFullYear() - 1)
+            label: 'VAR. vs.' + (new Date().getFullYear() - 1),
+            barThickness: 40,
+            barPercentage: 0.5,
+            backgroundColor: '#F08B3B',
+            hoverBackgroundColor: '#F08B3B'
           }
           this.barChartDataAc[0] = {
             data: listabarAc,
-            label: 'VAR. vs.' + (new Date().getFullYear() - 1)
+            label: 'VAR. vs.' + (new Date().getFullYear() - 1),
+           barThickness: 40,
+            barPercentage: 0.5,
+            backgroundColor: '#F08B3B',
+            hoverBackgroundColor: '#F08B3B'
+
           }
+          this.dataSourceMes = new MatTableDataSource<MargenBrutoLineal>(this.listamesMB);
+
           this.dataSourceAcumulado = new MatTableDataSource<MargenBrutoLineal>(this.listyearVAR);
 
 
 
-         
+
         }
 
       });
     }
-    
+
   }
 }
 

@@ -137,12 +137,80 @@ export class MargenesBrutosRegionesComponent implements OnInit, OnDestroy {
   public barChartOptions: any = {
     responsive: true,
     maintainAspectRatio: false,
+
+    scales: {
+      yAxes: [{
+
+        ticks: {
+          fontSize: 12
+        }
+      }],
+      xAxes: [{
+        ticks: {
+          fontSize: 12,
+        }
+      }],
+    },
     plugins: {
       datalabels: {
-        color: '#ffffff',
+        color: 'black',
+        font: {
+          weight: "bold",
+          size: 10
+        },
+        anchor: 'center',
+        display: true,
+        align: 'start',
+        padding: function (labor_anc: number) {
+          labor_anc = screen.width;
+          console.log('cc ' + labor_anc);
+
+          switch (true) {
+            case (labor_anc >= 320) && (labor_anc <= 575):
+              console.log('modo celular');
+              return 10;
+              break;
+            case (labor_anc >= 576) && (labor_anc <= 767):
+              console.log('modo celular version 1');
+              return 10;
+              break;
+            case (labor_anc >= 768) && (labor_anc <= 1023):
+              console.log('modo celular version 2');
+              return 9;
+              break;
+            case (labor_anc >= 1024) && (labor_anc <= 1439):
+              console.log('modo celular version 3');
+              return 8;
+              break;
+
+            case (labor_anc >= 1440):
+              console.log('modo celular version 4');
+              return 7;
+              break;
+
+          }
+
+          if (labor_anc >= 320 && labor_anc <= 516) {
+
+            console.log('modo celular');
+            return 10;
+          } else {
+
+            console.log('modo mayor');
+            return 30;
+          }
+
+
+        },
+
         formatter: function (value: any) {
           return Number.parseFloat(value).toFixed(2);
         },
+      },
+      labels: {
+        shadowColor: 'black',
+        shadowBlur: 10,
+        color: 'red'
       }
     }
   };
@@ -156,9 +224,8 @@ export class MargenesBrutosRegionesComponent implements OnInit, OnDestroy {
   public barChartData: any[] = [];
   public barChartDataAc: any[] = [];
 
-  public barChartColors: Array<any> = [
-
-  ];
+  
+  
   displayedColumns = ['division', 'porcentaje_margen', 'bps', 'importe_actual'];
 
   listamesMB: MargenBrutoRegion[] = [];
@@ -295,17 +362,23 @@ export class MargenesBrutosRegionesComponent implements OnInit, OnDestroy {
           });
           this.dataSourceAcumulado = new MatTableDataSource<MargenBrutoRegion>(this.listyearVAR);
 
-          this.barChartColors.push({ backgroundColor: 'rgb(31,78,120)' });
+     
 
           this.barChartData[0] = {
             data: listabar,
             label: 'VAR. vs.' + (new Date().getFullYear() - 1),
             barThickness: 40,
-            barPercentage: 0.5
+            barPercentage: 0.5,
+            backgroundColor: '#F08B3B',
+            hoverBackgroundColor: '#F08B3B',
           }
           this.barChartDataAc[0] = {
             data: listabaryear,
-            label: 'VAR. vs.' + (new Date().getFullYear() - 1)
+            label: 'VAR. vs.' + (new Date().getFullYear() - 1),
+            barThickness: 40,
+            barPercentage: 0.5,
+            backgroundColor: '#F08B3B',
+            hoverBackgroundColor: '#F08B3B'
           }
 
           this.dataSourceMes = new MatTableDataSource<MargenBrutoRegion>(this.listamesMB);
@@ -424,8 +497,7 @@ export class MargenesBrutosRegionesComponent implements OnInit, OnDestroy {
 
             });
             this.dataSourceAcumulado = new MatTableDataSource<MargenBrutoRegion>(this.listyearVAR);
-            this.barChartColors.push({ backgroundColor: 'rgb(31,78,120)' });
-
+           
             this.barChartData[0] = {
               data: listabar,
               label: 'VAR. vs.' + (new Date().getFullYear() - 1),
@@ -434,7 +506,9 @@ export class MargenesBrutosRegionesComponent implements OnInit, OnDestroy {
             }
             this.barChartDataAc[0] = {
               data: listabaryear,
-              label: 'VAR. vs.' + (new Date().getFullYear() - 1)
+              label: 'VAR. vs.' + (new Date().getFullYear() - 1),
+              barThickness: 40,
+              barPercentage: 0.5
             }
 
             this.dataSourceMes = new MatTableDataSource<MargenBrutoRegion>(this.listamesMB);
@@ -481,6 +555,8 @@ export class MargenesBrutosRegionesComponent implements OnInit, OnDestroy {
     return Math.abs(value);
   }
   private refreshQuery() {
+    this.listamesMB = [];
+    this.listyearVAR = [];
     const currentFiltros: DataIndicador = {
       anioActual: Number(this.selectedyear),
       mesActual: this.selectedMonth,
@@ -493,7 +569,7 @@ export class MargenesBrutosRegionesComponent implements OnInit, OnDestroy {
     if (this.userservice.responseLogin) {
       this.coins = [];
       this.barChartLabels = [];
-      this.barChartColors=[];
+  
       let arraymonedas = this.userservice.responseLogin.monedass.info_moneda;
       this.selectedCoinTable = arraymonedas.find((e: any) => e.idMonedaEmpresaOdoo ==
         this.selectedCoin).name
@@ -521,8 +597,7 @@ export class MargenesBrutosRegionesComponent implements OnInit, OnDestroy {
           let listabaryear: any[] = [];
           this.barChartData = [];
           this.barChartLabels = [];
-          this.listamesMB = [];
-          this.listyearVAR = [];
+      
           this.dataSourceMes = new MatTableDataSource<MargenBrutoRegion>();
           this.dataSourceAcumulado = new MatTableDataSource<MargenBrutoRegion>();
           let listames = result.data.margenbruto_region.lista_mes;
@@ -568,23 +643,27 @@ export class MargenesBrutosRegionesComponent implements OnInit, OnDestroy {
 
 
           });
-          this.barChartColors.push({ backgroundColor: 'rgb(31,78,120)' });
+        
           this.dataSourceAcumulado = new MatTableDataSource<MargenBrutoRegion>(this.listyearVAR);
 
-         // this.barChartColors.push({ backgroundColor: 'rgb(31,78,120)' });
+        
           
           this.barChartData[0] = {
             data: listabar,
             label: 'VAR. vs.' + (new Date().getFullYear() - 1),
             barThickness: 40,
-            barPercentage: 0.5
+            barPercentage: 0.5,
+            backgroundColor: '#F08B3B',
+            hoverBackgroundColor: '#F08B3B',
           }
          
           this.barChartDataAc[0] = {
             data: listabaryear,
             label: 'VAR. vs.' + (new Date().getFullYear() - 1),
             barThickness: 40,
-            barPercentage: 0.5
+            barPercentage: 0.5,
+            backgroundColor: '#F08B3B',
+            hoverBackgroundColor: '#F08B3B',
           }
          
           this.dataSourceMes = new MatTableDataSource<MargenBrutoRegion>(this.listamesMB);

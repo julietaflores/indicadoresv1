@@ -5,6 +5,7 @@ import { Apollo, QueryRef } from 'apollo-angular';
 import gql from 'graphql-tag';
 import { AuthServiceService } from 'src/app/services/auth-service.service';
 import { GlobalConstants } from 'src/app/GLOBALS/GlobalConstants';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-dashboard',
@@ -16,7 +17,8 @@ export class Dashboard1Component{
    // subscription: Subscription;
     user:any;
 
-    constructor(private serviceuser:UserService) { 
+    constructor(private serviceuser:UserService,private translate: TranslateService) { 
+      this.translate.use("en");
       /*  this.subscription = this.serviceuser.getMessage().subscribe(messagelogin => {
             if (messagelogin) {
               this.user=messagelogin;
@@ -27,7 +29,7 @@ export class Dashboard1Component{
     
 
     ngOnInit(): void {
-     console.log("dashboard1");
+    
    
     }
 

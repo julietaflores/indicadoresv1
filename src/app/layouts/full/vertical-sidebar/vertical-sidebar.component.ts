@@ -10,6 +10,8 @@ import { PerfectScrollbarConfigInterface } from 'ngx-perfect-scrollbar';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { MenuItems } from '../../../shared/menu-items/menu-items';
 import { GlobalConstants } from '../../../GLOBALS/GlobalConstants';
+import { DataIndicador } from 'src/app/models/dataIndicador.interface';
+import { UserService } from 'src/app/services/user.service';
 
 
 @Component({
@@ -55,7 +57,8 @@ export class VerticalAppSidebarComponent implements OnDestroy {
   constructor(
     changeDetectorRef: ChangeDetectorRef,
     media: MediaMatcher,
-    public menuItems: MenuItems
+    public menuItems: MenuItems,
+    public userservice: UserService
   ) {
     if(GlobalConstants.listCompanys != undefined){
       this.company=GlobalConstants.listCompanys[0].name;
@@ -77,6 +80,16 @@ export class VerticalAppSidebarComponent implements OnDestroy {
     if(window.innerWidth < 1024){
       this.notify.emit(!this.showClass);
     }
+    // const currentFiltros: DataIndicador= {
+    //   anioActual: Number(new Date().getFullYear()),
+    //   mesActual: String(new Date().getMonth()+1),
+    //   monedaActual: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
+
+    // }
+    localStorage.removeItem('filtroAMM');
+    //window.location.reload();
+   //localStorage.setItem('filtroAMM', JSON.stringify(currentFiltros));
+  //  window.location.reload();
   }
   getTableroSelected(value:any){
    /* GlobalConstants.selectedTablero=value;

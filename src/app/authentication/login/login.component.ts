@@ -13,23 +13,66 @@ const LOGIN = gql`
   query validarlogin($usuario:String,$clave:String) {
     validarlogin(usuario: $usuario, clave: $clave) {
       idUsuario
-      nombreUsuario
-      usuario
-      iDRolUsuario
-      codIdioma
-      monedass{
-        idMonedaEmpresaOdoo
-        name
-        symbol
-        rate
-        estado
+     nombreUsuario
+     usuario
+    passwordd
+    fechacreacionusuario
+    iDRolUsuario
+    codIdioma
+    estado
+    
+    
+    anioo{
+      descripcion_anio{
+        auxiliarId
+        nombre
       }
-      companiaa{
-        idCompaniaOdoo
-        name
-        idMonedaEmpresaOdoo
-        estado
+      
     }
+    
+    mess{
+      descripcion_mes{
+        auxiliarId
+        nombre
+        
+      }
+      
+      info_mes{
+        mesid
+        nombre
+      }
+    }
+    
+    monedass{
+      descripcion_moneda{
+        auxiliarId
+        nombre
+        
+      }
+      info_moneda{
+         monedaId
+      idMonedaEmpresaOdoo
+      name
+      symbol
+      rate
+      estado
+      }
+     
+      
+    }
+    companiaa{
+       idCompaniaOdoo
+        name
+      idMonedaEmpresaOdoo
+      estado
+      
+    }
+    idioma{
+      codigoIdioma
+      abreviaturaIdioma
+      detalleIdioma
+    }
+
   
     }
   }
@@ -78,86 +121,37 @@ export class LoginComponent implements OnInit {
 
       this.name=this.form.get('uname')?.value ;
       this.pass=this.form.get('password')?.value ;
+
       this.query = this.apollo.watchQuery({
         query: LOGIN,
         variables: { usuario:this.name,clave:this.pass }
       });
   
       this.query.valueChanges.subscribe((result:any) => {
-            console.log(result);
+    
               if( result.data.validarlogin.idUsuario > 0){
+
                 const userAuth: UserAuth = {
+                  idUsuario:result.data.validarlogin.idUsuario,
                    name: result.data.validarlogin.nombreUsuario,
                    password: this.pass,
-                   idRol: result.data.validarlogin.iDRolUsuario
+                   idRol: result.data.validarlogin.iDRolUsuario,
+                   language:result.data.validarlogin.idioma.abreviaturaIdioma
                 }
+              
                 this.authService.login(userAuth);
                 //this.serviceuser.sendMessageLogin(result.data);
                 this.serviceuser.responseLogin=result.data.validarlogin;
              
                 GlobalConstants.listCompanys=result.data.validarlogin.companiaa;
-                GlobalConstants.listMonedas=result.data.validarlogin.monedass;
+                GlobalConstants.listMonedas=result.data.validarlogin.monedass.info_moneda;
+                GlobalConstants.months=result.data.validarlogin.mess.info_mes;
                 this.router.navigate(['/dashboards/Inicio']);
               }
       });
      
      
-    /*  this.serviceuser.getValidarLogin(name,pass).subscribe(
-        (user:any)=>{
-       
-          if(user.estado) {
-           
-            //this.serviceuser.sendMessageLogin(user);
-            this.serviceuser.responseLogin=user;
-            this.router.navigate(['/dashboards/dashboard1']);
-            this.serviceuser.getMenuRol(this.serviceuser.responseLogin.valor.IdRolUsuario).subscribe(
-              (res:any)=>{
-
-                 this.categorias=res.valor;
-                 GlobalConstants.ArrayCategorias=this.categorias;
-                 this.categorias.forEach((categoria:any)=>{
-                     this.tableros=categoria.categoriass.tableross;
-                     this.childrem=[];
-                     this.tableros.forEach(element => {
-                         this.childrem.push(
-                             {
-                                 state:element.nombreTablero,
-                                 name:element.nombreTablero,
-                                 type: 'link'
-                             }
-                         );
-                     });
-                 
-                      let item={
-                         state: 'tablero',
-                         name: categoria.categoriass.nombrecategoria,
-                         type: 'sub',
-                         icon: 'av_timer',
-                         children: this.childrem
-                      }
-                      this.menuitems.push(item);
-
-                   });
-                
-                   GlobalConstants.menuitems=this.menuitems;
-                   this.serviceuser.sendMessageLogin(GlobalConstants.menuitems);
-             
-              }
-            );
-            
-           /* this.serviceuser.getMenuRol(user.valor.idRolUsuario)
-            .subscribe((e:any)=>{
-               this.serviceuser.sendMessageLogin(e.valor);
-               
-            });
-          }
-
-         
-         
-        }
-          
-      );*/
-  
+ 
     }
    
   }

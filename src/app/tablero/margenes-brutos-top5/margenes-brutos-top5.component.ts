@@ -8,10 +8,13 @@ import * as pluginDataLabels from 'chartjs-plugin-datalabels';
 import { Subscription } from 'rxjs';
 import { ChartOptions } from 'chart.js';
 import { AuthServiceService } from 'src/app/services/auth-service.service';
+import { GlobalConstants } from 'src/app/GLOBALS/GlobalConstants';
+import { TranslateService } from '@ngx-translate/core';
+import { DataIndicador } from 'src/app/models/dataIndicador.interface';
 
 const QIMBTOP5 = gql`
-query margenbruto_top5($idrol1:Int!,$anioo:Int!,$mess:String,$companiaa:Int!, $monedadestinoo:Int!) {
-  margenbruto_top5(idrol1:$idrol1,anioo:$anioo,mess:$mess,companiaa:$companiaa, monedadestinoo:$monedadestinoo){
+query margenbruto_top5($idusuario:Int!,$anio:Int!,$mes:String,$compania:Int!, $monedadestino:Int!) {
+  margenbruto_top5(idusuario:$idusuario,anio:$anio,mes:$mes,compania:$compania, monedadestino:$monedadestino){
     tablero{
       idTablero
       nombreTablero
@@ -55,23 +58,65 @@ const LOGIN = gql`
   query validarlogin($usuario:String,$clave:String) {
     validarlogin(usuario: $usuario, clave: $clave) {
       idUsuario
-      nombreUsuario
-      usuario
-      iDRolUsuario
-      codIdioma
-      monedass{
-        idMonedaEmpresaOdoo
-        name
-        symbol
-        rate
-        estado
+     nombreUsuario
+     usuario
+    passwordd
+    fechacreacionusuario
+    iDRolUsuario
+    codIdioma
+    estado
+    anioo{
+      descripcion_anio{
+        auxiliarId
+        nombre
       }
-      companiaa{
-        idCompaniaOdoo
-        name
-        idMonedaEmpresaOdoo
-        estado
+      
     }
+    
+    mess{
+      descripcion_mes{
+        auxiliarId
+        nombre
+        
+      }
+      
+      info_mes{
+        mesid
+        nombre
+      }
+    }
+    
+    monedass{
+      descripcion_moneda{
+        auxiliarId
+        nombre
+        
+      }
+      info_moneda{
+         monedaId
+      idMonedaEmpresaOdoo
+      name
+      symbol
+      rate
+      estado
+      }
+     
+      
+    }
+    companiaa{
+       idCompaniaOdoo
+        name
+      idMonedaEmpresaOdoo
+      estado
+      
+    }
+    idioma{
+      codigoIdioma
+      abreviaturaIdioma
+      detalleIdioma
+    }
+
+    
   
     }
   }
@@ -84,28 +129,8 @@ const LOGIN = gql`
 })
 export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
   coins: any[] = [];
-  years: any[] = [
-    { value: '2021', viewValue: '2021' },
-    { value: '2020', viewValue: '2020' },
-    { value: '2019', viewValue: '2019' },
-    { value: '2018', viewValue: '2018' },
-    { value: '2017', viewValue: '2017' },
-    { value: '2016', viewValue: '2016' }
-  ];
-  months: any[] = [
-    { value: '01', viewValue: 'Enero' },
-    { value: '02', viewValue: 'Febrero' },
-    { value: '03', viewValue: 'Marzo' },
-    { value: '04', viewValue: 'Abril' },
-    { value: '05', viewValue: 'Mayo' },
-    { value: '06', viewValue: 'Junio' },
-    { value: '07', viewValue: 'Julio' },
-    { value: '08', viewValue: 'Agosto' },
-    { value: '09', viewValue: 'Septiembre' },
-    { value: '10', viewValue: 'Octubre' },
-    { value: '11', viewValue: 'Noviembre' },
-    { value: '12', viewValue: 'Marzo' }
-  ];
+  years: any[] = GlobalConstants.years;
+  months: any[] = [];
 
   private queryTop5: Subscription;//get first list products
   private queryLogin: Subscription;
@@ -115,25 +140,45 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
 
   // This is line chart
   // bar chart
- 
+
   public barChartOptions: any = {
-    scales: { xAxes: [{}], yAxes: [{}] },
     responsive: true,
-    maintainAspectRatio: true,
+    maintainAspectRatio: false,
+    scales: {
+      yAxes: [{
+
+        ticks: {
+          fontSize: 12
+        }
+      }],
+      xAxes: [{
+        ticks: {
+          fontSize: 12,
+          precision: 2
+        }
+      }],
+    },
     plugins: {
       datalabels: {
-        color: '#ffffff',
-        align: 'end',
+        color: 'red',
+        anchor: 'center',
+        align: 'start',
         display: true,
-        precision: 2
-        
+        precision: 2,
+        fontSize: 12,
+
       },
-      labels:{
-        render: 'value'
+      labels: {
+        fontSize: 12,
+        overlap: true,
       }
-  }
+    }
   };
 
+  
+  placeholderYear: String = 'Year';
+  placeholderMonth: String = 'Month';
+  placeholderCoin: String = 'Currency';
 
   public barChartLabels: string[] = [
 
@@ -141,23 +186,31 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
   public barChartType = 'horizontalBar';
   public barChartLegend = true;
 
-  public barChartData: any[]= [];
-  public barChartDataAc: any[]=[];
+  public barChartData: any[] = [];
+  public barChartDataAc: any[] = [];
 
   public barChartColors: Array<any> = [
 
   ];
 
+  langDefault: any = '';
   selectedyear = String(new Date().getFullYear());
   selectedMonth = String(this.getCurrenlyMonth());
   MesActual: any = this.getCurrenlyMonth();
   selectedCoin = 0;
   selectedCoinTable: String = '';//Variable en table
 
+  amoutIncremented: any;
+  amoutIncrementedAc: any;
+
+  amoutIncrementedcanvas: any;
+  amoutIncrementedcanvasAc: any;
+
   constructor(public userservice: UserService,
-    private apollo: Apollo,private serviceAuth: AuthServiceService) {
+    private apollo: Apollo, private serviceAuth: AuthServiceService,
+    public translateService: TranslateService) {
     this.queryTop5 = new Subscription();
-    this.queryLogin= new Subscription();
+    this.queryLogin = new Subscription();
 
   }
 
@@ -165,42 +218,50 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
   ngOnInit(): void {
     if (this.userservice.responseLogin) {
       this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
-      let arraymonedas = this.userservice.responseLogin.monedass;
-      this.selectedCoinTable = arraymonedas.find((e: any) => e.idMonedaEmpresaOdoo ==
-        this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo).name;
+      this.setup();
+     
+    
+      const currentFiltros: DataIndicador = {
+        anioActual: Number(this.selectedyear),
+        mesActual: this.selectedMonth,
+        monedaActual: this.selectedCoin
 
-      arraymonedas.forEach((e: any) => {
-        let coin = {
-          value: e.idMonedaEmpresaOdoo,
-          viewValue: e.name
-        };
-        this.coins.push(coin);
-      });
-      this.queryTop5= this.apollo.query({
+      }
+      localStorage.setItem('filtroAMM', JSON.stringify(currentFiltros));
+
+      this.queryTop5 = this.apollo.query({
         query: QIMBTOP5,
         variables: {
-          idrol1: this.userservice.responseLogin.idUsuario,
-          anioo: new Date().getFullYear(),
-          mess: this.getCurrenlyMonth(),
-          companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
-          monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
+          idusuario: this.userservice.responseLogin.idUsuario,
+          anio: new Date().getFullYear(),
+          mes: this.getCurrenlyMonth(),
+          compania: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
+          monedadestino: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
         },
         fetchPolicy: "network-only"
       }).subscribe((result: any) => {
 
         if (result.data.margenbruto_top5.lista_mes && result.data.margenbruto_top5.lista_anual) {
-          let listabar: any = [];
-          let listabarAc:any=[];
+          let listabar: any[] = [];
+          let listabarAc: any[] = [];
           this.barChartData = [];
-          this.barChartDataAc=[];
+          this.barChartDataAc = [];
           this.barChartLabels = [];
           this.listamesMB = [];
           this.listyearVAR = [];
 
+       
+        
           let listames = result.data.margenbruto_top5.lista_mes;
           let listaanual = result.data.margenbruto_top5.lista_anual;
           this.dataSourceMes = new MatTableDataSource<MargenBruto>();
           this.dataSourceAcumulado = new MatTableDataSource<MargenBruto>();
+
+          this.amoutIncremented = 150 + (50 * listames.length) + "px";
+          this.amoutIncrementedAc = 150 + (50 * listaanual.length) + "px";
+
+          this.amoutIncrementedcanvas = 100 + (50 * listames.length) + "px";
+          this.amoutIncrementedcanvasAc = 100 + (50 * listaanual.length) + "px";
 
           listames.forEach((value: any) => {
             let item = {
@@ -209,9 +270,11 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
               bps: value.bPS,
               moneda: value.importe_actual
             }
+            let calculograficomes = Number(value.calculo_grafico.replace(',', '.'));
 
             this.listamesMB.push(item);
-            listabar.push(value.porcentaje_margen_actual);
+
+            listabar.push(Number(calculograficomes.toFixed(2)));
             this.barChartLabels.push(value.nombre);
           });
           listaanual.forEach((value: any) => {
@@ -221,20 +284,30 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
               bps: value.bPS,
               moneda: value.importe_actual
             }
+            if (listames.length === 0) {
+              this.barChartLabels.push(value.nombre);
+            }
+            let calculografico = Number(value.calculo_grafico.replace(',', '.'));
+
+
             this.listyearVAR.push(item);
-            listabarAc.push(value.porcentaje_margen_actual);
+            listabarAc.push(calculografico.toFixed(2));
+
+            // listabarAc.push(value.porcentaje_margen_actual);
           });
 
           this.dataSourceMes = new MatTableDataSource<MargenBruto>(this.listamesMB);
-         
-        
+
+
+
           this.barChartColors.push({ backgroundColor: 'rgb(31,78,120)' });
 
           this.barChartData[0] = {
             data: listabar,
             label: 'VAR. vs.' + (new Date().getFullYear() - 1)
           }
-          this.barChartDataAc[0]={
+
+          this.barChartDataAc[0] = {
             data: listabarAc,
             label: 'VAR. vs.' + (new Date().getFullYear() - 1)
           }
@@ -245,49 +318,56 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
       });
 
     }
-    else{
+    else {
+
       this.queryLogin = this.apollo.query({
         query: LOGIN,
         variables: { usuario: this.serviceAuth.userData?.name, clave: this.serviceAuth.userData?.password },
         fetchPolicy: "network-only"
       }).subscribe((response: any) => {
-        this.userservice.responseLogin = response.data.validarlogin;
-        this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
-        let arraymonedas = this.userservice.responseLogin.monedass;
+        this.setup();
 
-        arraymonedas.forEach((e: any) => {
-          let coin = {
-            value: e.idMonedaEmpresaOdoo,
-            viewValue: e.name
-          };
-          this.coins.push(coin);
-        });
+        let filtro: DataIndicador | null | any = null;
+        filtro = localStorage.getItem('filtroAMM');
+        if (filtro) {
+          filtro = JSON.parse(filtro);
+        } else {
+          filtro = null;
+        }
+       
+
         this.queryTop5 = this.apollo.query({
           query: QIMBTOP5,
           variables: {
-            idrol1: this.userservice.responseLogin.idUsuario,
-            anioo: new Date().getFullYear(),
-            mess: this.getCurrenlyMonth(),
-            companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
-            monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
+            idusuario: this.userservice.responseLogin.idUsuario,
+            anio:filtro.anioActual,
+            mes: filtro.mesActual,
+            compania: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
+            monedadestino: filtro.monedaActual
           },
           fetchPolicy: "network-only"
         }).subscribe((result: any) => {
-  
+
           if (result.data.margenbruto_top5.lista_mes && result.data.margenbruto_top5.lista_anual) {
             let listabar: any = [];
-            let listabarAc:any=[];
+            let listabarAc: any = [];
             this.barChartData = [];
-            this.barChartDataAc=[];
+            this.barChartDataAc = [];
             this.barChartLabels = [];
             this.listamesMB = [];
             this.listyearVAR = [];
-  
+
+            this.selectedCoin = filtro.monedaActual ;
+            this.selectedyear=String(filtro.anioActual);
+            this.selectedMonth=filtro.mesActual;
+
             let listames = result.data.margenbruto_top5.lista_mes;
             let listaanual = result.data.margenbruto_top5.lista_anual;
             this.dataSourceMes = new MatTableDataSource<MargenBruto>();
             this.dataSourceAcumulado = new MatTableDataSource<MargenBruto>();
-  
+
+            this.fixedSize(listames, listaanual);
+
             listames.forEach((value: any) => {
               let item = {
                 producto: value.nombre,
@@ -295,9 +375,10 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
                 bps: value.bPS,
                 moneda: value.importe_actual
               }
-  
+              let calculograficomes = Number(value.calculo_grafico.replace(',', '.'));
+
               this.listamesMB.push(item);
-              listabar.push(value.porcentaje_margen_actual);
+              listabar.push(Number(calculograficomes.toFixed(2)));
               this.barChartLabels.push(value.nombre);
             });
             listaanual.forEach((value: any) => {
@@ -307,32 +388,38 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
                 bps: value.bPS,
                 moneda: value.importe_actual
               }
+              if (listames.length === 0) {
+                this.barChartLabels.push(value.nombre);
+              }
               this.listyearVAR.push(item);
-              listabarAc.push(value.porcentaje_margen_actual);
+              let calculografico = Number(value.calculo_grafico.replace(',', '.'));
+
+              listabarAc.push(calculografico.toFixed(2));
+
             });
-  
+
             this.dataSourceMes = new MatTableDataSource<MargenBruto>(this.listamesMB);
-           
-          
-            this.barChartColors.push({ backgroundColor: '#1976d2' });
-  
+
+
+            this.barChartColors.push({ backgroundColor: 'rgb(31,78,120)' });
+
             this.barChartData[0] = {
               data: listabar,
               label: 'VAR. vs.' + (new Date().getFullYear() - 1)
             }
-            this.barChartDataAc[0]={
+            this.barChartDataAc[0] = {
               data: listabarAc,
               label: 'VAR. vs.' + (new Date().getFullYear() - 1)
             }
             this.dataSourceAcumulado = new MatTableDataSource<MargenBruto>(this.listyearVAR);
-  
+
           }
-  
+
         });
 
-      }); 
+      });
     }
-    
+
   }
 
   displayedColumns = ['producto', 'porcentaje_margen', 'bps', 'importe_actual'];
@@ -345,6 +432,13 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
   // events
   public chartClicked(e: any): void {
     // console.log(e);
+  }
+  fixedSize(listames: any, listaanual: any) {
+    this.amoutIncremented = 150 + (50 * listames.length) + "px";
+    this.amoutIncrementedAc = 150 + (50 * listaanual.length) + "px";
+
+    this.amoutIncrementedcanvas = 100 + (50 * listames.length) + "px";
+    this.amoutIncrementedcanvasAc = 100 + (50 * listaanual.length) + "px";
   }
   getCurrenlyMonth() {
     let month = new Date().getMonth() + 1;
@@ -364,39 +458,48 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
   onCoinChange(event: any) {
     this.refreshQuery();
   }
-  getAbsoluto(value:number){
+  getAbsoluto(value: number) {
     return Math.abs(value);
   }
   refreshQuery() {
+    const currentFiltros: DataIndicador = {
+      anioActual: Number(this.selectedyear),
+      mesActual: this.selectedMonth,
+      monedaActual: this.selectedCoin
+
+    }
+    localStorage.removeItem('filtroAMM');
+    localStorage.setItem('filtroAMM', JSON.stringify(currentFiltros));
+
     if (this.userservice.responseLogin) {
-
-      let arraymonedas = this.userservice.responseLogin.monedass;
-      this.selectedCoinTable = arraymonedas.find((e: any) => e.idMonedaEmpresaOdoo ==
-        this.selectedCoin).name
-
+      this.setup();
+      // this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
       this.queryTop5 = this.apollo.query({
         query: QIMBTOP5,
         variables: {
-          idrol1: this.userservice.responseLogin.idUsuario,
-          anioo: Number(this.selectedyear),
-          mess: this.selectedMonth,
-          companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
-          monedadestinoo: this.selectedCoin
+          idusuario: this.userservice.responseLogin.idUsuario,
+          anio: Number(this.selectedyear),
+          mes: this.selectedMonth,
+          compania: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
+          monedadestino: this.selectedCoin
         },
         fetchPolicy: "network-only"
       }).subscribe((result: any) => {
- 
+
         if (result.data.margenbruto_top5.lista_mes && result.data.margenbruto_top5.lista_anual) {
           let listabar: any = [];
+          let listabarAc: any[] = [];
           this.barChartLabels = [];
           this.barChartData = [];
-          this.barChartLabels = [];
           this.listamesMB = [];
           this.listyearVAR = [];
           let listames = result.data.margenbruto_top5.lista_mes;
           let listaanual = result.data.margenbruto_top5.lista_anual;
           this.dataSourceMes = new MatTableDataSource<MargenBruto>();
           this.dataSourceAcumulado = new MatTableDataSource<MargenBruto>();
+
+          this.fixedSize(listames, listaanual);
+
           listames.forEach((value: any) => {
             let item = {
               producto: value.nombre,
@@ -404,9 +507,11 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
               bps: value.bPS,
               moneda: value.importe_actual
             }
-  
+            let calculograficomes = Number(value.calculo_grafico.replace(',', '.'));
+
             this.listamesMB.push(item);
-            listabar.push(value.porcentaje_margen_actual);
+
+            listabar.push(calculograficomes.toFixed(2));
             this.barChartLabels.push(value.nombre);
           });
           listaanual.forEach((value: any) => {
@@ -416,26 +521,73 @@ export class MargenesBrutosTop5Component implements OnInit, OnDestroy {
               bps: value.bPS,
               moneda: value.importe_actual
             }
+            if (listames.length === 0) {
+              this.barChartLabels.push(value.nombre);
+            }
+            let calculografico = Number(value.calculo_grafico.replace(',', '.'));
+
             this.listyearVAR.push(item);
+            listabarAc.push(calculografico.toFixed(2));
+
+            // listabarAc.push(value.porcentaje_margen_actual);
           });
-  
+
           this.dataSourceMes = new MatTableDataSource<MargenBruto>(this.listamesMB);
-  
+
+
+
           this.barChartColors.push({ backgroundColor: 'rgb(31,78,120)' });
-  
+
           this.barChartData[0] = {
             data: listabar,
             label: 'VAR. vs.' + (new Date().getFullYear() - 1)
           }
+
+          this.barChartDataAc[0] = {
+            data: listabarAc,
+            label: 'VAR. vs.' + (new Date().getFullYear() - 1)
+          }
           this.dataSourceAcumulado = new MatTableDataSource<MargenBruto>(this.listyearVAR);
-  
+
         }
-     
+
       });
     }
-    else{
 
-    }
+  }
+
+  setup() {
+    this.coins = [];
+
+    let arraymonedas = this.userservice.responseLogin.monedass.info_moneda;
+    let arrayMeses: any = this.userservice.responseLogin.mess.info_mes;
+    this.selectedCoinTable = arraymonedas.find((e: any) => e.idMonedaEmpresaOdoo ==
+    this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo).name;
+
+    this.langDefault = this.userservice.responseLogin.idioma.abreviaturaIdioma;
+
+
+    this.translateService.setDefaultLang(this.langDefault);
+    this.translateService.use(this.langDefault);
+
+    this.placeholderYear = this.userservice.responseLogin.anioo.descripcion_anio.nombre;
+    this.placeholderMonth = this.userservice.responseLogin.mess.descripcion_mes.nombre;
+    this.placeholderCoin = this.userservice.responseLogin.monedass.descripcion_moneda.nombre;
+
+    arraymonedas.forEach((e: any) => {
+      let coin = {
+        value: e.idMonedaEmpresaOdoo,
+        viewValue: e.name
+      };
+      this.coins.push(coin);
+    });
+    arrayMeses.forEach((item: any) => {
+      const mes = {
+        value: String(item.mesid),
+        viewValue: item.nombre
+      }
+      this.months.push(mes);
+    });
   }
 
   ngOnDestroy(): void {

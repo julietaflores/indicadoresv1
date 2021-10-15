@@ -8,11 +8,13 @@ import * as pluginDataLabels from 'chartjs-plugin-datalabels';
 import { NEVER, Subscription, Observable, forkJoin, combineLatest } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { AuthServiceService } from 'src/app/services/auth-service.service';
+import { TranslateService } from '@ngx-translate/core';
+import { DataIndicador } from 'src/app/models/dataIndicador.interface';
 
 
 const QICM = gql`
-query  composicion_margenes($idrol1:Int!,$anioo:Int!,$mess:String,$companiaa:Int!, $monedadestinoo:Int!) {
-  composicion_margenes(idrol1:$idrol1,anioo:$anioo,mess:$mess,companiaa:$companiaa, monedadestinoo:$monedadestinoo){
+query  composicion_margenes($idusuario:Int!,$anio:Int!,$mes:String,$compania:Int!) {
+  composicion_margenes(idusuario:$idusuario,anio:$anio,mes:$mes,compania:$compania){
     tablero{
       idTablero
       nombreTablero
@@ -97,22 +99,62 @@ const LOGIN = gql`
       idUsuario
       nombreUsuario
       usuario
-      iDRolUsuario
-      codIdioma
-      monedass{
-        idMonedaEmpresaOdoo
-        name
-        symbol
-        rate
-        estado
-      }
-      companiaa{
+     passwordd
+     fechacreacionusuario
+     iDRolUsuario
+     codIdioma
+     estado
+     anioo{
+       descripcion_anio{
+         auxiliarId
+         nombre
+       }
+       
+     }
+     
+     mess{
+       descripcion_mes{
+         auxiliarId
+         nombre
+         
+       }
+       
+       info_mes{
+         mesid
+         nombre
+       }
+     }
+     
+     monedass{
+       descripcion_moneda{
+         auxiliarId
+         nombre
+         
+       }
+       info_moneda{
+          monedaId
+       idMonedaEmpresaOdoo
+       name
+       symbol
+       rate
+       estado
+       }
+      
+       
+     }
+     companiaa{
         idCompaniaOdoo
-        name
-        idMonedaEmpresaOdoo
-        estado
-    }
-  
+         name
+       idMonedaEmpresaOdoo
+       estado
+       
+     }
+     idioma{
+       codigoIdioma
+       abreviaturaIdioma
+       detalleIdioma
+     }
+ 
     }
   }
   `;
@@ -125,7 +167,8 @@ const LOGIN = gql`
 export class ComposicionMargenesComponent implements OnInit, OnDestroy {
 
   constructor(public userservice: UserService,
-    private apoll: Apollo, private serviceAuth: AuthServiceService) {
+    private apoll: Apollo, private serviceAuth: AuthServiceService,
+    public translateService: TranslateService) {
     this.queryComposition = new Subscription();
     this.queryLogin= new Subscription();
   }
@@ -139,6 +182,7 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
 
   listlabel: string[] = [];
   listlabelyear: string[] = [];
+  langDefault: any = '';
 
   colors: String[] = [];
   selectedyear = String(new Date().getFullYear());
@@ -156,7 +200,7 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
       datalabels: {
         color: '#ffffff',
         formatter: function (value: any) {
-          return Number.parseFloat(value).toFixed(2);
+          return Number.parseFloat(value).toFixed(2) + "%";
         },
       }
     }
@@ -169,29 +213,9 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
   private queryLogin:Subscription;
 
 
-  coins: any[] = [];
-  years: any[] = [
-    { value: '2021', viewValue: '2021' },
-    { value: '2020', viewValue: '2020' },
-    { value: '2019', viewValue: '2019' },
-    { value: '2018', viewValue: '2018' },
-    { value: '2017', viewValue: '2017' },
-    { value: '2016', viewValue: '2016' }
-  ];
-  months: any[] = [
-    { value: '01', viewValue: 'Enero' },
-    { value: '02', viewValue: 'Febrero' },
-    { value: '03', viewValue: 'Marzo' },
-    { value: '04', viewValue: 'Abril' },
-    { value: '05', viewValue: 'Mayo' },
-    { value: '06', viewValue: 'Junio' },
-    { value: '07', viewValue: 'Julio' },
-    { value: '08', viewValue: 'Agosto' },
-    { value: '09', viewValue: 'Septiembre' },
-    { value: '10', viewValue: 'Octubre' },
-    { value: '11', viewValue: 'Noviembre' },
-    { value: '12', viewValue: 'Marzo' }
-  ];
+  // coins: any[] = [];
+  years: any[] = GlobalConstants.years;
+  months: any[] = [];
   // Pie
   public pieChartLabels: string[] = [];
   public pieChartLabelsYear: string[] = [];
@@ -201,27 +225,50 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (this.userservice.responseLogin) {
-      this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
-      let arraymonedas = this.userservice.responseLogin.monedass;
+      this.langDefault = this.userservice.responseLogin.idioma.abreviaturaIdioma;
 
-      arraymonedas.forEach((e: any) => {
-        let coin = {
-          value: e.idMonedaEmpresaOdoo,
-          viewValue: e.name
-        };
-        this.coins.push(coin);
+      // alert("es dioma actual "+ this.langDefault);
+      this.translateService.setDefaultLang(this.langDefault);
+      this.translateService.use(this.langDefault);
+      this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
+      let arrayMeses:any= this.userservice.responseLogin.mess.info_mes;
+      arrayMeses.forEach((item:any)=>{
+        const mes={
+          value:String(item.mesid),
+          viewValue:item.nombre
+         }
+         this.months.push(mes);
       });
+         
+      const currentFiltros: DataIndicador = {
+        anioActual: Number(this.selectedyear),
+        mesActual: this.selectedMonth,
+        monedaActual: this.selectedCoin
+
+      }
+      localStorage.setItem('filtroAMM', JSON.stringify(currentFiltros));
+
+
+      // let arraymonedas = this.userservice.responseLogin.monedass;
+
+      // // arraymonedas.forEach((e: any) => {
+      // //   let coin = {
+      // //     value: e.idMonedaEmpresaOdoo,
+      // //     viewValue: e.name
+      // //   };
+      // //   this.coins.push(coin);
+      // // });
       this.queryComposition = this.apoll.query({
         query: QICM,
         variables: {
-          idrol1: this.userservice.responseLogin.idUsuario,
-          anioo: new Date().getFullYear(),
-          mess: this.getCurrenlyMonth(),
-          companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
-          monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
+          idusuario: this.userservice.responseLogin.idUsuario,
+          anio: new Date().getFullYear(),
+          mes: this.getCurrenlyMonth(),
+          compania: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo
         },
-        fetchPolicy: "network-only"
+        fetchPolicy: "no-cache"
       }).subscribe((response: any) => {
+        console.log(response);
         let indicadores = response.data.composicion_margenes.lista;
         indicadores.forEach((item: any) => {
           this.listpercentagesmes= [];
@@ -247,7 +294,9 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
           
           listaanual.forEach((item: any) => {
             this.listpercentagesyear.push(Number(item.porcentajetorta.replace(",", ".")));
-
+            if(listames.length==0){
+              pieChartLabels.push(item.nombre);
+             }
           });
           pieChartData = this.listpercentagesmes;
           console.log(pieChartData);
@@ -270,33 +319,58 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
   
     }
     else{
-      this.queryLogin = this.apoll.query({
+      this.queryLogin = this.apoll.watchQuery({
         query: LOGIN,
-        variables: { usuario: this.serviceAuth.userData?.name, clave: this.serviceAuth.userData?.password },
-        fetchPolicy: "network-only"
-      }).subscribe((response: any) => {
+        variables: { usuario: this.serviceAuth.userData?.name, clave: this.serviceAuth.userData?.password }
+      }).valueChanges.subscribe((response: any) => {
         this.userservice.responseLogin = response.data.validarlogin;
-        this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
-        let arraymonedas = this.userservice.responseLogin.monedass;
+          
+        let filtro:DataIndicador| null | any = null;
+        filtro = localStorage.getItem('filtroAMM');
+        if (filtro) {
+          filtro = JSON.parse(filtro);
+        } else {
+          filtro = null;
+        }
 
-        arraymonedas.forEach((e: any) => {
-          let coin = {
-            value: e.idMonedaEmpresaOdoo,
-            viewValue: e.name
-          };
-          this.coins.push(coin);
+     
+        this.selectedCoin = filtro.monedaActual ;
+        this.selectedyear=String(filtro.anioActual);
+        this.selectedMonth=filtro.mesActual;
+      
+        let arrayMeses:any= this.userservice.responseLogin.mess.info_mes;
+        arrayMeses.forEach((item:any)=>{
+          const mes={
+            value:String(item.mesid),
+            viewValue:item.nombre
+           }
+           this.months.push(mes);
         });
-        this.queryComposition = this.apoll.query({
+        // let arraymonedas = this.userservice.responseLogin.monedass;
+
+        // arraymonedas.forEach((e: any) => {
+        //   let coin = {
+        //     value: e.idMonedaEmpresaOdoo,
+        //     viewValue: e.name
+        //   };
+        //   this.coins.push(coin);
+        // });
+        this.queryComposition = this.apoll.watchQuery({
           query: QICM,
           variables: {
-            idrol1: this.userservice.responseLogin.idUsuario,
-            anioo: new Date().getFullYear(),
-            mess: this.getCurrenlyMonth(),
-            companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
-            monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
-          }
-        }).subscribe((response: any) => {
+            idusuario: this.userservice.responseLogin.idUsuario,
+            anio: new Date().getFullYear(),
+            mes: this.getCurrenlyMonth(),
+            compania: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo
+          },
+          fetchPolicy: "no-cache"
+        }).valueChanges.subscribe((response: any) => {
   
+          this.langDefault = this.userservice.responseLogin.idioma.abreviaturaIdioma;
+
+          // alert("es dioma actual "+ this.langDefault);
+          this.translateService.setDefaultLang(this.langDefault);
+          this.translateService.use(this.langDefault);
           let indicadores = response.data.composicion_margenes.lista;
            console.log(indicadores);
   
@@ -324,10 +398,12 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
             
             listaanual.forEach((item: any) => {
               this.listpercentagesyear.push(Number(item.porcentajetorta.replace(",", ".")));
-  
+              if(listames.length==0){
+                pieChartLabels.push(item.nombre);
+               }
             });
             pieChartData = this.listpercentagesmes;
-            console.log(pieChartData);
+            
             pieChartDataYear = this.listpercentagesyear;
   
             let pieRegion = {
@@ -380,17 +456,25 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
     // this.queryTop5.unsubscribe();
   }
   private refreshQuery(){
+    const currentFiltros: DataIndicador = {
+      anioActual: Number(this.selectedyear),
+      mesActual: this.selectedMonth,
+      monedaActual: this.selectedCoin
+
+    }
+    localStorage.removeItem('filtroAMM');
+    localStorage.setItem('filtroAMM', JSON.stringify(currentFiltros));
+
     this.listChartsPie=[];
     this.queryComposition=this.apoll.query({
       query: QICM,
       variables: {
-        idrol1: this.userservice.responseLogin.idUsuario,
-        anioo: Number(this.selectedyear),
-        mess: this.selectedMonth,
-        companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
-        monedadestinoo: this.selectedCoin
+        idusuario: this.userservice.responseLogin.idUsuario,
+        anio: Number(this.selectedyear),
+        mes: this.selectedMonth,
+        compania: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo
       },
-      fetchPolicy: "network-only"
+      fetchPolicy: "no-cache"
     }).subscribe((response: any) => {
       if(response){
         this.listChartsPie=[];
@@ -418,7 +502,9 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
           
           listaanual.forEach((item: any) => {
             this.listpercentagesyear.push(Number(item.porcentajetorta.replace(",", ".")));
-  
+            if(listames.length==0){
+              pieChartLabels.push(item.nombre);
+             }
           });
           pieChartData = this.listpercentagesmes;
           console.log(pieChartData);

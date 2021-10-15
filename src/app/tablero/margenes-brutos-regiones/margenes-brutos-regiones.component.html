@@ -1,10 +1,10 @@
 <div fxLayout="row wrap">
     <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100">
-        <mat-card style="padding: 0">
+        <mat-card >
             <mat-card-content style="padding: 0.5rem 1rem;margin: 0;">
 
                 <mat-form-field style="padding:0;margin: 0;">
-                    <mat-select style="padding:0;margin: 0;" placeholder="Año" [(value)]="selectedyear"
+                    <mat-select style="padding:0;margin: 0;" placeholder="{{placeholderYear}}" [(value)]="selectedyear"
                         (selectionChange)="onYearChange($event)">
                         <mat-option *ngFor="let year of years" [value]="year.value">
                             {{year.viewValue}}
@@ -15,11 +15,12 @@
         </mat-card>
     </div>
     <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100">
-        <mat-card>
+        <mat-card >
             <mat-card-content style="padding: 0.5rem 1rem;margin: 0;">
 
                 <mat-form-field>
-                    <mat-select [(value)]="selectedMonth" placeholder="Mes" (selectionChange)="onMonthChange($event)">
+                    <mat-select [(value)]="selectedMonth" placeholder="{{placeholderMonth}}"
+                        (selectionChange)="onMonthChange($event)">
                         <mat-option *ngFor="let month of months" [value]="month.value">
                             {{month.viewValue}}
                         </mat-option>
@@ -32,7 +33,8 @@
         <mat-card>
             <mat-card-content style="padding: 0.5rem 1rem;margin: 0;">
                 <mat-form-field>
-                    <mat-select placeholder="Moneda" [(value)]="selectedCoin" (selectionChange)="onCoinChange($event)">
+                    <mat-select placeholder="{{placeholderCoin}}" [(value)]="selectedCoin"
+                        (selectionChange)="onCoinChange($event)">
                         <mat-option *ngFor="let coin of coins" [value]="coin.value">
                             {{coin.viewValue}}
                         </mat-option>
@@ -43,11 +45,11 @@
     </div>
 </div>
 
-<div fxLayout="row wrap" >
+<div fxLayout="row wrap">
     <div fxFlex.gt-sm="50" fxFlex.gt-xs="100" fxFlex="100" *ngIf="listamesMB.length>0">
-        <mat-card>
+        <mat-card [style.height]="amoutIncremented">
             <mat-card-content>
-                <mat-card-title>MES</mat-card-title>
+                <mat-card-title>{{ months[selectedMonth-1].viewValue| translate}}</mat-card-title>
                 <div class="responsive-table">
                     <table mat-table [dataSource]="dataSourceMes" class="mat-elevation-z8">
 
@@ -56,7 +58,7 @@
 
                         <!-- Position Column -->
                         <ng-container matColumnDef="division">
-                            <th mat-header-cell *matHeaderCellDef> DIVISION</th>
+                            <th mat-header-cell *matHeaderCellDef>{{ 'DIVISION' | translate}}</th>
                             <td mat-cell *matCellDef="let element"> {{element.division}} </td>
                         </ng-container>
 
@@ -69,7 +71,8 @@
 
                                 <p style="margin: 0;padding: 0;" *ngIf="element.porcentaje_margen<0"
                                     class="negative_value">
-                                    ({{getAbsoluto(element.porcentaje_margen) | percent:'1.2-5' }})</p></td>
+                                    ({{getAbsoluto(element.porcentaje_margen) | percent:'1.2-5' }})</p>
+                            </td>
                         </ng-container>
 
                         <!-- Weight Column -->
@@ -91,27 +94,31 @@
 
             </mat-card-content>
         </mat-card>
-       
+
     </div>
     <div fxFlex.gt-sm="50" fxFlex.gt-xs="100" fxFlex="100" *ngIf="listamesMB.length>0">
-        <mat-card>
-          <mat-card-content>
-            <!-- <mat-card-title>Bar Sales Chart</mat-card-title> -->
-            
-            <canvas baseChart [datasets]="barChartData" [labels]="barChartLabels" [options]="barChartOptions"
-             [legend]="barChartLegend"
-              [chartType]="barChartType" (chartHover)="chartHovered($event)" [colors]="barChartColors" 
-              (chartClick)="chartClicked($event)">
-            </canvas>
-          </mat-card-content>
+        <mat-card [style.height]="amoutIncremented">
+            <mat-card-content>
+                <!-- <mat-card-title>Bar Sales Chart</mat-card-title> -->
+                <div fxLayout="row wrap" [style.height]="amoutIncrementedcanvas">
+                    <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
+                        <canvas baseChart [datasets]="barChartData" [labels]="barChartLabels"
+                            [options]="barChartOptions" [legend]="barChartLegend" [chartType]="barChartType"
+                            (chartHover)="chartHovered($event)" [colors]="barChartColors"
+                            (chartClick)="chartClicked($event)">
+                        </canvas>
+                    </div>
+                </div>
+
+            </mat-card-content>
         </mat-card>
-      </div>
+    </div>
 </div>
 <div fxLayout="row wrap">
     <div fxFlex.gt-sm="50" fxFlex.gt-xs="100" fxFlex="100" *ngIf="listyearVAR.length>0">
-        <mat-card>
+        <mat-card [style.height]="amoutIncrementedAc">
             <mat-card-content>
-                <mat-card-title>ACUMULADO</mat-card-title>
+                <mat-card-title>{{'Acumulado' | translate}}</mat-card-title>
                 <div class="responsive-table">
                     <table mat-table [dataSource]="dataSourceAcumulado" class="mat-elevation-z8">
 
@@ -120,7 +127,7 @@
 
                         <!-- Position Column -->
                         <ng-container matColumnDef="division">
-                            <th mat-header-cell *matHeaderCellDef> DIVISION</th>
+                            <th mat-header-cell *matHeaderCellDef>{{'DIVISION' | translate }}</th>
                             <td mat-cell *matCellDef="let element"> {{element.division}} </td>
                         </ng-container>
 
@@ -134,7 +141,7 @@
                                 <p style="margin: 0;padding: 0;" *ngIf="element.porcentaje_margen<0"
                                     class="negative_value">
                                     ({{getAbsoluto(element.porcentaje_margen) | percent:'1.2-5' }})</p>
-                         </td>
+                            </td>
                         </ng-container>
 
                         <!-- Weight Column -->
@@ -156,19 +163,23 @@
 
             </mat-card-content>
         </mat-card>
-       
+
     </div>
     <div fxFlex.gt-sm="50" fxFlex.gt-xs="100" fxFlex="100" *ngIf="listyearVAR.length>0">
-        <mat-card>
-          <mat-card-content>
-            <!-- <mat-card-title>Bar Sales Chart</mat-card-title> -->
-            
-            <canvas baseChart [datasets]="barChartData" [labels]="barChartLabels" [options]="barChartOptions"
-             [legend]="barChartLegend"
-              [chartType]="barChartType" (chartHover)="chartHovered($event)" [colors]="barChartColors"
-               (chartClick)="chartClicked($event)">
-            </canvas>
-          </mat-card-content>
+        <mat-card [style.height]="amoutIncrementedAc">
+            <mat-card-content style="margin: 0;padding-left:0;padding-right: 0;">
+                <div fxLayout="row wrap" [style.height]="amoutIncrementedcanvasAc">
+                    <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
+
+                        <canvas baseChart [datasets]="barChartDataAc" [labels]="barChartLabels"
+                            [options]="barChartOptions" [legend]="barChartLegend" [chartType]="barChartType"
+                            [plugins]="barChartPlugins" (chartHover)="chartHovered($event)" [colors]="barChartColors"
+                            (chartClick)="chartClicked($event)">
+                        </canvas>
+                    </div>
+                </div>
+
+            </mat-card-content>
         </mat-card>
-      </div>
+    </div>
 </div>

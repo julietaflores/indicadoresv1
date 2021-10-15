@@ -20,11 +20,15 @@ export class ForgotComponent implements OnInit {
 
   ngOnInit(): void {
     this.form = this.fb.group({
-      email: [
-        null,
-        Validators.compose([Validators.required, CustomValidators.email])
-      ]
+      // uname: ['', Validators.compose([Validators.required])],
+      password: ['', Validators.compose([Validators.required])]
     });
+    // this.form = this.fb.group({
+    //   email: [
+    //     null,
+    //     Validators.compose([Validators.required, CustomValidators.email])
+    //   ]
+    // });
   }
 
   onSubmit(): void {

@@ -7,6 +7,8 @@ import { Label } from 'ng2-charts';
 import * as pluginDataLabels from 'chartjs-plugin-datalabels';
 import { Subscription } from 'rxjs';
 import { AuthServiceService } from 'src/app/services/auth-service.service';
+import { TranslateService } from '@ngx-translate/core';
+import { DataIndicador } from 'src/app/models/dataIndicador.interface';
 
 const MENUTABLERO = gql`
 query menu_Indicadores($idrolusuario:Int!) {
@@ -42,30 +44,71 @@ const LOGIN = gql`
   query validarlogin($usuario:String,$clave:String) {
     validarlogin(usuario: $usuario, clave: $clave) {
       idUsuario
-      nombreUsuario
-      usuario
-      iDRolUsuario
-      codIdioma
-      monedass{
-        idMonedaEmpresaOdoo
-        name
-        symbol
-        rate
-        estado
+     nombreUsuario
+     usuario
+    passwordd
+    fechacreacionusuario
+    iDRolUsuario
+    codIdioma
+    estado
+    anioo{
+      descripcion_anio{
+        auxiliarId
+        nombre
       }
-      companiaa{
-        idCompaniaOdoo
-        name
-        idMonedaEmpresaOdoo
-        estado
+      
     }
-  
+    
+    mess{
+      descripcion_mes{
+        auxiliarId
+        nombre
+        
+      }
+      
+      info_mes{
+        mesid
+        nombre
+      }
+    }
+    
+    monedass{
+      descripcion_moneda{
+        auxiliarId
+        nombre
+        
+      }
+      info_moneda{
+         monedaId
+      idMonedaEmpresaOdoo
+      name
+      symbol
+      rate
+      estado
+      }
+     
+      
+    }
+    companiaa{
+       idCompaniaOdoo
+        name
+      idMonedaEmpresaOdoo
+      estado
+      
+    }
+    idioma{
+      codigoIdioma
+      abreviaturaIdioma
+      detalleIdioma
+    }
+
+    
     }
   }
   `;
-const QICV=gql`
-query composicion_ventas($idrol1:Int!,$anioo:Int!,$mess:String,$companiaa:Int!, $monedadestinoo:Int!) {
-  composicion_ventas(idrol1:$idrol1,anioo:$anioo,mess:$mess,companiaa:$companiaa, monedadestinoo:$monedadestinoo){
+const QICV = gql`
+query composicion_ventas($idusuario:Int!,$anio:Int!,$mes:String,$compania:Int!) {
+  composicion_ventas(idusuario:$idusuario,anio:$anio,mes:$mes,compania:$compania){
     tablero{
       idTablero
       nombreTablero
@@ -105,13 +148,13 @@ query composicion_ventas($idrol1:Int!,$anioo:Int!,$mess:String,$companiaa:Int!, 
   templateUrl: './composicion-ventas.component.html',
   styleUrls: ['./composicion-ventas.component.scss']
 })
-export class ComposicionVentasComponent implements OnInit, OnDestroy  {
+export class ComposicionVentasComponent implements OnInit, OnDestroy {
 
   constructor(public userservice: UserService,
-    private apollo: Apollo,private serviceAuth: AuthServiceService) { 
-      this.queryCompositionV=new Subscription();
-      this.queryLogin=new Subscription();
-    }
+    private apollo: Apollo, private serviceAuth: AuthServiceService, public translate: TranslateService) {
+    this.queryCompositionV = new Subscription();
+    this.queryLogin = new Subscription();
+  }
 
   listIndicadores: any = [];//Lista Indicadores Composicion Ventas
   listpercentagesmes: any = [];//lista porcentajes torta
@@ -127,6 +170,10 @@ export class ComposicionVentasComponent implements OnInit, OnDestroy  {
   selectedMonth = String(this.getCurrenlyMonth());
   MesActual: any = this.getCurrenlyMonth();
   selectedCoin = 0;
+  placeholderYear: String = 'Year';
+  placeholderMonth: String = 'Month';
+
+
 
   pieChartOptions = {
     responsive: true,
@@ -137,7 +184,7 @@ export class ComposicionVentasComponent implements OnInit, OnDestroy  {
       datalabels: {
         color: '#ffffff',
         formatter: function (value: any) {
-          return Number.parseFloat(value).toFixed(2);
+          return Number.parseFloat(value).toFixed(2) + "%";
         },
       }
     }
@@ -151,36 +198,16 @@ export class ComposicionVentasComponent implements OnInit, OnDestroy  {
     // }
   }
   public pieChartPlugins = [pluginDataLabels];
- 
+
   private queryCompositionV: Subscription;
   private queryLogin: Subscription;
   // dataSource = new MatTableDataSource<PerformanceGL>(ELEMENT_DATA);
   // dataSourceAc = new MatTableDataSource<PerformanceGLAcumulado>(ELEMENT_DATA_AC);
   // dataSourceVARS = new MatTableDataSource<VarPerformance>(ELEMENT_VAR);
   // dataSourceVARSAc = new MatTableDataSource<VarPerformance>(ELEMENT_VAR_AC);
-  coins: any[] = [];
-  years: any[] = [
-    { value: '2021', viewValue: '2021' },
-    { value: '2020', viewValue: '2020' },
-    { value: '2019', viewValue: '2019' },
-    { value: '2018', viewValue: '2018' },
-    { value: '2017', viewValue: '2017' },
-    { value: '2016', viewValue: '2016' }
-  ];
-  months: any[] = [
-    { value: '01', viewValue: 'Enero' },
-    { value: '02', viewValue: 'Febrero' },
-    { value: '03', viewValue: 'Marzo' },
-    { value: '04', viewValue: 'Abril' },
-    { value: '05', viewValue: 'Mayo' },
-    { value: '06', viewValue: 'Junio' },
-    { value: '07', viewValue: 'Julio' },
-    { value: '08', viewValue: 'Agosto' },
-    { value: '09', viewValue: 'Septiembre' },
-    { value: '10', viewValue: 'Octubre' },
-    { value: '11', viewValue: 'Noviembre' },
-    { value: '12', viewValue: 'Marzo' }
-  ];
+  // coins: any[] = [];
+  years: any[] = GlobalConstants.years;
+  months: any[] = [];
   // Pie
   public pieChartLabels: string[] = [];
   public pieChartLabelsYear: string[] = [];
@@ -189,31 +216,60 @@ export class ComposicionVentasComponent implements OnInit, OnDestroy  {
   public pieChartDataYear: number[] = [];
   // public pieChartData: number[] = [78.09, 20.95, 0.93, 0.03];
   public pieChartType = 'pie';
+  langDefault: any = '';
 
   ngOnInit(): void {
     if (this.userservice.responseLogin) {
-      this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
-      let arraymonedas = this.userservice.responseLogin.monedass;
+      this.langDefault = this.userservice.responseLogin.idioma.abreviaturaIdioma;
 
-      arraymonedas.forEach((e: any) => {
-        let coin = {
-          value: e.idMonedaEmpresaOdoo,
-          viewValue: e.name
-        };
-        this.coins.push(coin);
+      // alert("es dioma actual "+ this.langDefault);
+      this.translate.setDefaultLang(this.langDefault);
+      this.translate.use(this.langDefault);
+      // this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
+      // let arraymonedas = this.userservice.responseLogin.monedass.info_moneda;
+      let arrayMeses: any = this.userservice.responseLogin.mess.info_mes;
+
+      
+      const currentFiltros: DataIndicador = {
+        anioActual: Number(this.selectedyear),
+        mesActual: this.selectedMonth,
+        monedaActual: this.selectedCoin
+
+      }
+      localStorage.setItem('filtroAMM', JSON.stringify(currentFiltros));
+
+
+      this.placeholderYear = this.userservice.responseLogin.anioo.descripcion_anio.nombre;
+      this.placeholderMonth = this.userservice.responseLogin.mess.descripcion_mes.nombre;
+
+
+      // arraymonedas.forEach((e: any) => {
+      //   let coin = {
+      //     value: e.idMonedaEmpresaOdoo,
+      //     viewValue: e.name
+      //   };
+      //   this.coins.push(coin);
+      // });
+      arrayMeses.forEach((item: any) => {
+        const mes = {
+          value: String(item.mesid),
+          viewValue: item.nombre
+        }
+        this.months.push(mes);
       });
-      this.queryCompositionV=this.apollo.watchQuery({
+
+      this.queryCompositionV = this.apollo.query({
         query: QICV,
         variables: {
-          idrol1: this.userservice.responseLogin.idUsuario,
-          anioo: new Date().getFullYear(),
-          mess: this.getCurrenlyMonth(),
-          companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
-          monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
-        }
-      }).valueChanges.subscribe((response: any) => {
-        if(response){
-          this.listChartsPie=[];
+          idusuario: this.userservice.responseLogin.idUsuario,
+          anio: new Date().getFullYear(),
+          mes: this.getCurrenlyMonth(),
+          compania: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo
+        },
+        fetchPolicy: "network-only"
+      }).subscribe((response: any) => {
+        if (response) {
+          this.listChartsPie = [];
           let indicadores = response.data.composicion_ventas.lista;
 
           indicadores.forEach((item: any) => {
@@ -223,27 +279,30 @@ export class ComposicionVentasComponent implements OnInit, OnDestroy  {
             let pieChartDataYear: any[] = [];
             let pieChartLabels: string[] = [];
             let listames = item.lista_mes;
-            if(listames==null){
-             listames=[];
+            if (listames == null) {
+              listames = [];
             }
             let listaanual = item.lista_anual;
-            if(listaanual==null){
-               listaanual=[];
+            if (listaanual == null) {
+              listaanual = [];
             }
- 
+
             listames.forEach((item: any) => {
               this.listpercentagesmes.push(Number(item.porcentajetorta.replace(",", ".")));
               pieChartLabels.push(item.nombre);
             });
-            
+
             listaanual.forEach((item: any) => {
               this.listpercentagesyear.push(Number(item.porcentajetorta.replace(",", ".")));
-  
+              if (listames.length == 0) {
+                pieChartLabels.push(item.nombre);
+              }
+
             });
             pieChartData = this.listpercentagesmes;
-            console.log(pieChartData);
+
             pieChartDataYear = this.listpercentagesyear;
-  
+
             let pieRegion = {
               name: item.indicador.nombreIndicador,
               listPie: pieChartData,
@@ -251,44 +310,74 @@ export class ComposicionVentasComponent implements OnInit, OnDestroy  {
               labels: pieChartLabels
             }
             this.listChartsPie.push(pieRegion);
-          
-         });
+
+          });
         }
- 
+
       });
-        
-    
+
+
     }
-    else{
+    else {
       this.queryLogin = this.apollo.watchQuery({
         query: LOGIN,
-        variables: { usuario: this.serviceAuth.userData?.name, clave: this.serviceAuth.userData?.password }
+        variables: { usuario: this.serviceAuth.userData?.name, clave: this.serviceAuth.userData?.password },
+        
       }).valueChanges.subscribe((response: any) => {
         this.userservice.responseLogin = response.data.validarlogin;
-        this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
-        let arraymonedas = this.userservice.responseLogin.monedass;
+      
+        alert( this.userservice.responseLogin.passwordd);
+        let filtro:DataIndicador| null | any = null;
+        filtro = localStorage.getItem('filtroAMM');
+        if (filtro) {
+          filtro = JSON.parse(filtro);
+        } else {
+          filtro = null;
+        }
 
-        arraymonedas.forEach((e: any) => {
-          let coin = {
-            value: e.idMonedaEmpresaOdoo,
-            viewValue: e.name
-          };
-          this.coins.push(coin);
+        this.langDefault = this.userservice.responseLogin.idioma.abreviaturaIdioma;
+
+        // alert("es dioma actual "+ this.langDefault);
+        this.translate.setDefaultLang(this.langDefault);
+        this.translate.use(this.langDefault);
+        this.selectedCoin = filtro.monedaActual ;
+        this.selectedyear=String(filtro.anioActual);
+        this.selectedMonth=filtro.mesActual;
+      
+        //this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
+        //let arraymonedas = this.userservice.responseLogin.monedass.info_moneda;
+        let arrayMeses: any = this.userservice.responseLogin.mess.info_mes;
+        this.placeholderYear = this.userservice.responseLogin.anioo.descripcion_anio.nombre;
+        this.placeholderMonth = this.userservice.responseLogin.mess.descripcion_mes.nombre;
+
+        // arraymonedas.forEach((e: any) => {
+        //   let coin = {
+        //     value: e.idMonedaEmpresaOdoo,
+        //     viewValue: e.name
+        //   };
+        //   this.coins.push(coin);
+        // });
+        arrayMeses.forEach((item: any) => {
+          const mes = {
+            value: String(item.mesid),
+            viewValue: item.nombre
+          }
+          this.months.push(mes);
         });
-        this.queryCompositionV=this.apollo.watchQuery({
+        this.queryCompositionV = this.apollo.query({
           query: QICV,
           variables: {
-            idrol1: this.userservice.responseLogin.idUsuario,
-            anioo: new Date().getFullYear(),
-            mess: this.getCurrenlyMonth(),
-            companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
-            monedadestinoo: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
-          }
-        }).valueChanges.subscribe((response: any) => {
-          if(response){
-            this.listChartsPie=[];
+            idusuario: this.userservice.responseLogin.idUsuario,
+            anio: filtro.anioActual,
+            mes: filtro.mesActual,
+            compania: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo
+          },
+          fetchPolicy: "network-only"
+        }).subscribe((response: any) => {
+          if (response) {
+            this.listChartsPie = [];
             let indicadores = response.data.composicion_ventas.lista;
-  
+
             indicadores.forEach((item: any) => {
               this.listpercentagesmes = [];
               this.listpercentagesyear = [];
@@ -296,27 +385,30 @@ export class ComposicionVentasComponent implements OnInit, OnDestroy  {
               let pieChartDataYear: any[] = [];
               let pieChartLabels: string[] = [];
               let listames = item.lista_mes;
-              if(listames==null){
-               listames=[];
+              if (listames == null) {
+                listames = [];
               }
               let listaanual = item.lista_anual;
-              if(listaanual==null){
-                 listaanual=[];
+              if (listaanual == null) {
+                listaanual = [];
               }
-   
+
               listames.forEach((item: any) => {
                 this.listpercentagesmes.push(Number(item.porcentajetorta.replace(",", ".")));
                 pieChartLabels.push(item.nombre);
               });
-              
+
               listaanual.forEach((item: any) => {
                 this.listpercentagesyear.push(Number(item.porcentajetorta.replace(",", ".")));
-    
+                if (listames.length == 0) {
+                  pieChartLabels.push(item.nombre);
+                }
+
               });
               pieChartData = this.listpercentagesmes;
               console.log(pieChartData);
               pieChartDataYear = this.listpercentagesyear;
-    
+
               let pieRegion = {
                 name: item.indicador.nombreIndicador,
                 listPie: pieChartData,
@@ -324,10 +416,10 @@ export class ComposicionVentasComponent implements OnInit, OnDestroy  {
                 labels: pieChartLabels
               }
               this.listChartsPie.push(pieRegion);
-            
-           });
+
+            });
           }
-   
+
         });
       });
     }
@@ -363,64 +455,89 @@ export class ComposicionVentasComponent implements OnInit, OnDestroy  {
     // console.log(e);
   }
 
-  private refreshQuery(){
-   this.listChartsPie=[];
-    this.queryCompositionV=this.apollo.watchQuery({
-      query: QICV,
-      variables: {
-        idrol1: this.userservice.responseLogin.idUsuario,
-        anioo: Number(this.selectedyear),
-        mess: this.selectedMonth,
-        companiaa: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
-        monedadestinoo: this.selectedCoin
-      }
-    }).valueChanges.subscribe((response: any) => {
-    
-      if(response){
-        this.listChartsPie=[];
-        let indicadores = response.data.composicion_ventas.lista;
-        indicadores.forEach((item: any) => {
-          this.listpercentagesmes = [];
-          this.listpercentagesyear = [];
-          let pieChartData: any[] = [];
-          let pieChartDataYear: any[] = [];
-          let pieChartLabels: string[] = [];
-          let listames = item.lista_mes;
-          if(listames==null){
-           listames=[];
-          }
-          let listaanual = item.lista_anual;
-          if(listaanual==null){
-             listaanual=[];
-          }
+  private refreshQuery() {
+    const currentFiltros: DataIndicador = {
+      anioActual: Number(this.selectedyear),
+      mesActual: this.selectedMonth,
+      monedaActual: this.selectedCoin
+
+    }
+    localStorage.removeItem('filtroAMM');
+    localStorage.setItem('filtroAMM', JSON.stringify(currentFiltros));
+    if (this.userservice.responseLogin) {
+      this.months = [];
+      let arrayMeses: any = this.userservice.responseLogin.mess.info_mes;
   
-          listames.forEach((item: any) => {
-            this.listpercentagesmes.push(Number(item.porcentajetorta.replace(",", ".")));
-           
-            pieChartLabels.push(item.nombre);
-          });
-          
-          listaanual.forEach((item: any) => {
-            this.listpercentagesyear.push(Number(item.porcentajetorta.replace(",", ".")));
+      this.listChartsPie = [];
+  
+      arrayMeses.forEach((item: any) => {
+        const mes = {
+          value: String(item.mesid),
+          viewValue: item.nombre
+        }
+        this.months.push(mes);
+      });
+      this.queryCompositionV = this.apollo.query({
+        query: QICV,
+        variables: {
+          idusuario: this.userservice.responseLogin.idUsuario,
+          anio: Number(this.selectedyear),
+          mes: this.selectedMonth,
+          compania: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo
+        },
+        fetchPolicy: "no-cache"
+      }).subscribe((response: any) => {
+        console.log(response);
+        if (response) {
+          this.listChartsPie = [];
+          let indicadores = response.data.composicion_ventas.lista;
+          indicadores.forEach((item: any) => {
+            this.listpercentagesmes = [];
+            this.listpercentagesyear = [];
+            let pieChartData: any[] = [];
+            let pieChartDataYear: any[] = [];
+            let pieChartLabels: string[] = [];
+            let listames = item.lista_mes;
+            if (listames == null) {
+              listames = [];
+            }
+            let listaanual = item.lista_anual;
+            if (listaanual == null) {
+              listaanual = [];
+            }
+  
+            listames.forEach((item: any) => {
+              this.listpercentagesmes.push(Number(item.porcentajetorta.replace(",", ".")));
+  
+              pieChartLabels.push(item.nombre);
+            });
+  
+            listaanual.forEach((item: any) => {
+              this.listpercentagesyear.push(Number(item.porcentajetorta.replace(",", ".")));
+              if (listames.length == 0) {
+                pieChartLabels.push(item.nombre);
+              }
+  
+            });
+            pieChartData = this.listpercentagesmes;
+  
+            pieChartDataYear = this.listpercentagesyear;
+  
+            let pieRegion = {
+              name: item.indicador.nombreIndicador,
+              listPie: pieChartData,
+              listPieAc: pieChartDataYear,
+              labels: pieChartLabels
+            }
+            this.listChartsPie.push(pieRegion);
   
           });
-          pieChartData = this.listpercentagesmes;
+        }
+  
+      });
+    }
  
-          pieChartDataYear = this.listpercentagesyear;
-  
-          let pieRegion = {
-            name: item.indicador.nombreIndicador,
-            listPie: pieChartData,
-            listPieAc: pieChartDataYear,
-            labels: pieChartLabels
-          }
-          this.listChartsPie.push(pieRegion);
-        
-       });
-      }
-    
-    });
-      
+
   }
 
 }

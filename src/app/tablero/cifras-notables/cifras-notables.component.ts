@@ -1,6 +1,8 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { Component, OnInit } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
+import { ActivatedRoute, Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 
 import { Apollo, QueryRef } from 'apollo-angular';
 import gql from 'graphql-tag';
@@ -9,14 +11,17 @@ import { GlobalConstants } from 'src/app/GLOBALS/GlobalConstants';
 import { AuthServiceService } from 'src/app/services/auth-service.service';
 import { IndicadoresService } from '../../services/indicadores.service';
 import { UserService } from '../../services/user.service';
+
+import { Routes } from '@angular/router';
+import { DataIndicador } from 'src/app/models/dataIndicador.interface';
 //Query for for ventas indicator
 const QIVENTAS = gql`
-query detalleCifrasNotables($idrol:Int!,$anio:Int!,$mes:String,$compania:Int!, $monedadestino:Int!) {
-  detalleCifrasNotables(idrol:$idrol,anio:$anio,mes:$mes,compania:$compania, monedadestino:$monedadestino){
+query detalleCifrasNotables($idusuario:Int!,$anio:Int!,$mes:String,$compania:Int!, $monedadestino:Int!) {
+  detalleCifrasNotables(idusuario:$idusuario,anio:$anio,mes:$mes,compania:$compania, monedadestino:$monedadestino){
     tablero{
       idTablero
       nombreTablero
-      
+      urlTablero
     }
     lista{
       idIndicador
@@ -36,21 +41,63 @@ const LOGIN = gql`
       idUsuario
       nombreUsuario
       usuario
-      iDRolUsuario
-      codIdioma
-      monedass{
-        idMonedaEmpresaOdoo
-        name
-        symbol
-        rate
-        estado
-      }
-      companiaa{
+     passwordd
+     fechacreacionusuario
+     iDRolUsuario
+     codIdioma
+     estado
+     
+     
+     anioo{
+       descripcion_anio{
+         auxiliarId
+         nombre
+       }
+       
+     }
+     
+     mess{
+       descripcion_mes{
+         auxiliarId
+         nombre
+         
+       }
+       
+       info_mes{
+         mesid
+         nombre
+       }
+     }
+     
+     monedass{
+       descripcion_moneda{
+         auxiliarId
+         nombre
+         
+       }
+       info_moneda{
+          monedaId
+       idMonedaEmpresaOdoo
+       name
+       symbol
+       rate
+       estado
+       }
+      
+       
+     }
+     companiaa{
         idCompaniaOdoo
-        name
-        idMonedaEmpresaOdoo
-        estado
-    }
+         name
+       idMonedaEmpresaOdoo
+       estado
+       
+     }
+     idioma{
+       codigoIdioma
+       abreviaturaIdioma
+       detalleIdioma
+     }
   
     }
   }
@@ -60,6 +107,12 @@ const LOGIN = gql`
   templateUrl: './cifras-notables.component.html',
   styleUrls: ['./cifras-notables.component.scss']
 })
+
+// @Route([
+
+//     { path: '/item/:id', component: CifrasNotablesComponent }
+
+// ])
 export class CifrasNotablesComponent implements OnInit {
 
   listVentas: any[] = []; //indicador Ventas
@@ -89,50 +142,47 @@ export class CifrasNotablesComponent implements OnInit {
   Month = Number(new Date().getMonth() + 1);
   selectedMonth = String(this.getCurrenlyMonth());
 
+  placeholderYear: String = 'Year';
+  placeholderMonth: String = 'Month';
+  placeholderCoin: String = 'Currency';
+
+  mes: any = "Mes";
   selectedCoin = 0;
 
   coins: any[] = [];
-  years: any[] = [
-    { value: '2021', viewValue: '2021' },
-    { value: '2020', viewValue: '2020' },
-    { value: '2019', viewValue: '2019' },
-    { value: '2018', viewValue: '2018' },
-    { value: '2017', viewValue: '2017' },
-    { value: '2016', viewValue: '2016' }
-  ];
-  months: any[] = [
-    { value: '01', viewValue: 'Enero' },
-    { value: '02', viewValue: 'Febrero' },
-    { value: '03', viewValue: 'Marzo' },
-    { value: '04', viewValue: 'Abril' },
-    { value: '05', viewValue: 'Mayo' },
-    { value: '06', viewValue: 'Junio' },
-    { value: '07', viewValue: 'Julio' },
-    { value: '08', viewValue: 'Agosto' },
-    { value: '09', viewValue: 'Septiembre' },
-    { value: '10', viewValue: 'Octubre' },
-    { value: '11', viewValue: 'Noviembre' },
-    { value: '12', viewValue: 'Marzo' }
-  ];
+  years: any[] = GlobalConstants.years;
+  months: any[] = [];
+  langDefault: any = '';
 
   constructor(public indicadorservice: IndicadoresService, public userservice: UserService,
     public breakpointObserver: BreakpointObserver, private apollo: Apollo,
-    private serviceAuth: AuthServiceService) {
-    this.breakpointObserver.observe(['(max-width: 600px)']).subscribe(result => {
-      this.displayedColumns = result.matches ?
-        ['mes', 'acumulado'] :
-        ['mes', 'acumulado'];
-    });
+    private serviceAuth: AuthServiceService, public translate: TranslateService, private ruta: ActivatedRoute,
+    private route: Router) {
+     this.route.navigate([], {
+      skipLocationChange: true,
+   //  queryParamsHandling: 'merge' //== if you need to keep queryParams
+    })
 
   }
 
-  
+
   ngOnInit(): void {
 
     if (this.userservice.responseLogin) {
+      //   alert('into login');
+      this.langDefault = this.userservice.responseLogin.idioma.abreviaturaIdioma;
+
+      // alert("es dioma actual "+ this.langDefault);
+      this.translate.setDefaultLang(this.langDefault);
+      this.translate.use(this.langDefault);
+      
 
       this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
-      let arraymonedas = this.userservice.responseLogin.monedass;
+      let arraymonedas: any = this.userservice.responseLogin.monedass.info_moneda;
+      let arrayMeses: any = this.userservice.responseLogin.mess.info_mes;
+      this.placeholderYear = this.userservice.responseLogin.anioo.descripcion_anio.nombre;
+      this.placeholderMonth = this.userservice.responseLogin.mess.descripcion_mes.nombre;
+      this.placeholderCoin = this.userservice.responseLogin.monedass.descripcion_moneda.nombre;
 
       arraymonedas.forEach((e: any) => {
         let coin = {
@@ -141,24 +191,36 @@ export class CifrasNotablesComponent implements OnInit {
         };
         this.coins.push(coin);
       });
+      arrayMeses.forEach((item: any) => {
+        const mes = {
+          value: String(item.mesid),
+          viewValue: item.nombre
+        }
+        this.months.push(mes);
+      });
+
+      const currentFiltros: DataIndicador = {
+        anioActual: Number(this.selectedyear),
+        mesActual: this.selectedMonth,
+        monedaActual: this.selectedCoin
+
+      }
+      localStorage.setItem('filtroAMM', JSON.stringify(currentFiltros));
 
       this.queryVentas = this.apollo.watchQuery({
         query: QIVENTAS,
         variables: {
-          idrol: this.userservice.responseLogin.idUsuario,
+          idusuario: this.userservice.responseLogin.idUsuario,
           anio: new Date().getFullYear(),
           mes: String(this.MesActual),
           compania: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
           monedadestino: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
         }
-      });
-
-
-      this.queryVentas.valueChanges.subscribe((result: any) => {
-         console.log(result);
+      }).valueChanges.subscribe((result: any) => {
         let listaIndicadores = [];
 
         if (result.data.detalleCifrasNotables.lista != null) {
+          let listaTablero = result.data.detalleCifrasNotables.tablero.urlTablero;
           let listaCifrasNotables = result.data.detalleCifrasNotables.lista;
           for (let i: number = 0; i < listaCifrasNotables.length; i++) {
 
@@ -189,9 +251,6 @@ export class CifrasNotablesComponent implements OnInit {
           }
 
 
-
-
-
         }
 
       });
@@ -199,15 +258,57 @@ export class CifrasNotablesComponent implements OnInit {
     }
     else {
       if (this.serviceAuth.isLoggedIn()) {
+
+
+        //  alert(this.userservice.responseLogin.idUsuario);
+        //  alert(this.userservice.responseLogin.idUsuario);
+        //  alert(this.userservice.responseLogin.idUsuario);
+
+
+
+
         this.queryLogin = this.apollo.watchQuery({
           query: LOGIN,
           variables: { usuario: this.serviceAuth.userData?.name, clave: this.serviceAuth.userData?.password }
         }).valueChanges.subscribe((result: any) => {
+
+          this.langDefault = this.serviceAuth.userData?.language;
+        //  alert("idioma cambiado " + this.langDefault);
+          this.translate.setDefaultLang(this.langDefault);
+          this.translate.use(this.langDefault);
+
+          let filtro:DataIndicador| null | any = null;
+          filtro = localStorage.getItem('filtroAMM');
+          if (filtro) {
+            filtro = JSON.parse(filtro);
+          } else {
+            filtro = null;
+          }
+         // alert(filtro.anioActual);
+         /// alert(filtro.mesActual);
+        //  alert(filtro.monedaActual);
+
+
           this.userservice.responseLogin = result.data.validarlogin;
           this.listCompanys = result.data.validarlogin.companiaa;
-          this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
-          let arraymonedas = this.userservice.responseLogin.monedass;
+          this.selectedCoin = filtro.monedaActual ;
+          this.selectedyear=String(filtro.anioActual);
+          this.selectedMonth=filtro.mesActual;
+          let arraymonedas = this.userservice.responseLogin.monedass.info_moneda;
+          GlobalConstants.months = this.userservice.responseLogin.mess.info_mes;
+          this.placeholderYear = this.userservice.responseLogin.anioo.descripcion_anio.nombre;
+          this.placeholderMonth = this.userservice.responseLogin.mess.descripcion_mes.nombre;
+          this.placeholderCoin = this.userservice.responseLogin.monedass.descripcion_moneda.nombre;
+          
+        
 
+          GlobalConstants.months.forEach((item: any) => {
+            const mes = {
+              value: String(item.mesid),
+              viewValue: item.nombre
+            }
+            this.months.push(mes);
+          })
           arraymonedas.forEach((e: any) => {
             let coin = {
               value: e.idMonedaEmpresaOdoo,
@@ -216,19 +317,18 @@ export class CifrasNotablesComponent implements OnInit {
             this.coins.push(coin);
           });
 
+
+
           this.queryVentas = this.apollo.watchQuery({
             query: QIVENTAS,
             variables: {
-              idrol: this.userservice.responseLogin.idUsuario,
-              anio: new Date().getFullYear(),
-              mes: String(this.MesActual),
+              idusuario: this.userservice.responseLogin.idUsuario,
+              anio: filtro.anioActual,
+              mes:filtro.mesActual,
               compania: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
-              monedadestino: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
+              monedadestino: filtro.monedaActual
             }
-          });
-
-
-          this.queryVentas.valueChanges.subscribe((result: any) => {
+          }).valueChanges.subscribe((result: any) => {
             let listaIndicadores = [];
 
             if (result.data.detalleCifrasNotables.lista != null) {
@@ -331,11 +431,20 @@ export class CifrasNotablesComponent implements OnInit {
   }
 
   refreshQuery() {
+    const currentFiltros: DataIndicador = {
+      anioActual: Number(this.selectedyear),
+      mesActual: this.selectedMonth,
+      monedaActual: this.selectedCoin
+
+    }
+    localStorage.removeItem('filtroAMM');
+    localStorage.setItem('filtroAMM', JSON.stringify(currentFiltros));
+
     if (this.userservice.responseLogin) {
       this.queryVentas = this.apollo.watchQuery({
         query: QIVENTAS,
         variables: {
-          idrol: this.userservice.responseLogin.idUsuario,
+          idusuario: this.userservice.responseLogin.idUsuario,
           anio: Number(this.selectedyear),
           mes: this.selectedMonth,
           compania: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
@@ -396,6 +505,7 @@ export class CifrasNotablesComponent implements OnInit {
         });
 
         this.queryLogin.valueChanges.subscribe((result: any) => {
+
           this.userservice.responseLogin = result.data.validarlogin;
           // GlobalConstants.listCompanys=result.data.validarlogin.companiaa;
           this.listCompanys = result.data.validarlogin.companiaa;

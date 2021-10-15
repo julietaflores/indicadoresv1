@@ -1,5 +1,5 @@
 <div fxLayout="row wrap">
-    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100">
+    <div fxFlex.gt-sm="50" fxFlex.gt-xs="100" fxFlex="100">
         <mat-card style="padding: 0">
             <mat-card-content style="padding: 0.5rem 1rem;margin: 0;">
 
@@ -14,7 +14,7 @@
             </mat-card-content>
         </mat-card>
     </div>
-    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100">
+    <div fxFlex.gt-sm="50" fxFlex.gt-xs="100" fxFlex="100">
         <mat-card>
             <mat-card-content style="padding: 0.5rem 1rem;margin: 0;">
 
@@ -28,7 +28,7 @@
             </mat-card-content>
         </mat-card>
     </div>
-    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100">
+    <!-- <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100">
         <mat-card>
             <mat-card-content style="padding: 0.5rem 1rem;margin: 0;">
                 <mat-form-field>
@@ -40,13 +40,13 @@
                 </mat-form-field>
             </mat-card-content>
         </mat-card>
-    </div>
+    </div> -->
 </div>
 <div fxLayout="row wrap" *ngIf="listChartsPie && listChartsPie.length<=2">
     <div fxFlex.gt-sm="50" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;" *ngFor="let indicador of listChartsPie">
         <mat-card>
             <mat-card-content>
-                <mat-card-title>{{indicador.name}}</mat-card-title>
+                <mat-card-title>{{indicador.name | translate}}</mat-card-title>
                 <div fxLayout="row wrap" *ngIf="listpercentagesmes.length>0">
                    
                     <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
@@ -60,7 +60,7 @@
 
                 </div>
                 <hr style="margin-top:20px;margin-bottom: 20px;">
-                <mat-card-title>ACUMULADO</mat-card-title>
+                <mat-card-title>{{'Acumulado' | translate}}</mat-card-title>
                 <div fxLayout="row wrap" *ngIf="listpercentagesyear.length>0">
 
                     <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
@@ -86,7 +86,7 @@
     <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;" *ngFor="let indicador of listChartsPie">
         <mat-card>
             <mat-card-content>
-                <mat-card-title>{{indicador.name}}</mat-card-title>
+                <mat-card-title>{{indicador.name | translate}}</mat-card-title>
                 <div fxLayout="row wrap" *ngIf="listpercentagesmes.length>0">
                    
                     <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
@@ -100,7 +100,7 @@
 
                 </div>
                 <hr style="margin-top:20px;margin-bottom: 20px;">
-                <mat-card-title>ACUMULADO</mat-card-title>
+                <mat-card-title>{{'Acumulado' | translate}}</mat-card-title>
                 <div fxLayout="row wrap" *ngIf="listpercentagesyear.length>0">
 
                     <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">

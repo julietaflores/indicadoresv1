@@ -10,21 +10,63 @@ const LOGIN = gql`
       idUsuario
       nombreUsuario
       usuario
-      iDRolUsuario
-      codIdioma
-      monedass{
-        idMonedaEmpresaOdoo
-        name
-        symbol
-        rate
-        estado
-      }
-      companiaa{
+     passwordd
+     fechacreacionusuario
+     iDRolUsuario
+     codIdioma
+     estado
+     
+     
+     anioo{
+       descripcion_anio{
+         auxiliarId
+         nombre
+       }
+       
+     }
+     
+     mess{
+       descripcion_mes{
+         auxiliarId
+         nombre
+         
+       }
+       
+       info_mes{
+         mesid
+         nombre
+       }
+     }
+     
+     monedass{
+       descripcion_moneda{
+         auxiliarId
+         nombre
+         
+       }
+       info_moneda{
+          monedaId
+       idMonedaEmpresaOdoo
+       name
+       symbol
+       rate
+       estado
+       }
+      
+       
+     }
+     companiaa{
         idCompaniaOdoo
-        name
-        idMonedaEmpresaOdoo
-        estado
-    }
+         name
+       idMonedaEmpresaOdoo
+       estado
+       
+     }
+     idioma{
+       codigoIdioma
+       abreviaturaIdioma
+       detalleIdioma
+     }
   
     }
   }
@@ -38,35 +80,35 @@ const LOGIN = gql`
 })
 export class CoinsInstanceComponent implements OnInit {
   private query: any;
-  listCoins:any[]=[];
-  constructor( private apollo: Apollo,private serviceAuth:AuthServiceService,
-    public serviceuser:UserService) {
-   
-   }
+  listCoins: any[] = [];
+  constructor(private apollo: Apollo, private serviceAuth: AuthServiceService,
+    public serviceuser: UserService) {
+
+  }
 
   ngOnInit(): void {
-    this.listCoins=GlobalConstants.listMonedas;
-    if(GlobalConstants.listMonedas !=undefined){
-     
-      this.listCoins=GlobalConstants.listMonedas;
+    this.listCoins = GlobalConstants.listMonedas;
+    if (GlobalConstants.listMonedas != undefined) {
+
+      this.listCoins = GlobalConstants.listMonedas.filter((e:any)=>e.estado===true);
 
     }
-    else{
-      if(this.serviceAuth.isLoggedIn()){
+    else {
+      if (this.serviceAuth.isLoggedIn()) {
         this.query = this.apollo.watchQuery({
           query: LOGIN,
-          variables: { usuario:this.serviceAuth.userData?.name,clave:this.serviceAuth.userData?.password }
+          variables: { usuario: this.serviceAuth.userData?.name, clave: this.serviceAuth.userData?.password }
         });
-      
-        this.query.valueChanges.subscribe((result:any) => {
-          console.log(result.data.validarlogin.companiaa);
-          this.serviceuser.responseLogin=result.data.validarlogin;
-          GlobalConstants.listMonedas=result.data.validarlogin.monedass;
-          this.listCoins=GlobalConstants.listMonedas;
+
+        this.query.valueChanges.subscribe((result: any) => {
+          this.serviceuser.responseLogin = result.data.validarlogin;
+          GlobalConstants.listMonedas = result.data.validarlogin.monedass.info_moneda;
+          console.log(result.data.validarlogin.monedass.info_moneda);
+          this.listCoins = GlobalConstants.listMonedas;
         });
       }
- 
+
     }
 
-}
+  }
 }

@@ -1,12 +1,10 @@
-import { Routes } from '@angular/router';
-
+import { Routes,RouterModule,PreloadAllModules } from '@angular/router';
 import { FullComponent } from './layouts/full/full.component';
 import { AppBlankComponent } from './layouts/blank/blank.component';
 import { LoginComponent } from './authentication/login/login.component';
 import { AuthGuard } from './shared/guards/auth.guard';
 
 export const AppRoutes: Routes = [
-  
     {
         path: '',
         component: FullComponent,

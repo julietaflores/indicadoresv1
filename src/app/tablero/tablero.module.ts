@@ -21,14 +21,26 @@ import { MargenesBrutosRegionesComponent } from './margenes-brutos-regiones/marg
 import { MargenesBrutosTop5Component } from './margenes-brutos-top5/margenes-brutos-top5.component';
 import { ComposicionMargenesComponent } from './composicion-margenes/composicion-margenes.component';
 import { GastoComponent } from './gasto/gasto.component';
-import { MBTOP5Component } from './mbtop5/mbtop5.component';
 import { APOLLO_OPTIONS } from 'apollo-angular';
 import {InMemoryCache} from '@apollo/client/core';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 
+import { HttpClient } from '@angular/common/http';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { TableroComponent } from './tablero/tablero.component';
+import { MargenesBrutosRegionesAuxiliarComponent } from './margenes-brutos-regiones-auxiliar/margenes-brutos-regiones-auxiliar.component';
+import { ContribucionPortafolioComponent } from './contribucion-portafolio/contribucion-portafolio.component';
+
+export function HttpLoaderFactory(http: HttpClient): any {
+  const urir = 'http://localhost:4200'
+  //const urir='http://181.188.133.118/IndicadoresWeb'
+  return new TranslateHttpLoader(http, urir+'/assets/i18n/', '.json');
+}
 @NgModule({
   imports: [
     CommonModule,
     RouterModule.forChild(TableroRoutes),
+    
     DemoMaterialModule,
     FlexLayoutModule,
     FormsModule,
@@ -36,7 +48,14 @@ import {InMemoryCache} from '@apollo/client/core';
     DashboardsModule,
     ChartistModule,
     ChartsModule,
-    NgxChartsModule
+    NgxChartsModule,
+    TranslateModule.forRoot({
+      loader: {
+          provide: TranslateLoader,
+          useFactory: HttpLoaderFactory,
+          deps: [HttpClient]
+      }
+  }),
 ],
 declarations: [
     CifrasNotablesComponent,
@@ -51,7 +70,9 @@ declarations: [
     MargenesBrutosTop5Component,
     ComposicionMargenesComponent,
     GastoComponent,
-    MBTOP5Component
+    TableroComponent,
+    MargenesBrutosRegionesAuxiliarComponent,
+    ContribucionPortafolioComponent
   ]
 })
 export class TableroModule { }

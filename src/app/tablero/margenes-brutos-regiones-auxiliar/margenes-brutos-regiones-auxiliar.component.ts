@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, DoCheck, OnChanges, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { Apollo } from 'apollo-angular';
 import { ChartDataSets, ChartOptions, ChartType } from 'chart.js';
@@ -6,12 +6,84 @@ import gql from 'graphql-tag';
 import { Label, SingleDataSet } from 'ng2-charts';
 import { UserService } from 'src/app/services/user.service';
 import * as pluginDataLabels from 'chartjs-plugin-datalabels';
-import { NEVER, Subscription } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { NEVER, Observable, Subscription } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 import { AuthServiceService } from 'src/app/services/auth-service.service';
 import { TranslateService } from '@ngx-translate/core';
 import { GlobalConstants } from 'src/app/GLOBALS/GlobalConstants';
-import { DataIndicador } from 'src/app/models/dataIndicador.interface';
+import { json } from 'ngx-custom-validators/src/app/json/validator';
+import { Alert } from 'selenium-webdriver';
+
+const MGREGIONAUX = gql`
+query margenbruto_region($idusuario:Int!,$anio:Int!,$mes:String,$compania:Int!, $monedadestino:Int!) {
+  margenbruto_region(idusuario:$idusuario,anio:$anio,mes:$mes,compania:$compania, monedadestino:$monedadestino){
+    tablero{
+      idTablero
+      nombreTablero
+      estadoTablero
+      urlTablero
+      idCategoria
+      
+    }
+    lista_mes{
+      id
+      nombre
+      importe_actual
+      coste_actual
+      porcentaje_margen_actual
+      importe_anterior
+      coste_anterior
+      porcentaje_margen_anterior
+      bPS
+      calculo_grafico
+      porcentajetorta
+    }
+    lista_anual{
+      id
+      nombre
+      importe_actual
+      coste_actual
+      porcentaje_margen_actual
+      importe_anterior
+      coste_anterior
+      porcentaje_margen_anterior
+      bPS
+      calculo_grafico
+      porcentajetorta
+    }
+    
+  
+  } 
+}
+`;
+const MGREGIONAUX2 = gql`
+query margenbruto_region($idusuario:Int!,$anio:Int!,$mes:String,$compania:Int!, $monedadestino:Int!) {
+  margenbruto_region(idusuario:$idusuario,anio:$anio,mes:$mes,compania:$compania, monedadestino:$monedadestino){
+    tablero{
+      idTablero
+      nombreTablero
+      estadoTablero
+      urlTablero
+      idCategoria
+      
+    }
+   
+      lista_anual{
+      id
+      nombre
+      importe_actual
+      coste_actual
+      porcentaje_margen_actual
+      importe_anterior
+      coste_anterior
+      porcentaje_margen_anterior
+      bPS
+      calculo_grafico
+      porcentajetorta
+    }
+  } 
+}
+`;
 
 const QIPREGION = gql`
 query performanceregion($idusuario:Int!,$anio:Int!,$mes:String,$compania:Int!, $monedadestino:Int!) {
@@ -146,14 +218,15 @@ const LOGIN = gql`
 
 
 @Component({
-  selector: 'app-performance-general-regiones',
-  templateUrl: './performance-general-regiones.component.html',
-  styleUrls: ['./performance-general-regiones.component.scss']
+  selector: 'app-margenes-brutos-regiones-auxiliar',
+  templateUrl: './margenes-brutos-regiones-auxiliar.component.html',
+  styleUrls: ['./margenes-brutos-regiones-auxiliar.component.scss']
 })
-export class PerformanceGeneralRegionesComponent implements OnInit, OnDestroy,DoCheck {
-
+export class MargenesBrutosRegionesAuxiliarComponent implements OnInit, OnDestroy {
+  postf: Observable<any>;
   //queries for GraphQL
   queryPerformanceRegion: Subscription;
+  queryPerformanceRegion2: Subscription;
   private queryLogin: Subscription;
 
   selectedyear = String(new Date().getFullYear());
@@ -240,257 +313,119 @@ export class PerformanceGeneralRegionesComponent implements OnInit, OnDestroy,Do
     private apollo: Apollo, private serviceAuth: AuthServiceService,
     public translateService: TranslateService) {
     this.queryPerformanceRegion = new Subscription();
+    this.queryPerformanceRegion2 = new Subscription();
     this.queryLogin = new Subscription();
-
-
+    this.postf = new Observable<any>();
   }
 
-
-  
 
   // dataSource = new MatTableDataSource<PerformanceTopFive>(this.data);
-
-  ngDoCheck() {
-    console.log('AfterViewInit');
-    //  alert('cc1 ');
-  }
 
 
   ngOnInit(): void {
 
-
-
-    // alert('ddd1 ');
-
-
-    if (this.userservice.responseLogin) {
-
-
-      this.initialSetup();
-      this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
-      this.langDefault = this.userservice.responseLogin.idioma.abreviaturaIdioma;
-
-      // alert("es dioma actual "+ this.langDefault);
-      this.translateService.setDefaultLang(this.langDefault);
-      this.translateService.use(this.langDefault);
-      this.queryPerformanceRegion = this.apollo.query(
-        {
-          query: QIPREGION,
-          variables: {
-            idusuario: this.userservice.responseLogin.idUsuario,
-            anio: new Date().getFullYear(),
-            mes: this.getCurrenlyMonth(),
-            compania: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
-            monedadestino: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
-          },
-          fetchPolicy: "network-only"
-        }
-      ).subscribe((response: any) => {
-        if (response.data.performanceregion.listames && response.data.performanceregion.listaanual) {
-          let listaPerformanceMes = response.data.performanceregion.listames;
-          let listaPerformanceYear = response.data.performanceregion.listaanual;
-
-          let listBarPercentaje: any = [];
-          let listBarPercentajeAc: any[] = [];
-
-          this.listaitem = [];
-          this.listItemYear = [];
-
-          this.amoutIncremented = 200 + (50 * listaPerformanceMes.length) + "px";
-          this.amoutIncrementedAc = 200 + (50 * listaPerformanceYear.length) + "px";
-
-          this.amoutIncrementedcanvas = 150 + (50 * listaPerformanceMes.length) + "px";
-          this.amoutIncrementedcanvasAc = 150 + (50 * listaPerformanceYear.length) + "px";
-
-          listaPerformanceMes.forEach((item: any) => {
-            let performance_producto = {
-              region: item.nombre,
-              moneda: Number(item.importeactual)
-            };
-            let diff: any = Number(item.importeactual) - Number(item.importeanterior);
-
-            this.listaitem.push(performance_producto);
-
-            this.barChartLabels.push(item.nombre);
-            listBarPercentaje.push(diff.toFixed(2));
-            this.fillbarchart(listBarPercentaje);
-
-            let listVarMes = item.detalle_Receptor.lista;
-            let cantidad = listVarMes.find((e: any) => e.nombreIndicador === "CANTIDAD DE VENTAS").porcentaje_Monto_Mes;
-            let ventas = listVarMes.find((e: any) => e.nombreIndicador == "VENTAS").porcentaje_Monto_Mes;
-            let precio = listVarMes.find((e: any) => e.nombreIndicador == "PRECIO DE VENTA PROMEDIO").porcentaje_Monto_Mes;
-            let topvarMes = {
-              p_cantidad: Number(cantidad.replace(',', '.')),
-              p_ventas: Number(ventas.replace(',', '.')),
-              p_precio: Number(precio.replace(',', '.'))
-
-            }
-            this.listamesVAR.push(topvarMes);
-
-          });
-          listaPerformanceYear.forEach((item: any) => {
-            let performance_producto_year = {
-              region: item.nombre,
-              moneda: Number(item.importeactual)
-            };
-            let diffyear: any = Number(item.importeactual) - Number(item.importeanterior);
-
-
-            this.listItemYear.push(performance_producto_year);
-            listBarPercentajeAc.push(diffyear.toFixed(2));
-            this.fillbarchartAc(listBarPercentajeAc);
-
-            let listVarYear = item.detalle_Receptor.lista;
-            let cantidadyear = listVarYear.find((e: any) => e.nombreIndicador === "CANTIDAD DE VENTAS").porcentaje_Monto_Acumulado;
-            let ventasyear = listVarYear.find((e: any) => e.nombreIndicador == "VENTAS").porcentaje_Monto_Acumulado;
-            let precioyear = listVarYear.find((e: any) => e.nombreIndicador == "PRECIO DE VENTA PROMEDIO").porcentaje_Monto_Acumulado;
-            let topvarYear = {
-              p_cantidad: Number(cantidadyear.replace(',', '.')),
-              p_ventas: Number(ventasyear.replace(',', '.')),
-              p_precio: Number(precioyear.replace(',', '.'))
-
-            }
-            this.listyearVAR.push(topvarYear);
-          });
-          this.dataSource = new MatTableDataSource<PerformanceGR>(this.listaitem);
-          this.dataSourceVARS = new MatTableDataSource<VarPerformance>(this.listamesVAR);
-
-          this.dataSourceAc = new MatTableDataSource<PerformanceGR>(this.listItemYear);
-          this.dataSourceVARSAc = new MatTableDataSource<VarPerformance>(this.listyearVAR);
-        }
+    this.apollo.watchQuery(
+      {
+        query: MGREGIONAUX,
+        variables: {
+          idusuario: 3,
+          anio: 2021,
+          mes: "10",
+          compania: 1,
+          monedadestino: 1
+        },
+        fetchPolicy: "no-cache"
       }
-      );
-    }
-    else {
-      this.queryLogin = this.apollo.query({
-        query: LOGIN,
-        variables: { usuario: this.serviceAuth.userData?.name, clave: this.serviceAuth.userData?.password }
-      }).subscribe((response: any) => {
-        this.userservice.responseLogin = response.data.validarlogin;
-        this.initialSetup();
-        this.langDefault = this.serviceAuth.userData?.language;
+    ).valueChanges.subscribe(result=>{
+      console.log("data"+JSON.stringify(result))
+    });
+    this.apollo.watchQuery<any>(
+      {
+        query: MGREGIONAUX,
+        variables: {
+          idusuario: 3,
+          anio: 2021,
+          mes: "10",
+          compania: 1,
+          monedadestino: 1
+        },
+        fetchPolicy: "cache-and-network"
+      }
+    ).valueChanges.subscribe(({data,loading}) => {
+      // let listaPerformanceMes = response.data.margenbruto_region.lista_mes;
 
-        this.translateService.setDefaultLang(this.langDefault);
-        this.translateService.use(this.langDefault);
+      console.log('dd aux  ' + JSON.stringify(loading))
+      console.log('dd aux  1 ' + JSON.stringify(data.margenbruto_region.lista_mes))
+      
+    });
 
-
-    // alert('ddd 2');
-
-        let filtro: DataIndicador | null | any = null;
-        filtro = localStorage.getItem('filtroAMM');
-        if (filtro) {
-          filtro = JSON.parse(filtro);
-        } else {
-          filtro = null;
-        }
-        this.selectedCoin = filtro.monedaActual;
-        this.selectedyear = String(filtro.anioActual);
-        this.selectedMonth = filtro.mesActual;
-        this.queryPerformanceRegion = this.apollo.query(
-          {
-            query: QIPREGION,
-            variables: {
-              idusuario: this.userservice.responseLogin.idUsuario,
-              anio: filtro.anioActual,
-              mes: filtro.mesActual,
-              compania: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
-              monedadestino: filtro.monedaActual
-            },
-            fetchPolicy: "network-only"
-          }
-        ).subscribe((response: any) => {
-          if (response.data.performanceregion.listames && response.data.performanceregion.listaanual) {
-            let listaPerformanceMes = response.data.performanceregion.listames;
-            let listaPerformanceYear = response.data.performanceregion.listaanual;
-
-            let listBarPercentaje: any = [];
-            let listBarPercentajeAc: any[] = [];
-
-            this.listaitem = [];
-            this.listItemYear = [];
-
-            this.amoutIncremented = 200 + (50 * listaPerformanceMes.length) + "px";
-            this.amoutIncrementedAc = 200 + (50 * listaPerformanceYear.length) + "px";
-
-            this.amoutIncrementedcanvas = 150 + (50 * listaPerformanceMes.length) + "px";
-            this.amoutIncrementedcanvasAc = 150 + (50 * listaPerformanceYear.length) + "px";
-
-            listaPerformanceMes.forEach((item: any) => {
-              let performance_producto = {
-                region: item.nombre,
-                moneda: Number(item.importeactual)
-              };
-              let diff = Number(item.importeactual) - Number(item.importeanterior);
-
-              this.listaitem.push(performance_producto);
-
-              this.barChartLabels.push(item.nombre);
-              listBarPercentaje.push(diff.toFixed(2));
-              this.fillbarchart(listBarPercentaje);
-
-              let listVarMes = item.detalle_Receptor.lista;
-              let cantidad = listVarMes.find((e: any) => e.nombreIndicador === "CANTIDAD DE VENTAS").porcentaje_Monto_Mes;
-              let ventas = listVarMes.find((e: any) => e.nombreIndicador == "VENTAS").porcentaje_Monto_Mes;
-              let precio = listVarMes.find((e: any) => e.nombreIndicador == "PRECIO DE VENTA PROMEDIO").porcentaje_Monto_Mes;
-              let topvarMes = {
-                p_cantidad: Number(cantidad.replace(',', '.')),
-                p_ventas: Number(ventas.replace(',', '.')),
-                p_precio: Number(precio.replace(',', '.'))
-
-              }
-              this.listamesVAR.push(topvarMes);
-
-            });
-            listaPerformanceYear.forEach((item: any) => {
-              let performance_producto_year = {
-                region: item.nombre,
-                moneda: Number(item.importeactual)
-              };
-              let diffyear = Number(item.importeactual) - Number(item.importeanterior);
+    this.queryPerformanceRegion = this.apollo.query(
+      {
+        query: MGREGIONAUX,
+        variables: {
+          idusuario: 3,
+          anio: 2021,
+          mes: "10",
+          compania: 1,
+          monedadestino: 1
+        },
+        fetchPolicy: "network-only"
+      }
+    ).subscribe((response: any) => {
+      let listaPerformanceMes = response.data.margenbruto_region.lista_mes;
+      console.log('dd ' + JSON.stringify(listaPerformanceMes))
 
 
-              this.listItemYear.push(performance_producto_year);
-              listBarPercentajeAc.push(diffyear.toFixed(2));
-              this.fillbarchartAc(listBarPercentajeAc);
+      // this.queryPerformanceRegion2 = this.apollo.query(
+      //   {
+      //     query:  MGREGIONAUX2,
+      //     variables: {
+      //       idusuario: 3,
+      //       anio: 2021,
+      //       mes: "10",
+      //       compania: 1,
+      //       monedadestino: 1
+      //     },
+      //     fetchPolicy: "network-only"
+      //   }
+      // ).subscribe((response: any) => {
 
-              let listVarYear = item.detalle_Receptor.lista;
-              let cantidadyear = listVarYear.find((e: any) => e.nombreIndicador === "CANTIDAD DE VENTAS").porcentaje_Monto_Acumulado;
-              let ventasyear = listVarYear.find((e: any) => e.nombreIndicador == "VENTAS").porcentaje_Monto_Acumulado;
-              let precioyear = listVarYear.find((e: any) => e.nombreIndicador == "PRECIO DE VENTA PROMEDIO").porcentaje_Monto_Acumulado;
-              let topvarYear = {
-                p_cantidad: Number(cantidadyear.replace(',', '.')),
-                p_ventas: Number(ventasyear.replace(',', '.')),
-                p_precio: Number(precioyear.replace(',', '.'))
+      //   let listaPerformanceYear = response.data.margenbruto_region.lista_anual;
+      //   console.log('dd ' + JSON.stringify(listaPerformanceYear))
 
-              }
-              this.listyearVAR.push(topvarYear);
-            });
-            this.dataSource = new MatTableDataSource<PerformanceGR>(this.listaitem);
-            this.dataSourceVARS = new MatTableDataSource<VarPerformance>(this.listamesVAR);
+      // });
 
-            this.dataSourceAc = new MatTableDataSource<PerformanceGR>(this.listItemYear);
-            this.dataSourceVARSAc = new MatTableDataSource<VarPerformance>(this.listyearVAR);
-          }
-        }
-        );
-      });
+    });
 
-    }
+
+
+    //  console.log(this.queryPerformanceRegion);
+
+
+    //   this.postf= this.apollo
+    //   .watchQuery({query:MGREGIONAUX, variables: {
+    //     idusuario: 3,
+    //     anio: 2021,
+    //     mes: "10",
+    //     compania: 1,
+    //     monedadestino: 1
+    //   }})
+    //   .valueChanges.pipe(map((result)=>
+    //     console.log(result.data) ));
+
+
 
 
 
   }
   private initialSetup() {
-
-
-    // alert('dd 7');
     this.months = [];
     this.coins = [];
     this.placeholderYear = this.userservice.responseLogin.anioo.descripcion_anio.nombre;
     this.placeholderMonth = this.userservice.responseLogin.mess.descripcion_mes.nombre;
     this.placeholderCoin = this.userservice.responseLogin.monedass.descripcion_moneda.nombre;
 
-
+    this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
     let arraymonedas = this.userservice.responseLogin.monedass.info_moneda;
     let arrayMeses: any = this.userservice.responseLogin.mess.info_mes;
     this.selectedCoinTable = arraymonedas.find((e: any) => e.idMonedaEmpresaOdoo ==
@@ -591,19 +526,6 @@ export class PerformanceGeneralRegionesComponent implements OnInit, OnDestroy,Do
   }
   refreshQuery() {
 
-
-    // alert('ddd 3');
-
-
-    const currentFiltros: DataIndicador = {
-      anioActual: Number(this.selectedyear),
-      mesActual: this.selectedMonth,
-      monedaActual: this.selectedCoin
-
-    }
-    localStorage.removeItem('filtroAMM');
-    localStorage.setItem('filtroAMM', JSON.stringify(currentFiltros));
-
     //getting data from Login
     if (this.userservice.responseLogin) {
 
@@ -667,11 +589,11 @@ export class PerformanceGeneralRegionesComponent implements OnInit, OnDestroy,Do
               moneda: Number(item.importeactual)
             };
             let diff: any = Number(item.importeactual) - Number(item.importeanterior);
-
+            diff = diff.toFixed(2);
             this.listaitem.push(performance_producto);
 
             this.barChartLabels.push(item.nombre);
-            listBarPercentaje.push(diff.toFixed(2));
+            listBarPercentaje.push(diff);
             this.fillbarchart(listBarPercentaje);
 
             let listVarMes = item.detalle_Receptor.lista;
@@ -693,10 +615,10 @@ export class PerformanceGeneralRegionesComponent implements OnInit, OnDestroy,Do
               moneda: Number(item.importeactual)
             };
             let diffyear: any = Number(item.importeactual) - Number(item.importeanterior);
-
+            diffyear = diffyear.toFixed(2);
 
             this.listItemYear.push(performance_producto_year);
-            listBarPercentajeAc.push(diffyear.toFixed(2));
+            listBarPercentajeAc.push(diffyear);
             this.fillbarchartAc(listBarPercentajeAc);
 
             let listVarYear = item.detalle_Receptor.lista;
@@ -744,4 +666,6 @@ export interface VarPerformance {
   p_ventas: any;
   p_precio: any;
 }
+
+
 

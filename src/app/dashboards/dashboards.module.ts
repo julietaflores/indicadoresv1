@@ -37,8 +37,16 @@ import { AppBreadcrumbComponent } from '../layouts/full/breadcrumb/breadcrumb.co
 import { FullComponent } from '../layouts/full/full.component';
 import { CoinsInstanceComponent } from './dashboard-components/coins-instance/coins-instance.component';
 import { CompanysInstanceComponent } from './dashboard-components/companys-instance/companys-instance.component';
-
-
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+TranslateModule.forRoot({
+    loader: {
+      provide: TranslateLoader,
+      useFactory: httpTranslateLoader,
+      deps: [HttpClient]
+    }
+  })
 @NgModule({
     imports: [
         CommonModule,
@@ -85,3 +93,6 @@ import { CompanysInstanceComponent } from './dashboard-components/companys-insta
     ]
 })
 export class DashboardsModule { }
+export function httpTranslateLoader(http: HttpClient) {
+    return new TranslateHttpLoader(http);
+  }

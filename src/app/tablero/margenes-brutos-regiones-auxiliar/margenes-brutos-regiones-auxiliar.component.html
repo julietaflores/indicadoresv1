@@ -2,7 +2,7 @@
     <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100">
         <mat-card style="padding: 0">
             <mat-card-content style="padding: 0.5rem 1rem;margin: 0;">
-                
+
                 <mat-form-field style="padding:0;margin: 0;">
                     <mat-select style="padding:0;margin: 0;" placeholder="{{placeholderYear}}" [(value)]="selectedyear"
                         (selectionChange)="onYearChange($event)">
@@ -19,7 +19,7 @@
             <mat-card-content style="padding: 0.5rem 1rem;margin: 0;">
 
                 <mat-form-field>
-                    <mat-select [(value)]="selectedMonth" placeholder="{{placeholderMonth}}" (selectionChange)="onMonthChange($event)">
+                    <mat-select [(value)]="selectedMonth" placeholder="{{ placeholderMonth}}" (selectionChange)="onMonthChange($event)">
                         <mat-option *ngFor="let month of months" [value]="month.value">
                             {{month.viewValue}}
                         </mat-option>
@@ -32,7 +32,7 @@
         <mat-card>
             <mat-card-content style="padding: 0.5rem 1rem;margin: 0;">
                 <mat-form-field>
-                    <mat-select placeholder="{{placeholderCoin}}" [(value)]="selectedCoin" (selectionChange)="onCoinChange($event)">
+                    <mat-select placeholder="{{ placeholderCoin}}" [(value)]="selectedCoin" (selectionChange)="onCoinChange($event)">
                         <mat-option *ngFor="let coin of coins" [value]="coin.value">
                             {{coin.viewValue}}
                         </mat-option>
@@ -46,9 +46,9 @@
 <!-- Performance General MES-->
 <!-- ============================================================== -->
 <div fxLayout="row wrap">
-
-    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;" *ngIf="listaitem.length>0 ">
-        <mat-card [style.height]="amoutIncremented">
+    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;"
+     *ngIf="listaitem.length>0 ">
+    <mat-card [style.height]="amoutIncremented">
             <mat-card-content>
                 <mat-card-title>{{ months[selectedMonth-1].viewValue| translate}}</mat-card-title>
                 <div fxLayout="row wrap">
@@ -57,9 +57,9 @@
                             <table mat-table [dataSource]="dataSource" class="mat-elevation-z8"
                                 style="margin: 0;padding: 0;">
                                 <!-- Index Column -->
-                                <ng-container matColumnDef="linea">
-                                    <th mat-header-cell *matHeaderCellDef>{{'LINEA'| translate}}</th>
-                                    <td mat-cell *matCellDef="let value"> {{value.linea}}</td>
+                                <ng-container matColumnDef="region">
+                                    <th mat-header-cell *matHeaderCellDef>{{'REGION' | translate}}</th>
+                                    <td mat-cell *matCellDef="let value"> {{value.region}}</td>
 
                                     <td mat-footer-cell *matFooterCellDef>Total </td>
                                 </ng-container>
@@ -89,16 +89,13 @@
             </mat-card-content>
         </mat-card>
     </div>
-
-
-
-    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;" *ngIf="listaitem.length>0">
+    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;"
+    *ngIf="listaitem.length>0">
         <mat-card [style.height]="amoutIncremented">
             <mat-card-content style="margin: 0;padding-left:0;padding-right: 0;" class="p-t-10">
-             
                 <div fxLayout="row wrap" [style.height]="amoutIncrementedcanvas">
                     <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
-                        <canvas #canvas baseChart   [datasets]="barChartData"
+                        <canvas id="canvas" baseChart  [datasets]="barChartData"
                             [labels]="barChartLabels" [options]="barChartOptions" [legend]="barChartLegend"
                             [chartType]="barChartType" [colors]="barChartColors" >
                         </canvas>
@@ -106,15 +103,13 @@
                 </div>
             </mat-card-content>
         </mat-card>
+
     </div>
-
-
-
     <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;" 
     *ngIf="listamesVAR.length>0">
         <mat-card>
             <mat-card-content>
-                <mat-card-title>{{ months[selectedMonth-1].viewValue| translate}}</mat-card-title>
+                <mat-card-title>{{ months[selectedMonth-1].viewValue | translate}}</mat-card-title>
                 <div fxLayout="row wrap">
                     <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
                         <div class="responsive-table">
@@ -177,12 +172,9 @@
             </mat-card-content>
         </mat-card>
     </div>
-
-
-
-    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;"  
+    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;" 
      *ngIf="listItemYear.length>0 ">
-     <mat-card [style.height]="amoutIncrementedAc">
+        <mat-card [style.height]="amoutIncrementedAc">
             <mat-card-content>
                 <mat-card-title>{{'Acumulado' | translate}}</mat-card-title>
                 <div fxLayout="row wrap">
@@ -192,9 +184,9 @@
                             <table mat-table [dataSource]="dataSourceAc" class="mat-elevation-z8"
                                 style="margin: 0;padding: 0;">
                                 <!-- Index Column -->
-                                <ng-container matColumnDef="linea">
-                                    <th mat-header-cell *matHeaderCellDef>{{'LINEA'| translate}}</th>
-                                    <td mat-cell *matCellDef="let value"> {{value.linea}}</td>
+                                <ng-container matColumnDef="region">
+                                    <th mat-header-cell *matHeaderCellDef>{{'REGION' | translate}}</th>
+                                    <td mat-cell *matCellDef="let value"> {{value.region}}</td>
 
                                     <td mat-footer-cell *matFooterCellDef> Total</td>
                                 </ng-container>
@@ -223,32 +215,28 @@
             </mat-card-content>
         </mat-card>
     </div>
-
-    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;" *ngIf="listItemYear.length>0">
-        <mat-card  [style.height]="amoutIncrementedAc">
+    <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;"
+    *ngIf="listItemYear.length>0">
+        <mat-card [style.height]="amoutIncrementedAc">
             <mat-card-content style="margin: 0;padding-left:0;padding-right: 0;" class="p-t-10">
                 <div fxLayout="row wrap" [style.height]="amoutIncrementedcanvasAc">
                     <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
-                        <canvas  baseChart   [datasets]="barChartDataAc"
+                        <canvas id="canvas" baseChart  [datasets]="barChartDataAc"
                             [labels]="barChartLabels" [options]="barChartOptions" [legend]="barChartLegend"
-                            [chartType]="barChartType" [colors]="barChartColors" >
+                            [chartType]="barChartType" [colors]="barChartColors">
                         </canvas>
                     </div>
                 </div>
             </mat-card-content>
         </mat-card>
+
+
     </div>
-
-
-
-
-
-
     <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;"
     *ngIf="listyearVAR.length>0">
-    <mat-card >
+        <mat-card>
             <mat-card-content>
-                <mat-card-title>{{'Acumulado'| translate}}</mat-card-title>
+                <mat-card-title>{{'Acumulado' | translate}}</mat-card-title>
                 <div fxLayout="row wrap">
                     <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
                         <div class="responsive-table">

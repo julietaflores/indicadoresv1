@@ -38,6 +38,11 @@ const LOGIN = gql`
         idMonedaEmpresaOdoo
         estado
     }
+	idioma{
+		codigoIdioma
+		abreviaturaIdioma
+		detalleIdioma
+	  }
   
     }
   }
@@ -61,20 +66,20 @@ export class FullComponent implements OnDestroy {
 	green = false;
 	blue = false;
 	danger = false;
-	showHide = false; 
+	showHide = false;
 	url = '';
 	sidebarOpened = false;
 	status = false;
-   // companyName:any=service.responseLogin.valor.Companiaa[0].Name;
-	companys:any;
-	idIdioma:number=0;
-	moneda:String='';
+	// companyName:any=service.responseLogin.valor.Companiaa[0].Name;
+	companys: any;
+	idIdioma: number = 0;
+	moneda: String = '';
 
 	public showSearch = false;
 	public config: PerfectScrollbarConfigInterface = {};
 	// tslint:disable-next-line - Disables all
 	private _mobileQueryListener: () => void;
-    private query: any;
+	private query: any;
 
 	constructor(
 		public router: Router,
@@ -83,10 +88,10 @@ export class FullComponent implements OnDestroy {
 		public menuItems: MenuItems,
 		public userservice: UserService,
 		private apollo: Apollo,
-		private serviceAuth:AuthServiceService
+		private serviceAuth: AuthServiceService
 	) {
-	
-		
+
+
 		this.mobileQuery = media.matchMedia('(min-width: 1100px)');
 		this._mobileQueryListener = () => changeDetectorRef.detectChanges();
 		// tslint:disable-next-line: deprecation
@@ -95,34 +100,37 @@ export class FullComponent implements OnDestroy {
 		// const body = document.getElementsByTagName('body')[0];
 		// body.classList.toggle('dark');
 		this.dark = false;
-	
-		
+
+
 	}
 
 	ngOnDestroy(): void {
 		// tslint:disable-next-line: deprecation
 		this.mobileQuery.removeListener(this._mobileQueryListener);
-	    //console.log(this.userservice.responseLogin.valor.IdRolUsuario);
+		//console.log(this.userservice.responseLogin.valor.IdRolUsuario);
 	}
 
 
 	ngOnInit() {
 
-     if(this.userservice.responseLogin){
-		this.companys=this.userservice.responseLogin.companiaa;
-		this.idIdioma=this.userservice.responseLogin.codIdioma;
-		this.moneda=this.userservice.responseLogin.monedass[0].name;
-	 }	
-		
+		if (this.userservice.responseLogin) {
+			
+			this.companys = this.userservice.responseLogin.companiaa;
+			this.idIdioma = this.userservice.responseLogin.codIdioma;
+			this.moneda = this.userservice.responseLogin.monedass.info_moneda.find((item:any)=>
+				item.idMonedaEmpresaOdoo==this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo).name;
+				console.log("moneda "+this.moneda);
+		}
+
 
 
 		//const body = document.getElementsByTagName('body')[0];
 		// body.classList.add('dark');
-		
+
 	}
 
 	clickEvent(): void {
-		 this.status = !this.status;
+		this.status = !this.status;
 	}
 
 	darkClick() {

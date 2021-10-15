@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { RouterModule,PreloadAllModules } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { DatePipe, HashLocationStrategy, LocationStrategy } from '@angular/common';
@@ -72,7 +72,8 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
         PerfectScrollbarModule,
         SharedModule,
         NgMultiSelectDropDownModule.forRoot(),
-        RouterModule.forRoot(AppRoutes, { relativeLinkResolution: 'legacy' }),
+        RouterModule.forRoot(AppRoutes,{ onSameUrlNavigation:'reload'}),
+      // RouterModule.forRoot(AppRoutes, { relativeLinkResolution: 'legacy' }),
         HttpClientModule,
         TranslateModule.forRoot({
             loader: {

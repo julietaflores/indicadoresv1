@@ -72,133 +72,6 @@ const MENUITEMS = [
         ]
     },
     {
-        state: 'performance general',
-        name: 'Performance Gral.(Lineas)',
-        type: 'sub',
-        icon: 'business',
-        children: [
-            { state: 'dashboard1', name: 'Dashboard 1', type: 'link' },
-            { state: 'dashboard2', name: 'Dashboard 2', type: 'link' }
-        ]
-    },
-    {
-        state: 'apps',
-        name: 'Apps',
-        type: 'sub',
-        icon: 'apps',
-        badge: [{ type: 'warning', value: 'new' }],
-        children: [
-            { state: 'calendar', name: 'Calendar', type: 'link' },
-            { state: 'mailbox', name: 'Mailbox', type: 'link' },
-            { state: 'messages', name: 'Mail', type: 'link' },
-            { state: 'chat', name: 'Chat', type: 'link' },
-            { state: 'taskboard', name: 'Taskboard', type: 'link' },
-            { state: 'notes', name: 'Notes', type: 'link' },
-
-            { state: 'employeelist', name: 'Employees', type: 'link' },
-
-            { state: 'courses', name: 'Courses', type: 'link' },
-            { state: 'contact', name: 'Contact', type: 'link' },
-
-            { state: 'ticketlist', name: 'Ticket List', type: 'link' },
-
-            { state: 'ticketdetails', name: 'Ticket Details', type: 'link' },
-
-            { state: 'invoice', name: 'Invoice', type: 'link' },
-            { state: 'todo', name: 'Todo', type: 'link' },
-        ]
-    },
-    {
-        state: 'material',
-        name: 'Material Ui',
-        type: 'sub',
-        icon: 'bubble_chart',
-        badge: [{ type: 'red', value: '17' }],
-        children: [
-            { state: 'badge', name: 'Badge', type: 'link' },
-            { state: 'button', name: 'Buttons', type: 'link' },
-            { state: 'cards', name: 'Cards', type: 'link' },
-            { state: 'grid', name: 'Grid List', type: 'link' },
-            { state: 'lists', name: 'Lists', type: 'link' },
-            { state: 'menu', name: 'Menu', type: 'link' },
-            { state: 'tabs', name: 'Tabs', type: 'link' },
-            { state: 'stepper', name: 'Stepper', type: 'link' },
-            { state: 'ripples', name: 'Ripples', type: 'link' },
-            { state: 'expansion', name: 'Expansion Panel', type: 'link' },
-            { state: 'chips', name: 'Chips', type: 'link' },
-            { state: 'toolbar', name: 'Toolbar', type: 'link' },
-            { state: 'progress-snipper', name: 'Progress snipper', type: 'link' },
-            { state: 'progress', name: 'Progress Bar', type: 'link' },
-            { state: 'dialog', name: 'Dialog', type: 'link' },
-            { state: 'tooltip', name: 'Tooltip', type: 'link' },
-            { state: 'snackbar', name: 'Snackbar', type: 'link' },
-            { state: 'slider', name: 'Slider', type: 'link' },
-            { state: 'slide-toggle', name: 'Slide Toggle', type: 'link' }
-        ]
-    },
-
-    {
-        state: 'tree',
-        name: 'Tree',
-        type: 'sub',
-        icon: 'brightness_7',
-        children: [
-            { state: 'dynamic-tree', name: 'Dynamic data tree', type: 'link' },
-            { state: 'flat-tree', name: 'Flat Tree', type: 'link' },
-            { state: 'load-tree', name: 'Loaded Data tree', type: 'link' },
-            { state: 'nested-tree', name: 'Nested tree', type: 'link' }
-        ]
-    },
-    {
-        state: '',
-        name: 'Forms, Table & Widgets',
-        type: 'saperator',
-        icon: 'av_timer'
-    },
-    {
-        state: 'forms',
-        name: 'Forms',
-        type: 'sub',
-        icon: 'insert_drive_file',
-        children: [
-            { state: 'form-layout', name: 'Form-Layout', type: 'link' },
-            { state: 'autocomplete', name: 'Autocomplete', type: 'link' },
-            { state: 'checkbox', name: 'Checkbox', type: 'link' },
-            { state: 'radiobutton', name: 'Radio Button', type: 'link' },
-            { state: 'datepicker', name: 'Datepicker', type: 'link' },
-            { state: 'select', name: 'Select', type: 'link' },
-            { state: 'formfield', name: 'Form Field', type: 'link' },
-            { state: 'input', name: 'Inputs', type: 'link' },
-            { state: 'editor', name: 'Editor', type: 'link' },
-            { state: 'form-validation', name: 'Form Validation', type: 'link' },
-            { state: 'wizard', name: 'Wizard', type: 'link' },
-            { state: 'paginator', name: 'Paginator', type: 'link' },
-            { state: 'sortheader', name: 'Sort Header', type: 'link' },
-        ]
-    },
-    {
-        state: 'tables',
-        name: 'Tables',
-        type: 'sub',
-        icon: 'web',
-        children: [
-            { state: 'basictable', name: 'Basic Table', type: 'link' },
-            { state: 'filterable', name: 'Filterable Table', type: 'link' },
-            { state: 'pagination', name: 'Pagination Table', type: 'link' },
-            { state: 'sortable', name: 'Sortable Table', type: 'link' },
-            { state: 'mix', name: 'Mix Table', type: 'link' },
-            { state: 'dynamic-table', name: 'Dynamic Table', type: 'link' },
-            { state: 'expand-table', name: 'Expand Table', type: 'link' },
-            { state: 'footerrow-table', name: 'Footer row Table', type: 'link' },
-            { state: 'multiple-header-footer', name: 'Multiple Header Footer', type: 'link' },
-            { state: 'http-table', name: 'HTTP Table', type: 'link' },
-            { state: 'row-context-table', name: 'Row Context Table', type: 'link' },
-            { state: 'selection-table', name: 'Selection Table', type: 'link' },
-            { state: 'sticky-column-table', name: 'Sticky Column Table', type: 'link' },
-            { state: 'sticky-footer-table', name: 'Sticky Footer Table', type: 'link' },
-        ]
-    },
-    {
         state: 'datatables',
         name: 'Data Tables',
         type: 'sub',
@@ -269,43 +142,6 @@ const MENUITEMS = [
                 ]
             }
         ]
-    },
-    {
-        state: 'multi',
-        name: 'Menu Levels',
-        icon: 'star',
-        type: 'sub',
-        children: [
-            {
-                state: 'second-level',
-                name: 'Second Level',
-                type: 'link'
-            },
-            {
-                state: 'third-level',
-                name: 'Second Level',
-                type: 'subchild',
-                subchildren: [
-                    {
-                        state: 'third-level',
-                        name: 'Third Level',
-                        type: 'link'
-                    }
-                ]
-            },
-            {
-                state: 'third-level',
-                name: 'aSecond Level',
-                type: 'subchild',
-                subchildren: [
-                    {
-                        state: 'athird-level',
-                        name: 'Third Level',
-                        type: 'link'
-                    }
-                ]
-            }
-        ]
     }
 ];
 const FIRSTITEM={
@@ -362,8 +198,8 @@ const MargenesBrutos={
 }
 
 const MENUGRAPHQL= gql`
-query menu_Indicadores($idrolusuario:Int!) {
-  menu_Indicadores(idrolusuario: $idrolusuario){
+query menu_Indicadores($idusuario:Int!) {
+  menu_Indicadores(idusuario: $idusuario){
     id_categoriaRol
     iD_categoria
     iD_rolUsuario
@@ -401,7 +237,8 @@ export class MenuItems{
     childrem:any[]=[];
     tableros:any[]=[];  
     private query: any;
-    idRol:Number|undefined;
+    idUsuario:Number|undefined;
+    lang:String|undefined;
 
     constructor(private serviceuser:UserService,private apollo: Apollo,
         private serviceAuth:AuthServiceService) {    
@@ -409,20 +246,20 @@ export class MenuItems{
         this.menuitems.push(FIRSTITEM);
     
         if(this.serviceuser.responseLogin){
-        
-            this.idRol=this.serviceuser.responseLogin.iDRolUsuario;
+          
+    //        alert('cc44');
+            this.idUsuario=this.serviceuser.responseLogin.idUsuario;
+            this.lang=this.serviceuser.responseLogin.idioma.abreviaturaIdioma;
             this.query= this.apollo.watchQuery({
                 query: MENUGRAPHQL,
-                variables: { idrolusuario:this.idRol}
+                variables: { idusuario:this.idUsuario}
               });
           
               this.query.valueChanges.subscribe((result:any) => {
-             
                 this.categorias=result.data.menu_Indicadores;
                 this.categorias.forEach((categoria:any)=>{
                     this.tableros=categoria.categoriass.tableross;
                     GlobalConstants.detalleTablero=categoria.categoriass.tableross;
-                    console.log(GlobalConstants.detalleTablero);
                     this.childrem=[];
                     this.tableros.forEach(element => {
                         this.childrem.push(
@@ -449,11 +286,16 @@ export class MenuItems{
         }
         else{
             if(this.serviceAuth.isLoggedIn()){
-                
-                this.idRol=this.serviceAuth.userData?.idRol;
+           
+
+     //           alert('cc45');
+                this.idUsuario=this.serviceAuth.userData?.idUsuario;
+               // alert('idRol '+this.idUsuario);
+                this.lang=this.serviceAuth.userData?.language;
+               // alert('lang '+this.lang);
                 this.query= this.apollo.watchQuery({
                     query: MENUGRAPHQL,
-                    variables: { idrolusuario:this.idRol}
+                    variables: { idusuario:this.idUsuario}
                   });
               
                   this.query.valueChanges.subscribe((result:any) => {
@@ -463,6 +305,9 @@ export class MenuItems{
                         this.tableros=categoria.categoriass.tableross;
                         this.childrem=[];
                         this.tableros.forEach(element => {
+
+                      //    alert('cam '+element.nombreTablero);
+
                             this.childrem.push(
                                 {
                                     state:element.urlTablero,
@@ -484,16 +329,16 @@ export class MenuItems{
                       });
                   }); 
       
+            }else{
+                
+              //  alert('cc46');
             }
         }
-        // this.menuitems.push(PerformanceLineas);
-        // this.menuitems.push(MargenesBrutos);
-		
+
       
     }
     ngOnInit(): void {
-        console.log("iniciando componente menu");
-     
+    
     }
     
     getMenuitem(): Menu[] {

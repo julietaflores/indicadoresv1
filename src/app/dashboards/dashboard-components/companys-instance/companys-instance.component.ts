@@ -8,30 +8,73 @@ import { UserService } from 'src/app/services/user.service';
 const LOGIN = gql`
   query validarlogin($usuario:String,$clave:String) {
     validarlogin(usuario: $usuario, clave: $clave) {
+    
       idUsuario
       nombreUsuario
       usuario
-      iDRolUsuario
-      codIdioma
-      monedass{
-        idMonedaEmpresaOdoo
-        name
-        symbol
-        rate
-        estado
-      }
-      companiaa{
+     passwordd
+     fechacreacionusuario
+     iDRolUsuario
+     codIdioma
+     estado
+     
+     
+     anioo{
+       descripcion_anio{
+         auxiliarId
+         nombre
+       }
+       
+     }
+     
+     mess{
+       descripcion_mes{
+         auxiliarId
+         nombre
+         
+       }
+       
+       info_mes{
+         mesid
+         nombre
+       }
+     }
+     
+     monedass{
+       descripcion_moneda{
+         auxiliarId
+         nombre
+         
+       }
+       info_moneda{
+          monedaId
+       idMonedaEmpresaOdoo
+       name
+       symbol
+       rate
+       estado
+       }
+      
+       
+     }
+     companiaa{
         idCompaniaOdoo
-        name
-        idMonedaEmpresaOdoo
-        estado
-    }
-  
+         name
+       idMonedaEmpresaOdoo
+       estado
+       
+     }
+     idioma{
+       codigoIdioma
+       abreviaturaIdioma
+       detalleIdioma
+     }
+ 
     }
   }
   `;
 
- 
+
 @Component({
   selector: 'app-companys-instance',
   templateUrl: './companys-instance.component.html',
@@ -39,38 +82,38 @@ const LOGIN = gql`
 })
 export class CompanysInstanceComponent implements OnInit {
   private query: any;
-  listCompanys:any[]=[];
-  constructor(private serviceAuth:AuthServiceService,public serviceuser:UserService,
-    private apollo: Apollo) { 
-    
+  listCompanys: any[] = [];
+  constructor(private serviceAuth: AuthServiceService, public serviceuser: UserService,
+    private apollo: Apollo) {
+
   }
 
   ngOnInit(): void {
     //console.log();
-    if(GlobalConstants.listCompanys !=undefined){
-     
-      this.listCompanys=GlobalConstants.listCompanys;
+    if (GlobalConstants.listCompanys != undefined) {
+
+      this.listCompanys = GlobalConstants.listCompanys;
 
     }
-    else if(this.serviceAuth.isLoggedIn()){
+    else if (this.serviceAuth.isLoggedIn()) {
 
-       console.log(this.serviceAuth.userData);
-       this.query = this.apollo.watchQuery({
-         query: LOGIN,
-         variables: { usuario:this.serviceAuth.userData?.name,clave:this.serviceAuth.userData?.password }
-       });
-     
-       this.query.valueChanges.subscribe((result:any) => {
-         console.log(result.data.validarlogin.companiaa);
-         this.serviceuser.responseLogin=result.data.validarlogin;
-         GlobalConstants.listCompanys=result.data.validarlogin.companiaa;
-        this.listCompanys=GlobalConstants.listCompanys;
-       });
-         
-    
+      console.log(this.serviceAuth.userData);
+      this.query = this.apollo.watchQuery({
+        query: LOGIN,
+        variables: { usuario: this.serviceAuth.userData?.name, clave: this.serviceAuth.userData?.password }
+      });
+
+      this.query.valueChanges.subscribe((result: any) => {
+
+        this.serviceuser.responseLogin = result.data.validarlogin;
+        GlobalConstants.listCompanys = result.data.validarlogin.companiaa;
+        this.listCompanys = GlobalConstants.listCompanys;
+      });
+
+
     }
-  
-  
+
+
   }
 
 }

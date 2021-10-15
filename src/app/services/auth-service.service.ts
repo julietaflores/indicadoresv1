@@ -31,4 +31,25 @@ export class AuthServiceService {
   isLoggedIn(){
     return this.userData !== null;
   }
+
+
+
+  updateStoragef(userAuth:UserAuth){
+    localStorage.removeItem('auth-user');
+    localStorage.setItem('auth-user',JSON.stringify(userAuth));
+    
+
+    const userData = localStorage.getItem('auth-user');
+  
+    if(userData){
+      this.userData=JSON.parse(userData);
+    }else{
+      this.userData=null;
+    }
+
+
+  }
+
+
+
 }

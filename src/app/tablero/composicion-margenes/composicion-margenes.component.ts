@@ -299,7 +299,7 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
              }
           });
           pieChartData = this.listpercentagesmes;
-          console.log(pieChartData);
+       
           pieChartDataYear = this.listpercentagesyear;
 
           let pieRegion = {

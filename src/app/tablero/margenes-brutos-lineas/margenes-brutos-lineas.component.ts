@@ -143,17 +143,21 @@ export class MargenesBrutosLineasComponent implements OnInit {
   public barChartOptions: any = {
     responsive: true,
     maintainAspectRatio: false,
-
     scales: {
       yAxes: [{
-
+      
         ticks: {
-          fontSize: 12
+          fontSize: 12,
+          padding:15,
+          position:'right'
+         
         }
       }],
       xAxes: [{
         ticks: {
           fontSize: 12,
+         
+
         }
       }],
     },
@@ -167,13 +171,24 @@ export class MargenesBrutosLineasComponent implements OnInit {
         anchor: 'center',
         display: true,
         align: 'start',
+      
+      //  padding:{
+      //   left: function (labor_anc: any){
+      //     console.log(labor_anc);
+      //   },
+      //   right: 0,
+       
+      //  },
 
+        padding:function (labor_anc: any)  {
+         
+         //labor_anc = screen.width;
+          console.log(labor_anc.chart.options);
+         return labor_anc.chart.options.plugins.datalabels.padding.left=-15;
 
-        padding:function (labor_anc: number )  {
-
-          labor_anc = screen.width;
-          console.log('cc ' + labor_anc);
-        return  10;
+          // console.log(labor_anc.dataset.data);
+          // console.log(labor_anc.chart);
+        //return  10;
       },
 
 
@@ -456,7 +471,7 @@ export class MargenesBrutosLineasComponent implements OnInit {
             this.barChartData[0] = {
               data: listabar,
               label: 'VAR. vs.' + (new Date().getFullYear() - 1),
-              barPercentage: 0.5,
+              barPercentage: 1,
               backgroundColor: '#F08B3B',
               hoverBackgroundColor: '#F08B3B',
             }
@@ -465,7 +480,7 @@ export class MargenesBrutosLineasComponent implements OnInit {
             this.barChartDataAc[0] = {
               data: listabarAc,
               label: 'VAR. vs.' + (new Date().getFullYear() - 1),
-              barPercentage: 0.5,
+              barPercentage: 1,
               backgroundColor: '#F08B3B',
               hoverBackgroundColor: '#F08B3B',
             }

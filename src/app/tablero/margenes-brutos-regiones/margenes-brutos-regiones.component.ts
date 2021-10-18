@@ -142,7 +142,8 @@ export class MargenesBrutosRegionesComponent implements OnInit, OnDestroy {
       yAxes: [{
 
         ticks: {
-          fontSize: 12
+          fontSize: 12,
+          
         }
       }],
       xAxes: [{

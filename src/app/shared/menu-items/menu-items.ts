@@ -176,23 +176,13 @@ const PerformanceLineas={
         // {state:'Performance_general_(Regiones)',name:'Performance general (Regiones)',type:'link'}
     ]
 }
-const ComposicionVentas={
+const ContribucionPortafolio={
     state:'tablero',
-    name: 'Composicion Ventas',
+    name: 'ContribucionPortafolio',
     type: 'sub',
     icon:'perm_contact_calendar',
     children:[
-        {state:'Composicion_Ventas',name:'Composicion de Ventas',type:'link'}
-        // {state:'Performance_general_(Regiones)',name:'Performance general (Regiones)',type:'link'}
-    ]
-}
-const MargenesBrutos={
-    state:'tablero',
-    name: 'Margenes Brutos',
-    type: 'sub',
-    icon:'perm_contact_calendar',
-    children:[
-        {state:'Margenes_Brutos_Lineas',name:'Margenes Brutos Lineas',type:'link'}
+        {state:'Contribucion_Portafolio',name:'ContribucionPortafolio',type:'link'}
         // {state:'Performance_general_(Regiones)',name:'Performance general (Regiones)',type:'link'}
     ]
 }
@@ -329,16 +319,13 @@ export class MenuItems{
                       });
                   }); 
       
-            }else{
-                
-              //  alert('cc46');
             }
         }
 
-      
+     // this.menuitems.push(ContribucionPortafolio);
     }
     ngOnInit(): void {
-    
+       
     }
     
     getMenuitem(): Menu[] {

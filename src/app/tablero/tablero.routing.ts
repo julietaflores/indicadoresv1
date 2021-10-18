@@ -11,6 +11,7 @@ import { ComposicionMargenesComponent } from './composicion-margenes/composicion
 import { MargenesBrutosTop5Component } from './margenes-brutos-top5/margenes-brutos-top5.component';
 import { TableroComponent } from './tablero/tablero.component';
 import { MargenesBrutosRegionesAuxiliarComponent } from './margenes-brutos-regiones-auxiliar/margenes-brutos-regiones-auxiliar.component';
+import { ContribucionPortafolioComponent } from './contribucion-portafolio/contribucion-portafolio.component';
 
 
 
@@ -56,7 +57,12 @@ export const TableroRoutes: Routes = [
     {
         path: 'Composicion_de_margenes',
         component: ComposicionMargenesComponent
+     },
+     {
+        path: 'Contribución_del_portafolio',
+        component: ContribucionPortafolioComponent
      }
+
 
 
     // data: {

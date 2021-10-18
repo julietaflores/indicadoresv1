@@ -147,6 +147,7 @@ export class ContribucionPortafolioComponent implements OnInit {
     this.queryLogin = new Subscription();
   }
 
+  listportafolio: any = [];
   listportafoliomes: any = [];//lista porcentajes torta
   listportafolioac: any = [];//lista porcentajes torta
 
@@ -190,12 +191,10 @@ export class ContribucionPortafolioComponent implements OnInit {
   years: any[] = GlobalConstants.years;
   months: any[] = [];
   // Pie
-  public barChartLabels: string[] = [];
-  public barChartLabelsYear: string[] = [];
-
+  public barChartLabels: Label[] = ['2006', '2007', '2008', '2009', '2010', '2011', '2012'];
 
   public barChartData: ChartDataSets[] = [];
-  public barChartDataYear: number[] = [];
+  public barChartDataYear: ChartDataSets[] = [];
 
   public barChartType: ChartType = 'bar';
   public barChartOptions: ChartOptions = {
@@ -322,13 +321,17 @@ export class ContribucionPortafolioComponent implements OnInit {
         },
         fetchPolicy: "no-cache"
       }).subscribe((response: any) => {
-        let indicadores = response.data.contribucion_del_portafolio.portafolio_Descripcion;
+        let indicadores = response.data.contribucion_del_portafolio.portafolio_Descripcions;
+       // let nameIndicador = response.data.contribucion_del_portafolio.portafolio_Descripcion
         indicadores.forEach((item: any) => {
+
+         // let name=item.indicador.nombreIndicador;
+         this.listportafolio=[];
           this.listportafoliomes = [];
           this.listportafolioac = [];
           let barChartData: any[] = [];
           let barChartDataYear: any[] = [];
-          let barChartLabels: string[] = [];
+ 
           let listames = item.lista_informacion.lista_mes;
           if (listames == null) {
             listames = [];
@@ -340,30 +343,42 @@ export class ContribucionPortafolioComponent implements OnInit {
 
 
           listames.forEach((item: any) => {
-            let listamesbar=[];
-           listamesbar.push(Number(item.importe_porcentaje.replace(",", ".")));
-           listamesbar.push(Number(item.cantidad_porcentaje));
-           listamesbar.push(Number(item.porcentaje_margen_actual_porcentaje));
+            let listamesbar = [];
+            listamesbar.push(Number(item.importe_porcentaje.replace(",", ".")));
+            listamesbar.push(Number(item.cantidad_porcentaje));
+            listamesbar.push(Number(item.porcentaje_margen_actual_porcentaje));
 
             this.listportafoliomes.push(Number(item.importe_actual.replace(",", ".")));
-            let itemdata={
+            let itemdata = {
               data: listamesbar,
-              label: 'VAR. vs.' + (new Date().getFullYear() - 1),
-              backgroundColor: '#F08B3B',
-              hoverBackgroundColor: '#F08B3B',
+              label: item.descripcion,
+              stack: 'a',
+              // backgroundColor: '#F08B3B',
+              // hoverBackgroundColor: '#F08B3B',
             }
-            barChartLabels.push(item.nombre);
+            this.barChartData.push(itemdata);
+
           });
 
           listaanual.forEach((item: any) => {
-            this.listportafolioac.push(Number(item.porcentajetorta.replace(",", ".")));
-            if (listames.length == 0) {
-              barChartLabels.push(item.nombre);
+            let listaanualbar = [];
+            listaanualbar.push(Number(item.importe_porcentaje.replace(",", ".")));
+            listaanualbar.push(Number(item.cantidad_porcentaje));
+            listaanualbar.push(Number(item.porcentaje_margen_actual_porcentaje));
+           // this.listportafoliomes.push(Number(item.importe_actual.replace(",", ".")));
+            let itemdata = {
+              data: listaanualbar,
+              label: item.descripcion,
+              stack: 'a',
+              // backgroundColor: '#F08B3B',
+              // hoverBackgroundColor: '#F08B3B',
             }
-          });
-          barChartData = this.listportafoliomes;
+            this.barChartData.push(itemdata);
 
-          barChartDataYear = this.listportafolioac;
+          });
+          // barChartData = this.listportafoliomes;
+
+          // barChartDataYear = this.listportafolioac;
 
           // this.barChartData[0] = {
           //   data: listabar,
@@ -371,13 +386,13 @@ export class ContribucionPortafolioComponent implements OnInit {
           //   backgroundColor: '#F08B3B',
           //   hoverBackgroundColor: '#F08B3B',
           // }
-          let pieRegion = {
+          let barChartPortafolio = {
             name: item.indicador.nombreIndicador,
             listPie: barChartData,
             listPieAc: barChartDataYear,
-            labels: barChartLabels
+            //labels: this.barChartLabels
           }
-          this.barChartPie.push(pieRegion);
+          this.listportafolio.push(barChartPortafolio);
 
 
         });

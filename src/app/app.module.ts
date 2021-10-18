@@ -36,7 +36,7 @@ import { GraphQLModule } from './graphql.module';
 
 export function HttpLoaderFactory(http: HttpClient): any {
     const urir = 'http://localhost:4200'
-    //const urir='http://181.188.133.118/IndicadoresWeb'
+  //const urir='https://app.banticanalytica.com'
     return new TranslateHttpLoader(http, urir+'/assets/i18n/', '.json');
 }
 

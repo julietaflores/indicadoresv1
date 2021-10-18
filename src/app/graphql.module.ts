@@ -4,7 +4,7 @@ import {ApolloClientOptions, InMemoryCache} from '@apollo/client/core';
 import {HttpLink} from 'apollo-angular/http';
 
 const uri = 'https://indservicio.banticanalytica.com/api';
-//const uri = 'http://181.188.133.118/Indicadores/metod/../api';  // <-- add the URL of the GraphQL server here
+  // <-- add the URL of the GraphQL server here
 export function createApollo(httpLink: HttpLink): ApolloClientOptions<any> {
   return {
     link: httpLink.create({uri}),

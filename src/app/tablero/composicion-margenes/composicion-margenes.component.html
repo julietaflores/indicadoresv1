@@ -43,7 +43,8 @@
     </div> -->
 </div>
 <div fxLayout="row wrap" *ngIf="listChartsPie && listChartsPie.length<=2">
-    <div fxFlex.gt-sm="50" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;" *ngFor="let indicador of listChartsPie">
+    <div fxFlex.gt-sm="50" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;" 
+    *ngFor="let indicador of listChartsPie">
         <mat-card>
             <mat-card-content>
                 <mat-card-title>{{indicador.name | translate}}</mat-card-title>

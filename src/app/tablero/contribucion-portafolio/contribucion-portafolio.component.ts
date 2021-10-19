@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ChartDataSets, ChartOptions, ChartType } from 'chart.js';
-import { Label } from 'ng2-charts';
+import { Colors, Label } from 'ng2-charts';
 import gql from 'graphql-tag';
 import * as pluginDataLabels from 'chartjs-plugin-datalabels';
 import { Subscription } from 'rxjs';
@@ -79,8 +79,10 @@ const LOGIN = gql`
   }
   `;
 const QIPORTAFOLIO = gql`
-query composicion_ventas($idusuario:Int!,$anio:Int!,$mes:String,$compania:Int!) {
-  composicion_ventas(idusuario:$idusuario,anio:$anio,mes:$mes,compania:$compania){
+query  contribucion_del_portafolio($idusuario:Int!,$anio:Int!,$mes:String,$compania:Int!) {
+  contribucion_del_portafolio(idusuario:$idusuario,anio:$anio,mes:$mes,compania:$compania){
+   
+      
     tablero{
       idTablero
       nombreTablero
@@ -129,6 +131,7 @@ query composicion_ventas($idusuario:Int!,$anio:Int!,$mes:String,$compania:Int!) 
         }
       }
     }
+  
   }
 
 }
@@ -146,55 +149,50 @@ export class ContribucionPortafolioComponent implements OnInit {
     this.queryPortafolio = new Subscription();
     this.queryLogin = new Subscription();
   }
-
+  itemdata1: any = [];
+  itemdata2: any = [];
   listportafolio: any = [];
   listportafoliomes: any = [];//lista porcentajes torta
   listportafolioac: any = [];//lista porcentajes torta
 
   barChartPie: any = [];
   listChartsTop5: any = [];
-  // barChartPie: any = [];
-  // listChartsTop5: any = []
 
   listlabel: string[] = [];
   listlabelyear: string[] = [];
   langDefault: any = '';
 
-  colors: String[] = [];
   selectedyear = String(new Date().getFullYear());
   selectedMonth = String(this.getCurrenlyMonth());
   MesActual: any = this.getCurrenlyMonth();
   selectedCoin = 0;
 
-  pieChartOptions = {
-    responsive: true,
-    legend: {
-      position: 'top',
-    },
-
-    plugins: {
-      datalabels: {
-        color: '#ffffff',
-        formatter: function (value: any) {
-          return Number.parseFloat(value).toFixed(2) + "%";
-        },
-      }
-    }
-
-  }
+ 
 
   private queryPortafolio: Subscription;
   private queryLogin: Subscription;
-
+  amoutIncrementedcanvas: any;
+  amoutIncrementedcanvasAc: any;
 
   coins: any[] = [];
   years: any[] = GlobalConstants.years;
   months: any[] = [];
   // Pie
-  public barChartLabels: Label[] = ['2006', '2007', '2008', '2009', '2010', '2011', '2012'];
-
+  public barChartLabels: Label[] = ['VENTAS', 'VOLUMEN', 'MARGEN'];
   public barChartData: ChartDataSets[] = [];
   public barChartDataYear: ChartDataSets[] = [];
+  public barChartColorsx:string[]=['#FF5733','yellow','blue', 'red','pink'];
+  public colors = [
+    { // 1st Year.
+      backgroundColor: ''
+    },
+    { // 2nd Year.
+      backgroundColor: '#F033FF'
+    },
+    { // 2nd Year.
+      backgroundColor: '#0EEA3F'
+    }
+  ]
 
   public barChartType: ChartType = 'bar';
   public barChartOptions: ChartOptions = {
@@ -224,51 +222,51 @@ export class ContribucionPortafolioComponent implements OnInit {
         },
         anchor: 'center',
         display: true,
-        align: 'start',
-        padding: function (labor_anc: any) {
-          labor_anc = screen.width;
-          console.log('cc ' + labor_anc);
+        align: 'center',
+        // padding: function (labor_anc: any) {
+        //   labor_anc = screen.width;
+        //   console.log('cc ' + labor_anc);
 
-          switch (true) {
-            case (labor_anc >= 320) && (labor_anc <= 575):
-              console.log('modo celular');
-              return 10;
-              break;
-            case (labor_anc >= 576) && (labor_anc <= 767):
-              console.log('modo celular version 1');
-              return 10;
-              break;
-            case (labor_anc >= 768) && (labor_anc <= 1023):
-              console.log('modo celular version 2');
-              return 9;
-              break;
-            case (labor_anc >= 1024) && (labor_anc <= 1439):
-              console.log('modo celular version 3');
-              return 8;
-              break;
+        //   switch (true) {
+        //     case (labor_anc >= 320) && (labor_anc <= 575):
+        //       console.log('modo celular');
+        //       return 10;
+        //       break;
+        //     case (labor_anc >= 576) && (labor_anc <= 767):
+        //       console.log('modo celular version 1');
+        //       return 10;
+        //       break;
+        //     case (labor_anc >= 768) && (labor_anc <= 1023):
+        //       console.log('modo celular version 2');
+        //       return 9;
+        //       break;
+        //     case (labor_anc >= 1024) && (labor_anc <= 1439):
+        //       console.log('modo celular version 3');
+        //       return 8;
+        //       break;
 
-            case (labor_anc >= 1440):
-              console.log('modo celular version 4');
-              return 7;
-              break;
+        //     case (labor_anc >= 1440):
+        //       console.log('modo celular version 4');
+        //       return 7;
+        //       break;
 
-          }
+        //   }
 
-          if (labor_anc >= 320 && labor_anc <= 516) {
+        //   if (labor_anc >= 320 && labor_anc <= 516) {
 
-            console.log('modo celular');
-            return 10;
-          } else {
+        //     console.log('modo celular');
+        //     return 10;
+        //   } else {
 
-            console.log('modo mayor');
-            return 30;
-          }
+        //     console.log('modo mayor');
+        //     return 30;
+        //   }
 
 
-        },
+        // },
 
         formatter: function (value: any) {
-          return Number.parseFloat(value).toFixed(2);
+          return Number.parseFloat(value).toFixed(2) + "%";
         },
       }
     }
@@ -276,14 +274,14 @@ export class ContribucionPortafolioComponent implements OnInit {
 
   public barChartLegend = true;
   public barChartPlugins = [];
+
+
   ngOnInit(): void {
     if (this.userservice.responseLogin) {
-      this.langDefault = this.userservice.responseLogin.idioma.abreviaturaIdioma;
 
-      // alert("es dioma actual "+ this.langDefault);
+      this.langDefault = this.userservice.responseLogin.idioma.abreviaturaIdioma;
       this.translateService.setDefaultLang(this.langDefault);
       this.translateService.use(this.langDefault);
-      this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
       let arrayMeses: any = this.userservice.responseLogin.mess.info_mes;
       arrayMeses.forEach((item: any) => {
         const mes = {
@@ -292,7 +290,7 @@ export class ContribucionPortafolioComponent implements OnInit {
         }
         this.months.push(mes);
       });
-
+     
       const currentFiltros: DataIndicador = {
         anioActual: Number(this.selectedyear),
         mesActual: this.selectedMonth,
@@ -300,92 +298,97 @@ export class ContribucionPortafolioComponent implements OnInit {
 
       }
       localStorage.setItem('filtroAMM', JSON.stringify(currentFiltros));
-
-
-      let arraymonedas = this.userservice.responseLogin.monedass;
-
-      arraymonedas.forEach((e: any) => {
-        let coin = {
-          value: e.idMonedaEmpresaOdoo,
-          viewValue: e.name
-        };
-        this.coins.push(coin);
-      });
       this.queryPortafolio = this.apollo.query({
         query: QIPORTAFOLIO,
         variables: {
           idusuario: this.userservice.responseLogin.idUsuario,
           anio: new Date().getFullYear(),
-          mes: this.getCurrenlyMonth(),
+          mes: '08',
           compania: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo
         },
         fetchPolicy: "no-cache"
       }).subscribe((response: any) => {
         let indicadores = response.data.contribucion_del_portafolio.portafolio_Descripcions;
-       // let nameIndicador = response.data.contribucion_del_portafolio.portafolio_Descripcion
+        this.listportafolio=[];
         indicadores.forEach((item: any) => {
-
-         // let name=item.indicador.nombreIndicador;
-         this.listportafolio=[];
           this.listportafoliomes = [];
           this.listportafolioac = [];
-          let barChartData: any[] = [];
-          let barChartDataYear: any[] = [];
+         
+         
  
-          let listames = item.lista_informacion.lista_mes;
-          if (listames == null) {
-            listames = [];
+          this.listportafoliomes = item.lista_informacion[0].lista_mes;
+  
+          console.log('verr '+this.listportafoliomes);
+          if (this.listportafoliomes == null) {
+            this.listportafoliomes = [];
           }
-          let listaanual = item.lista_informacion.lista_anual;
-          if (listaanual == null) {
-            listaanual = [];
+          this.listportafolioac = item.lista_informacion[0].lista_anual;
+          if (this.listportafolioac == null) {
+            this.listportafolioac = [];
           }
 
+          let barChartData:ChartDataSets[]=[];
 
-          listames.forEach((item: any) => {
-            let listamesbar = [];
-            listamesbar.push(Number(item.importe_porcentaje.replace(",", ".")));
-            listamesbar.push(Number(item.cantidad_porcentaje));
-            listamesbar.push(Number(item.porcentaje_margen_actual_porcentaje));
+         
+          let ix=0;
+          this.listportafoliomes.forEach((item: any) => {
+             let listamesbar = [];
 
-            this.listportafoliomes.push(Number(item.importe_actual.replace(",", ".")));
-            let itemdata = {
+              
+              
+        
+             listamesbar.push(Number(item.importe_porcentaje.replace(",", ".")));
+             listamesbar.push(Number(item.cantidad_porcentaje.replace(",", ".")));
+             listamesbar.push(Number(item.porcentaje_margen_actual_porcentaje.replace(",", ".")));
+
+
+    
+
+
+             let itemdata = {
               data: listamesbar,
               label: item.descripcion,
               stack: 'a',
-              // backgroundColor: '#F08B3B',
-              // hoverBackgroundColor: '#F08B3B',
+              backgroundColor:this.barChartColorsx[ix],
+              hoverBackgroundColor: this.barChartColorsx[ix],
             }
-            this.barChartData.push(itemdata);
 
+            console.log('ver '+JSON.stringify(itemdata));
+
+            barChartData.push(itemdata);
+
+          
+           ix++;
           });
 
-          listaanual.forEach((item: any) => {
+         
+
+
+
+
+
+          let iy=0;
+          let barChartDataYear:ChartDataSets[]=[];
+           this.listportafolioac.forEach((item: any) => {
             let listaanualbar = [];
             listaanualbar.push(Number(item.importe_porcentaje.replace(",", ".")));
-            listaanualbar.push(Number(item.cantidad_porcentaje));
-            listaanualbar.push(Number(item.porcentaje_margen_actual_porcentaje));
-           // this.listportafoliomes.push(Number(item.importe_actual.replace(",", ".")));
+            listaanualbar.push(Number(item.cantidad_porcentaje.replace(",", ".")));
+            listaanualbar.push(Number(item.porcentaje_margen_actual_porcentaje.replace(",", ".")));
+        
             let itemdata = {
               data: listaanualbar,
               label: item.descripcion,
               stack: 'a',
-              // backgroundColor: '#F08B3B',
-              // hoverBackgroundColor: '#F08B3B',
+              backgroundColor:this.barChartColorsx[iy],
+              hoverBackgroundColor: this.barChartColorsx[iy]
             }
-            this.barChartData.push(itemdata);
 
+            barChartDataYear.push(itemdata);
+            iy++;
           });
-          // barChartData = this.listportafoliomes;
-
-          // barChartDataYear = this.listportafolioac;
-
-          // this.barChartData[0] = {
-          //   data: listabar,
-          //   label: 'VAR. vs.' + (new Date().getFullYear() - 1),
-          //   backgroundColor: '#F08B3B',
-          //   hoverBackgroundColor: '#F08B3B',
-          // }
+          this.amoutIncrementedcanvas = 100 + (50 * this.listportafolio.length) + "px";
+          this.amoutIncrementedcanvasAc = 100 + (50 * this.listportafolioac.length) + "px";
+        
           let barChartPortafolio = {
             name: item.indicador.nombreIndicador,
             listPie: barChartData,
@@ -393,10 +396,10 @@ export class ContribucionPortafolioComponent implements OnInit {
             //labels: this.barChartLabels
           }
           this.listportafolio.push(barChartPortafolio);
-
+           
 
         });
-
+        console.log(this.listportafolio);
 
       });
 
@@ -418,7 +421,7 @@ export class ContribucionPortafolioComponent implements OnInit {
         }
 
 
-        this.selectedCoin = filtro.monedaActual;
+     
         this.selectedyear = String(filtro.anioActual);
         this.selectedMonth = filtro.mesActual;
 
@@ -430,21 +433,13 @@ export class ContribucionPortafolioComponent implements OnInit {
           }
           this.months.push(mes);
         });
-        // let arraymonedas = this.userservice.responseLogin.monedass;
-
-        // arraymonedas.forEach((e: any) => {
-        //   let coin = {
-        //     value: e.idMonedaEmpresaOdoo,
-        //     viewValue: e.name
-        //   };
-        //   this.coins.push(coin);
-        // });
+      
         this.queryPortafolio = this.apollo.watchQuery({
           query: QIPORTAFOLIO,
           variables: {
             idusuario: this.userservice.responseLogin.idUsuario,
-            anio: new Date().getFullYear(),
-            mes: this.getCurrenlyMonth(),
+            anio: filtro.anioActual,
+            mes: filtro.mesActual,
             compania: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo
           },
           fetchPolicy: "no-cache"
@@ -452,55 +447,86 @@ export class ContribucionPortafolioComponent implements OnInit {
 
           this.langDefault = this.userservice.responseLogin.idioma.abreviaturaIdioma;
 
-          // alert("es dioma actual "+ this.langDefault);
+       
           this.translateService.setDefaultLang(this.langDefault);
           this.translateService.use(this.langDefault);
-          let indicadores = response.data.composicion_margenes.lista;
-          console.log(indicadores);
-
+          let indicadores = response.data.contribucion_del_portafolio.portafolio_Descripcions;
+          this.listportafolio=[];
           indicadores.forEach((item: any) => {
+ 
             this.listportafoliomes = [];
             this.listportafolioac = [];
-            let pieChartData: any[] = [];
-            let pieChartDataYear: any[] = [];
-            let pieChartLabels: string[] = [];
-            let listames = item.lista_mes;
-            if (listames == null) {
-              listames = [];
+           
+
+            this.listportafoliomes = item.lista_informacion[0].lista_mes;
+    
+            if ( this.listportafoliomes == null) {
+               this.listportafoliomes = [];
             }
-            let listaanual = item.lista_anual;
-            if (listaanual == null) {
-              listaanual = [];
+            this.listportafolioac= item.lista_informacion[0].lista_anual;
+            if ( this.listportafolioac== null) {
+               this.listportafolioac= [];
             }
-
-
-            listames.forEach((item: any) => {
-              this.listportafoliomes.push(Number(item.porcentajetorta.replace(",", ".")));
-
-              pieChartLabels.push(item.nombre);
-            });
-
-            listaanual.forEach((item: any) => {
-              this.listportafolioac.push(Number(item.porcentajetorta.replace(",", ".")));
-              if (listames.length == 0) {
-                pieChartLabels.push(item.nombre);
+  
+            let barChartData:ChartDataSets[]=[];
+            
+            let ix=0;
+            this.listportafoliomes.forEach((item: any) => {
+              let listamesbar = [];
+  
+              
+              listamesbar.push(Number(item.importe_porcentaje.replace(",", ".")));
+              listamesbar.push(Number(item.cantidad_porcentaje.replace(",", ".")));
+              listamesbar.push(Number(item.porcentaje_margen_actual_porcentaje.replace(",", ".")));
+              
+         
+              let itemdata = {
+                data: listamesbar,
+                label: item.descripcion,
+                stack: 'a',
+                backgroundColor:this.barChartColorsx[ix],
+                hoverBackgroundColor: this.barChartColorsx[ix],
               }
+              barChartData.push(itemdata);
+            
+              this.barChartData.push(itemdata);
+              ix++;
             });
-            pieChartData = this.listportafoliomes;
 
-            pieChartDataYear = this.listportafolioac;
+            let barChartDataYear:ChartDataSets[]=[];
 
-            let pieRegion = {
+            let iy=0;
+            this.listportafolioac.forEach((item: any) => {
+              let listaanualbar = [];
+              listaanualbar.push(Number(item.importe_porcentaje.replace(",", ".")));
+              listaanualbar.push(Number(item.cantidad_porcentaje.replace(",", ".")));
+              listaanualbar.push(Number(item.porcentaje_margen_actual_porcentaje.replace(",", ".")));
+           
+              let itemdata = {
+                data: listaanualbar,
+                label: item.descripcion,
+                stack: 'a',
+                backgroundColor:this.barChartColorsx[iy],
+                hoverBackgroundColor: this.barChartColorsx[iy]
+              }
+  
+              barChartDataYear.push(itemdata);
+              iy++;
+            });
+            this.amoutIncrementedcanvas = 100 + (50 * this.listportafolio.length) + "px";
+            this.amoutIncrementedcanvasAc = 100 + (50 * this.listportafolioac.length) + "px";
+           
+           
+            let barChartPortafolio = {
               name: item.indicador.nombreIndicador,
-              listPie: pieChartData,
-              listPieAc: pieChartDataYear,
-              labels: pieChartLabels
+              listPie: barChartData,
+              listPieAc: barChartDataYear,
+              //labels: this.barChartLabels
             }
-            this.barChartPie.push(pieRegion);
-
-
+            this.listportafolio.push(barChartPortafolio);
+             
+  
           });
-
 
         });
       });
@@ -561,48 +587,103 @@ export class ContribucionPortafolioComponent implements OnInit {
       fetchPolicy: "no-cache"
     }).subscribe((response: any) => {
       if (response) {
-        this.barChartPie = [];
-        let indicadores = response.data.composicion_margenes.lista;
+        this.coins = [];
+      let arrayMeses: any = this.userservice.responseLogin.mess.info_mes;
+      
+   
+      arrayMeses.forEach((item: any) => {
+        const mes = {
+          value: String(item.mesid),
+          viewValue: item.nombre
+        }
+        this.months.push(mes);
+      });
+      this.langDefault = this.userservice.responseLogin.idioma.abreviaturaIdioma;
+
+        // alert("es dioma actual "+ this.langDefault);
+        this.translateService.setDefaultLang(this.langDefault);
+        this.translateService.use(this.langDefault);
+        let indicadores = response.data.contribucion_del_portafolio.portafolio_Descripcions;
+   
+        this.listportafolio=[];
+       // let nameIndicador = response.data.contribucion_del_portafolio.portafolio_Descripcion
         indicadores.forEach((item: any) => {
+     
+      
           this.listportafoliomes = [];
           this.listportafolioac = [];
-          let pieChartData: any[] = [];
-          let pieChartDataYear: any[] = [];
-          let pieChartLabels: string[] = [];
-          let listames = item.lista_mes;
-          if (listames == null) {
-            listames = [];
+         
+
+ 
+          this.listportafoliomes = item.lista_informacion[0].lista_mes;
+ 
+          if (this.listportafoliomes == null) {
+            this.listportafoliomes = [];
           }
-          let listaanual = item.lista_anual;
-          if (listaanual == null) {
-            listaanual = [];
+          this.listportafolioac = item.lista_informacion[0].lista_anual;
+          if ( this.listportafolioac== null) {
+             this.listportafolioac= [];
           }
 
-          listames.forEach((item: any) => {
-            this.listportafoliomes.push(Number(item.porcentajetorta.replace(",", ".")));
+          let barChartData:ChartDataSets[]=[];
+          let ix=0;
+          this.listportafoliomes.forEach((item: any) => {
+            let listamesbar = [];
 
-            pieChartLabels.push(item.nombre);
-          });
-
-          listaanual.forEach((item: any) => {
-            this.listportafolioac.push(Number(item.porcentajetorta.replace(",", ".")));
-            if (listames.length == 0) {
-              pieChartLabels.push(item.nombre);
+            
+            listamesbar.push(Number(item.importe_porcentaje.replace(",", ".")));
+            listamesbar.push(Number(item.cantidad_porcentaje.replace(",", ".")));
+            listamesbar.push(Number(item.porcentaje_margen_actual_porcentaje.replace(",", ".")));
+           
+            let itemdata = {
+              data: listamesbar,
+              label: item.descripcion,
+              stack: 'a',
+              backgroundColor:this.barChartColorsx[ix],
+              hoverBackgroundColor: this.barChartColorsx[ix],
             }
+            barChartData.push(itemdata);
+          
+            this.barChartData.push(itemdata);
+            ix++;
+           
           });
-          pieChartData = this.listportafoliomes;
-          console.log(pieChartData);
-          pieChartDataYear = this.listportafolioac;
+          let barChartDataYear:ChartDataSets[]=[];
+          let iy=0;
+          this.listportafolioac.forEach((item: any) => {
+            let listaanualbar = [];
+            listaanualbar.push(Number(item.importe_porcentaje.replace(",", ".")));
+            listaanualbar.push(Number(item.cantidad_porcentaje.replace(",", ".")));
+            listaanualbar.push(Number(item.porcentaje_margen_actual_porcentaje.replace(",", ".")));
+           // this.listportafoliomes.push(Number(item.importe_actual.replace(",", ".")));
+           
+            let itemdata = {
+              data: listaanualbar,
+              label: item.descripcion,
+              stack: 'a',
+              backgroundColor:this.barChartColorsx[iy],
+              hoverBackgroundColor: this.barChartColorsx[iy],
+            }
 
-          let pieRegion = {
+            barChartDataYear.push(itemdata);
+            iy++;
+          });
+          this.amoutIncrementedcanvas = 100 + (50 * this.listportafolio.length) + "px";
+          this.amoutIncrementedcanvasAc = 100 + (50 * this.listportafolioac.length) + "px";
+         
+         
+          let barChartPortafolio = {
             name: item.indicador.nombreIndicador,
-            listPie: pieChartData,
-            listPieAc: pieChartDataYear,
-            labels: pieChartLabels
+            listPie: barChartData,
+            listPieAc: barChartDataYear,
+            //labels: this.barChartLabels
           }
-          this.barChartPie.push(pieRegion);
+          this.listportafolio.push(barChartPortafolio);
+           
 
         });
+
+     
       }
 
     });

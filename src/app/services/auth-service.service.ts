@@ -23,10 +23,28 @@ export class AuthServiceService {
      localStorage.setItem('auth-user',JSON.stringify(userAuth));
   }
   logout(){
-    if(!this.isLoggedIn()) return;
-    localStorage.removeItem('auth-user');
-    localStorage.clear();
-    this.updateStorage();
+    // // if(!this.isLoggedIn()) return;
+    // // localStorage.removeItem('auth-user');
+    // // localStorage.clear();
+    // // this.updateStorage();
+    const userData = localStorage.getItem('auth-user');
+    if(userData){
+      this.userData=JSON.parse(userData);
+    }else{
+      this.userData=null;
+    }
+     if(userData !== null){
+     //  alert('esta logueado');
+
+        localStorage.removeItem('auth-user');
+        localStorage.clear();
+        this.updateStorage();
+  
+     }else{
+     // alert('no esta logueado');
+        this.updateStorage();
+
+     }
   }
   isLoggedIn(){
     return this.userData !== null;

@@ -359,8 +359,8 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
           query: QICM,
           variables: {
             idusuario: this.userservice.responseLogin.idUsuario,
-            anio: new Date().getFullYear(),
-            mes: this.getCurrenlyMonth(),
+            anio: filtro.anioActual,
+            mes: filtro.mesActual,
             compania: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo
           },
           fetchPolicy: "no-cache"
@@ -372,7 +372,7 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
           this.translateService.setDefaultLang(this.langDefault);
           this.translateService.use(this.langDefault);
           let indicadores = response.data.composicion_margenes.lista;
-           console.log(indicadores);
+          
   
           indicadores.forEach((item: any) => {
             this.listpercentagesmes= [];
@@ -412,8 +412,8 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
               listPieAc: pieChartDataYear,
               labels: pieChartLabels
             }
-            this.listChartsPie.push(pieRegion);
-          
+            this.listIndicadores.push(pieRegion);
+             
   
           });
           

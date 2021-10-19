@@ -217,7 +217,7 @@ export class VerticalAppHeaderComponent {
         }
       }
     }).subscribe((result: any) => {
-console.log(result);
+
       const userAuth1: UserAuth = {
         idUsuario:this.userservice.responseLogin.idUsuario,
         name: this.userservice.responseLogin.usuario,
@@ -237,21 +237,22 @@ console.log(result);
       let title1=arrays[0];
       this.newURL=title1;
 
-    //  alert('cc '+title1)
-      //window.location.href="https://www.bufa.es/";
-      //window.location.href="http://localhost:4200/#/tablero/Performance_general_lineas";
-     // this.routes.navigateByUrl("http://localhost:4200/#/tablero/Cifras_Notables");
+
         window.location.reload();
 
     });
   }
   ngOnInit() {
-
+  
 
     if (this.userservice.responseLogin) {
+      this.langDefault = this.userservice.responseLogin.idioma.abreviaturaIdioma;
       this.companySelected = this.userservice.responseLogin.companiaa[0].name;
-      this.selectedLanguage = this.languages.find(e => e.code === this.userservice.responseLogin.idioma.abreviaturaIdioma);
+      this.selectedLanguage = this.languages.find(e => e.code === this.langDefault);
       this.companys = this.userservice.responseLogin.companiaa;
+      
+      this.translate.setDefaultLang(this.langDefault);
+      this.translate.use(this.langDefault);
     }
     else {
       if (this.authservice.isLoggedIn()) {
@@ -261,11 +262,14 @@ console.log(result);
         });
 
         this.query.valueChanges.subscribe((result: any) => {
+          this.langDefault = this.authservice.userData?.language;
           this.userservice.responseLogin = result.data.validarlogin;
           this.companys = result.data.validarlogin.companiaa;
           this.companySelected = result.data.validarlogin.companiaa[0].name;
-          this.selectedLanguage = this.languages.find(e => e.code === this.authservice.userData?.language);
+          this.selectedLanguage = this.languages.find(e => e.code === this.langDefault);
           this.moneda = result.data.validarlogin.monedass.info_moneda[0].name;
+          this.translate.setDefaultLang(this.langDefault);
+          this.translate.use(this.langDefault);
         });
       }
 
@@ -274,6 +278,7 @@ console.log(result);
   }
   logoutUser() {
     this.authservice.logout();
-    this.routes.navigate(['/authentication/login']);
+   // this.routes.navigate(['/authentication/login']);
+    location.reload();
   }
 }

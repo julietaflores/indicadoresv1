@@ -42,30 +42,32 @@
       </mat-card>
   </div> -->
 </div>
-<div fxLayout="row wrap">
-  <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;"
-  *ngFor="let indicador of listChartsPie">
+
+<div fxLayout="row wrap" *ngIf='listportafolio.length<=2'>
+  <div fxFlex.gt-sm="50" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;"
+  *ngFor="let indicador of listportafolio">
     <mat-card>
 
       <mat-card-content>
-        <mat-card-title>Mes</mat-card-title>
-        <div fxLayout="row wrap">
+        <mat-card-title fxLayoutAlign="center center" >{{indicador.name | translate}}</mat-card-title>
+       
+        <mat-card-title style="padding-top:15px">{{ months[selectedMonth-1].viewValue| translate}}</mat-card-title>
+        <div fxLayout="row wrap" *ngIf="listportafoliomes.length>0" [style.height]="amoutIncrementedcanvasAc">
 
           <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
-            <canvas baseChart [datasets]="barChartData" [labels]="barChartLabels" [options]="barChartOptions"
+            <canvas baseChart [datasets]="indicador.listPie" [labels]="barChartLabels" 
+            [options]="barChartOptions"
               [plugins]="barChartPlugins" [legend]="barChartLegend" [chartType]="barChartType">
             </canvas>
           </div>
 
         </div>
         <hr style="margin-top:20px;margin-bottom: 20px;">
-        <mat-card-title>Acumulado</mat-card-title>
-        <div fxLayout="row wrap">
+        <mat-card-title>{{'Acumulado' | translate }}</mat-card-title>
+        <div fxLayout="row wrap" *ngIf="listportafolioac.length>0" [style.height]="amoutIncrementedcanvasAc">
 
           <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
-
-
-            <canvas baseChart [datasets]="barChartData" [labels]="barChartLabels" [options]="barChartOptions"
+            <canvas baseChart [datasets]="indicador.listPieAc" [labels]="barChartLabels" [options]="barChartOptions"
               [plugins]="barChartPlugins" [legend]="barChartLegend" [chartType]="barChartType">
             </canvas>
           </div>
@@ -74,4 +76,41 @@
       </mat-card-content>
     </mat-card>
   </div>
+
+</div>
+<div fxLayout="row wrap" *ngIf='listportafolio.length>2'>
+  <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;"
+  *ngFor="let indicador of listportafolio">
+    <mat-card>
+
+      <mat-card-content>
+        <mat-card-title fxLayoutAlign="center center" >{{indicador.name | translate}}</mat-card-title>
+       
+        <mat-card-title style="padding-top:15px">{{ months[selectedMonth-1].viewValue| translate}}</mat-card-title>
+        <div fxLayout="row wrap" *ngIf="listportafoliomes.length>0" [style.height]="amoutIncrementedcanvasAc">
+
+          <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
+            <canvas baseChart [datasets]="indicador.listPie" [labels]="barChartLabels"  [options]="barChartOptions" [plugins]="barChartPlugins" [legend]="barChartLegend" [chartType]="barChartType"    
+            
+              >
+            </canvas>
+          </div>
+
+        </div>
+        <hr style="margin-top:20px;margin-bottom: 20px;">
+        <mat-card-title>{{'Acumulado' | translate }}</mat-card-title>
+        <div fxLayout="row wrap" *ngIf="listportafolioac.length>0" [style.height]="amoutIncrementedcanvasAc">
+
+          <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
+            <canvas baseChart [datasets]="indicador.listPieAc" [labels]="barChartLabels" [options]="barChartOptions" [plugins]="barChartPlugins" [legend]="barChartLegend" [chartType]="barChartType"  
+              
+               >
+            </canvas>
+          </div>
+
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+ 
 </div>

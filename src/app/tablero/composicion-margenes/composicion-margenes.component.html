@@ -47,7 +47,9 @@
     *ngFor="let indicador of listChartsPie">
         <mat-card>
             <mat-card-content>
-                <mat-card-title>{{indicador.name | translate}}</mat-card-title>
+                <mat-card-title fxLayoutAlign="center center" >{{indicador.name | translate}}</mat-card-title>
+                <mat-card-title >{{ months[selectedMonth-1].viewValue| translate}}</mat-card-title>
+              
                 <div fxLayout="row wrap" *ngIf="listpercentagesmes.length>0">
                    
                     <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
@@ -87,7 +89,9 @@
     <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;" *ngFor="let indicador of listChartsPie">
         <mat-card>
             <mat-card-content>
-                <mat-card-title>{{indicador.name | translate}}</mat-card-title>
+                <mat-card-title fxLayoutAlign="center center" >{{indicador.name | translate}}</mat-card-title>
+                <mat-card-title >{{ months[selectedMonth-1].viewValue| translate}}</mat-card-title>
+               
                 <div fxLayout="row wrap" *ngIf="listpercentagesmes.length>0">
                    
                     <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">

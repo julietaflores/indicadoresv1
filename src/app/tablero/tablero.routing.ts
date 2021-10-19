@@ -19,47 +19,57 @@ export const TableroRoutes: Routes = [
 
     {
         path: 'Cifras_Notables',
-        component: CifrasNotablesComponent
+        component: CifrasNotablesComponent,
+        data: { title: 'Indicadores' }
     },
     {
         path: 'Performance_general_lineas',
-        component: PerformanceGeneralLineasComponent
+        component: PerformanceGeneralLineasComponent,
+        data: { title: 'Indicadores' }
     },
 
     {
         path: 'Performance_general_Regiones',
-        component: PerformanceGeneralRegionesComponent
+        component: PerformanceGeneralRegionesComponent,
+        data: { title: 'Indicadores' }
     },
 
     {
         path: 'Performance_top5',
-        component: PerformanceTop5Component
+        component: PerformanceTop5Component,
+        data: { title: 'Indicadores' }
     },
     {
         path: 'Composición_de_ventas',
-        component: ComposicionVentasComponent
+        component: ComposicionVentasComponent,
+        data: { title: 'Indicadores' }
     },
     {
         path: 'Margen_bruto_regiones',
         component: MargenesBrutosRegionesComponent,
+        data: { title: 'Indicadores' }
 
     },
     {
         path: 'Margen_bruto_lineal',
         component: MargenesBrutosLineasComponent,
+        data: { title: 'Indicadores' }
 
     },
     {
         path: 'Margen_bruto_top5+',
-        component: MargenesBrutosTop5Component
+        component: MargenesBrutosTop5Component,
+        data: { title: 'Indicadores' }
     },
     {
         path: 'Composicion_de_margenes',
-        component: ComposicionMargenesComponent
+        component: ComposicionMargenesComponent,
+        data: { title: 'Indicadores' }
      },
      {
         path: 'Contribución_del_portafolio',
-        component: ContribucionPortafolioComponent
+        component: ContribucionPortafolioComponent,
+        data: { title: 'Indicadores' }
      }
 
 
@@ -85,101 +95,5 @@ export const TableroRoutes: Routes = [
     //     // }
     // }
     //   },
-    // {
-    //     path: 'Cifras_Notables',
-    //     component: CifrasNotablesComponent,
-    //     data: {
-    //         title: 'Cifras Notables',
-    //         urls: [
-    //             { title: 'Dashboard', url: '/dashboard' },
-    //             { title: 'Cifras Notables' }
-    //         ]
-    //     }
-
-    // },
-    // {
-    //     path: 'Performance_general_líneas',
-    //     component: PerformanceGeneralLineasComponent,
-    //     data: {
-    //         title: 'Performance general (líneas)',
-    //         urls: [
-    //             { title: 'Dashboard', url: '/dashboard' },
-    //             { title: 'Performance general (líneas)' }
-    //         ]
-    //     }
-
-    // },
-    // {
-    //     path: 'Performance_general_(Regiones)',
-    //     component: PerformanceGeneralRegionesComponent,
-    //     data: {
-    //         title: 'Performance general (Regiones)',
-    //         urls: [
-    //             { title: 'Dashboard', url: '/dashboard' },
-    //             { title: 'Performance general (Regiones)' }
-    //         ]
-    //     }
-
-    // },
-    // {
-    //     path: 'Performance_top5',
-    //     component: PerformanceTop5Component,
-    //     data: {
-    //         title: 'Performance Top 5 +',
-    //         urls: [
-    //             { title: 'Dashboard', url: '/dashboard' },
-    //             { title: 'Performance Top 5 +' }
-    //         ]
-    //     }
-
-    // },{
-    //     path: 'Composición_de_ventas',
-    //     component: ComposicionVentasComponent,
-    //     data: {
-    //         title: 'Composición de Ventas',
-    //         urls: [
-    //             { title: 'Dashboard', url: '/dashboard' },
-    //             { title: 'Composición de Ventas' }
-    //         ]
-    //     }
-
-    // },
-    // {
-    //     path: 'Margen_bruto_regiones',
-    //     component: MargenesBrutosRegionesComponent,
-    //     data: {
-    //         title: 'Margen brutos (Regiones)',
-    //         urls: [
-    //             { title: 'Dashboard', url: '/dashboard' },
-    //             { title: 'Margen brutos (Regiones)' }
-    //         ]
-    //     }
-
-    // },
-    // {
-    //     path: 'Margen_bruto_top5+',
-    //     component: MargenesBrutosTop5Component,
-    //     data: {
-    //         title: 'Margen brutos (Top5+)',
-    //         urls: [
-    //             { title: 'Dashboard', url: '/dashboard' },
-    //             { title: 'Margen brutos (Top5+)' }
-    //         ]
-    //     }
-
-    // },
-    // {
-    //     path: 'Composicion_de_margenes',
-    //     component: ComposicionMargenesComponent,
-    //     data: {
-    //         title: 'Composición de Margenes',
-    //         urls: [
-    //             { title: 'Dashboard', url: '/dashboard' },
-    //             { title: 'Composición de Margenes' }
-    //         ]
-    //     }
-
-    // },
-
-    //{ path: '', component: PerformanceGeneralLineasComponent },
+ 
 ];

@@ -326,7 +326,7 @@ export class ComposicionVentasComponent implements OnInit, OnDestroy {
       }).valueChanges.subscribe((response: any) => {
         this.userservice.responseLogin = response.data.validarlogin;
       
-        alert( this.userservice.responseLogin.passwordd);
+       
         let filtro:DataIndicador| null | any = null;
         filtro = localStorage.getItem('filtroAMM');
         if (filtro) {

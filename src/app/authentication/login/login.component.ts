@@ -130,7 +130,8 @@ export class LoginComponent implements OnInit {
       this.query.valueChanges.subscribe((result:any) => {
     
               if( result.data.validarlogin.idUsuario > 0){
-
+        
+                this.router.navigate(['/dashboards/Inicio']);
                 const userAuth: UserAuth = {
                   idUsuario:result.data.validarlogin.idUsuario,
                    name: result.data.validarlogin.nombreUsuario,
@@ -140,6 +141,7 @@ export class LoginComponent implements OnInit {
                 }
               
                 this.authService.login(userAuth);
+               // console.log(this.authService.login());
                 //this.serviceuser.sendMessageLogin(result.data);
                 this.serviceuser.responseLogin=result.data.validarlogin;
              

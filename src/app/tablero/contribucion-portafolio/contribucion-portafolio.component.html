@@ -1,32 +1,32 @@
 <div fxLayout="row wrap">
   <div fxFlex.gt-sm="50" fxFlex.gt-xs="100" fxFlex="100">
-      <mat-card style="padding: 0">
-          <mat-card-content style="padding: 0.5rem 1rem;margin: 0;">
+    <mat-card style="padding: 0">
+      <mat-card-content style="padding: 0.5rem 1rem;margin: 0;">
 
-              <mat-form-field style="padding:0;margin: 0;">
-                  <mat-select style="padding:0;margin: 0;" placeholder="Año" [(value)]="selectedyear"
-                      (selectionChange)="onYearChange($event)">
-                      <mat-option *ngFor="let year of years" [value]="year.value">
-                          {{year.viewValue}}
-                      </mat-option>
-                  </mat-select>
-              </mat-form-field>
-          </mat-card-content>
-      </mat-card>
+        <mat-form-field style="padding:0;margin: 0;">
+          <mat-select style="padding:0;margin: 0;" placeholder="Año" [(value)]="selectedyear"
+            (selectionChange)="onYearChange($event)">
+            <mat-option *ngFor="let year of years" [value]="year.value">
+              {{year.viewValue}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </mat-card-content>
+    </mat-card>
   </div>
   <div fxFlex.gt-sm="50" fxFlex.gt-xs="100" fxFlex="100">
-      <mat-card>
-          <mat-card-content style="padding: 0.5rem 1rem;margin: 0;">
+    <mat-card>
+      <mat-card-content style="padding: 0.5rem 1rem;margin: 0;">
 
-              <mat-form-field>
-                  <mat-select [(value)]="selectedMonth" placeholder="Mes" (selectionChange)="onMonthChange($event)">
-                      <mat-option *ngFor="let month of months" [value]="month.value">
-                          {{month.viewValue}}
-                      </mat-option>
-                  </mat-select>
-              </mat-form-field>
-          </mat-card-content>
-      </mat-card>
+        <mat-form-field>
+          <mat-select [(value)]="selectedMonth" placeholder="Mes" (selectionChange)="onMonthChange($event)">
+            <mat-option *ngFor="let month of months" [value]="month.value">
+              {{month.viewValue}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </mat-card-content>
+    </mat-card>
   </div>
   <!-- <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100">
       <mat-card>
@@ -45,18 +45,17 @@
 
 <div fxLayout="row wrap" *ngIf='listportafolio.length<=2'>
   <div fxFlex.gt-sm="50" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;"
-  *ngFor="let indicador of listportafolio">
+    *ngFor="let indicador of listportafolio">
     <mat-card>
 
       <mat-card-content>
-        <mat-card-title fxLayoutAlign="center center" >{{indicador.name | translate}}</mat-card-title>
-       
+        <mat-card-title fxLayoutAlign="center center">{{indicador.name | translate}}</mat-card-title>
+
         <mat-card-title style="padding-top:15px">{{ months[selectedMonth-1].viewValue| translate}}</mat-card-title>
         <div fxLayout="row wrap" *ngIf="listportafoliomes.length>0" [style.height]="amoutIncrementedcanvasAc">
 
           <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
-            <canvas baseChart [datasets]="indicador.listPie" [labels]="barChartLabels" 
-            [options]="barChartOptions"
+            <canvas baseChart [datasets]="indicador.listPie" [labels]="barChartLabels" [options]="barChartOptions"
               [plugins]="barChartPlugins" [legend]="barChartLegend" [chartType]="barChartType">
             </canvas>
           </div>
@@ -80,19 +79,18 @@
 </div>
 <div fxLayout="row wrap" *ngIf='listportafolio.length>2'>
   <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;"
-  *ngFor="let indicador of listportafolio">
+    *ngFor="let indicador of listportafolio">
     <mat-card>
 
       <mat-card-content>
-        <mat-card-title fxLayoutAlign="center center" >{{indicador.name | translate}}</mat-card-title>
-       
+        <mat-card-title fxLayoutAlign="center center">{{indicador.name | translate}}</mat-card-title>
+
         <mat-card-title style="padding-top:15px">{{ months[selectedMonth-1].viewValue| translate}}</mat-card-title>
         <div fxLayout="row wrap" *ngIf="listportafoliomes.length>0" [style.height]="amoutIncrementedcanvasAc">
 
           <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
-            <canvas baseChart [datasets]="indicador.listPie" [labels]="barChartLabels"  [options]="barChartOptions" [plugins]="barChartPlugins" [legend]="barChartLegend" [chartType]="barChartType"    
-            
-              >
+            <canvas baseChart [datasets]="indicador.listPie" [labels]="['VENTAS'| translate, 'VOLUMEN' | translate, 'MARGEN' | translate]" [options]="barChartOptions"
+              [plugins]="barChartPlugins" [legend]="barChartLegend" [chartType]="barChartType">
             </canvas>
           </div>
 
@@ -102,9 +100,8 @@
         <div fxLayout="row wrap" *ngIf="listportafolioac.length>0" [style.height]="amoutIncrementedcanvasAc">
 
           <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
-            <canvas baseChart [datasets]="indicador.listPieAc" [labels]="barChartLabels" [options]="barChartOptions" [plugins]="barChartPlugins" [legend]="barChartLegend" [chartType]="barChartType"  
-              
-               >
+            <canvas baseChart [datasets]="indicador.listPieAc" [labels]="['VENTAS'| translate, 'VOLUMEN' | translate, 'MARGEN' | translate]" [options]="barChartOptions"
+              [plugins]="barChartPlugins" [legend]="barChartLegend" [chartType]="barChartType">
             </canvas>
           </div>
 
@@ -112,5 +109,5 @@
       </mat-card-content>
     </mat-card>
   </div>
- 
+
 </div>

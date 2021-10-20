@@ -303,7 +303,7 @@ export class ContribucionPortafolioComponent implements OnInit {
         variables: {
           idusuario: this.userservice.responseLogin.idUsuario,
           anio: new Date().getFullYear(),
-          mes: '08',
+          mes:  this.getCurrenlyMonth(),
           compania: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo
         },
         fetchPolicy: "no-cache"
@@ -587,7 +587,7 @@ export class ContribucionPortafolioComponent implements OnInit {
       fetchPolicy: "no-cache"
     }).subscribe((response: any) => {
       if (response) {
-        this.coins = [];
+        // this.coins = [];
       let arrayMeses: any = this.userservice.responseLogin.mess.info_mes;
       
    

@@ -12,6 +12,7 @@ import { MenuItems } from '../../../shared/menu-items/menu-items';
 import { GlobalConstants } from '../../../GLOBALS/GlobalConstants';
 import { DataIndicador } from 'src/app/models/dataIndicador.interface';
 import { UserService } from 'src/app/services/user.service';
+import { DataMenu } from 'src/app/models/dataMenu.interface';
 
 
 @Component({
@@ -76,12 +77,19 @@ export class VerticalAppSidebarComponent implements OnDestroy {
     this.mobileQuery.removeListener(this._mobileQueryListener);
   }
 
-  handleNotify() {
+  handleNotify(dato1:any,dato2:any) {
     if(window.innerWidth < 1024){
       this.notify.emit(!this.showClass);
     }
     
     localStorage.removeItem('filtroAMM');
+    localStorage.removeItem('menuCT');
+    
+    const currentMCT: DataMenu = {
+      categoriacompaniaid: Number(dato1),
+      idtablero: Number(dato2),
+    }
+    localStorage.setItem('menuCT', JSON.stringify(currentMCT));
     //window.location.reload();
    //localStorage.setItem('filtroAMM', JSON.stringify(currentFiltros));
   //  window.location.reload();
@@ -91,4 +99,12 @@ export class VerticalAppSidebarComponent implements OnDestroy {
     console.log(value);
     console.log(GlobalConstants.selectedTablero);*/
   }
+
+
+  // aqui_entro(dato1:any,dato2:any) {
+  //   alert('cccc');
+  //   alert(dato1);
+  //   alert(dato2)
+  // }
+
 }

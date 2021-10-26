@@ -12,40 +12,38 @@ import { UserService } from '../../services/user.service';
 
 import { Routes } from '@angular/router';
 import { DataIndicador } from 'src/app/models/dataIndicador.interface';
+import { GraphqlServiceService } from 'src/app/services/graphql-service.service';
 //Query for for ventas indicator
-const QIVENTAS = gql`
-query detalleCifrasNotables($idusuario:Int!,$anio:Int!,$mes:String,$compania:Int!, $monedadestino:Int!) {
-  detalleCifrasNotables(idusuario:$idusuario,anio:$anio,mes:$mes,compania:$compania, monedadestino:$monedadestino){
-    tablero{
-      idTablero
-      nombreTablero
-      urlTablero
-    }
-    lista{
-      idIndicador
-      nombreIndicador
-      monto_Mes
-      porcentaje_Monto_Mes
-      monto_Acumulado
-      porcentaje_Monto_Acumulado
-      vs
-    }
-  } 
-}
-`;
+const QCIFRASNOTABLES = gql`
+  query  detalleCifrasNotables($idusuario:Int!,$companiaid:Int!,$categoriacompaniaid:Int!,$tableroid:Int!,$anio:Int!,$mes:String, $monedadestino:Int!) {
+    detalleCifrasNotables(idusuario:$idusuario,companiaid:$companiaid,categoriacompaniaid:$categoriacompaniaid,tableroid:$tableroid,anio:$anio,mes:$mes,monedadestino:$monedadestino){
+      tablero{
+        idTablero
+        nombreTablero
+        urlTablero
+      }
+      lista{
+        idIndicador
+        nombreIndicador
+        monto_Mes
+        porcentaje_Monto_Mes
+        monto_Acumulado
+        porcentaje_Monto_Acumulado
+        vs
+      }
+    } 
+  }
+  `;
 const LOGIN = gql`
   query validarlogin($usuario:String,$clave:String) {
     validarlogin(usuario: $usuario, clave: $clave) {
       idUsuario
       nombreUsuario
       usuario
-     passwordd
      fechacreacionusuario
-     iDRolUsuario
      codIdioma
      estado
-     
-     
+    
      anioo{
        descripcion_anio{
          auxiliarId
@@ -85,6 +83,8 @@ const LOGIN = gql`
        
      }
      companiaa{
+       idCompania
+       idEmpresa
         idCompaniaOdoo
          name
        idMonedaEmpresaOdoo
@@ -96,8 +96,10 @@ const LOGIN = gql`
        abreviaturaIdioma
        detalleIdioma
      }
+   }
+   
   
-    }
+    
   }
   `;
 @Component({
@@ -121,7 +123,7 @@ export class CifrasNotablesComponent implements OnInit {
   listTittles: String[] = [];
   sourcePrecioPromedio: any[] = [];//Indicador Precio Promedio
 
-  private queryVentas: any;
+  private queryCN: any;
   private queryLogin: any;
   displayedColumns = ['mes', 'acumulado'];
 
@@ -152,14 +154,13 @@ export class CifrasNotablesComponent implements OnInit {
   months: any[] = [];
   langDefault: any = '';
 
-  constructor( public userservice: UserService,
-    public breakpointObserver: BreakpointObserver, private apollo: Apollo,
-    private serviceAuth: AuthServiceService, public translate: TranslateService, private ruta: ActivatedRoute,
-    private route: Router) {
-     this.route.navigate([], {
-      skipLocationChange: true,
-   //  queryParamsHandling: 'merge' //== if you need to keep queryParams
-    })
+  constructor(public userservice: UserService,
+    private apollo: Apollo,
+    private serviceAuth: AuthServiceService,
+    public translate: TranslateService, private ruta: ActivatedRoute,
+    private route: Router,
+    private serviceGraphql: GraphqlServiceService) {
+
 
   }
 
@@ -173,29 +174,9 @@ export class CifrasNotablesComponent implements OnInit {
       // alert("es dioma actual "+ this.langDefault);
       this.translate.setDefaultLang(this.langDefault);
       this.translate.use(this.langDefault);
-      
 
+      this.initialConfig();
       this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
-      let arraymonedas: any = this.userservice.responseLogin.monedass.info_moneda;
-      let arrayMeses: any = this.userservice.responseLogin.mess.info_mes;
-      this.placeholderYear = this.userservice.responseLogin.anioo.descripcion_anio.nombre;
-      this.placeholderMonth = this.userservice.responseLogin.mess.descripcion_mes.nombre;
-      this.placeholderCoin = this.userservice.responseLogin.monedass.descripcion_moneda.nombre;
-
-      arraymonedas.forEach((e: any) => {
-        let coin = {
-          value: e.idMonedaEmpresaOdoo,
-          viewValue: e.name
-        };
-        this.coins.push(coin);
-      });
-      arrayMeses.forEach((item: any) => {
-        const mes = {
-          value: String(item.mesid),
-          viewValue: item.nombre
-        }
-        this.months.push(mes);
-      });
 
       const currentFiltros: DataIndicador = {
         anioActual: Number(this.selectedyear),
@@ -203,66 +184,56 @@ export class CifrasNotablesComponent implements OnInit {
         monedaActual: this.selectedCoin
 
       }
+      let menuCT: any = localStorage.getItem('menuCT');
+      menuCT = JSON.parse(menuCT);
+      console.log(menuCT);
+
       localStorage.setItem('filtroAMM', JSON.stringify(currentFiltros));
+      this.queryCN = this.serviceGraphql.getCifrasNotables(this.userservice.responseLogin.idUsuario, this.serviceAuth.userData?.companiaId,
+        menuCT.categoriacompaniaid, menuCT.idtablero, new Date().getFullYear(), String(this.MesActual), this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo)
+        .valueChanges.subscribe((result: any) => {
+          if (result) {
+            this.hideloader();
+          }
 
-      this.queryVentas = this.apollo.watchQuery({
-        query: QIVENTAS,
-        variables: {
-          idusuario: this.userservice.responseLogin.idUsuario,
-          anio: new Date().getFullYear(),
-          mes: String(this.MesActual),
-          compania: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
-          monedadestino: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
-        }
-      }).valueChanges.subscribe((result: any) => {
-        let listaIndicadores = [];
+          if (result.data.detalleCifrasNotables.lista != null) {
+            let listaCifrasNotables = result.data.detalleCifrasNotables.lista;
+            for (let i: number = 0; i < listaCifrasNotables.length; i++) {
 
-        if (result.data.detalleCifrasNotables.lista != null) {
-          let listaTablero = result.data.detalleCifrasNotables.tablero.urlTablero;
-          let listaCifrasNotables = result.data.detalleCifrasNotables.lista;
-          for (let i: number = 0; i < listaCifrasNotables.length; i++) {
+              let ventas_acumulado = {
+                'mes': this.changeFormato(listaCifrasNotables[i].monto_Mes),
+                'acumulado': this.changeFormato(listaCifrasNotables[i].monto_Acumulado)
+              };
+              let ventas_acumulado_porcentaje = {
+                'mes': listaCifrasNotables[i].porcentaje_Monto_Mes + "% vs " + listaCifrasNotables[i].vs,
+                'acumulado': listaCifrasNotables[i].porcentaje_Monto_Acumulado + "% vs " +
+                  listaCifrasNotables[i].vs
 
-            let ventas_acumulado = {
-              'mes': this.changeFormato(listaCifrasNotables[i].monto_Mes),
-              'acumulado': this.changeFormato(listaCifrasNotables[i].monto_Acumulado)
-            };
-            let ventas_acumulado_porcentaje = {
-              'mes': listaCifrasNotables[i].porcentaje_Monto_Mes + "% vs " + listaCifrasNotables[i].vs,
-              'acumulado': listaCifrasNotables[i].porcentaje_Monto_Acumulado + "% vs " +
-                listaCifrasNotables[i].vs
+              }
+
+              if (ventas_acumulado && ventas_acumulado_porcentaje) {
+                let listaitem: any[] = [];
+
+                listaitem.push(ventas_acumulado);
+                listaitem.push(ventas_acumulado_porcentaje);
+
+                //this.listIndicadores[i].push(ventas_acumulado);
+                //this.listIndicadores[i].push(ventas_acumulado_porcentaje);
+                this.listTittles.push(listaCifrasNotables[i].nombreIndicador);
+                let source = new MatTableDataSource<any>(listaitem);
+                this.listSources.push(source);
+              }
 
             }
 
-            if (ventas_acumulado && ventas_acumulado_porcentaje) {
-              let listaitem: any[] = [];
-
-              listaitem.push(ventas_acumulado);
-              listaitem.push(ventas_acumulado_porcentaje);
-
-              //this.listIndicadores[i].push(ventas_acumulado);
-              //this.listIndicadores[i].push(ventas_acumulado_porcentaje);
-              this.listTittles.push(listaCifrasNotables[i].nombreIndicador);
-              let source = new MatTableDataSource<any>(listaitem);
-              this.listSources.push(source);
-            }
 
           }
 
-
-        }
-
-      });
+        });
 
     }
     else {
       if (this.serviceAuth.isLoggedIn()) {
-
-
-        //  alert(this.userservice.responseLogin.idUsuario);
-        //  alert(this.userservice.responseLogin.idUsuario);
-        //  alert(this.userservice.responseLogin.idUsuario);
-
-
 
 
         this.queryLogin = this.apollo.watchQuery({
@@ -271,34 +242,35 @@ export class CifrasNotablesComponent implements OnInit {
         }).valueChanges.subscribe((result: any) => {
 
           this.langDefault = this.serviceAuth.userData?.language;
-        //  alert("idioma cambiado " + this.langDefault);
+          //  alert("idioma cambiado " + this.langDefault);
           this.translate.setDefaultLang(this.langDefault);
           this.translate.use(this.langDefault);
 
-          let filtro:DataIndicador| null | any = null;
+          let filtro: DataIndicador | null | any = null;
           filtro = localStorage.getItem('filtroAMM');
           if (filtro) {
             filtro = JSON.parse(filtro);
           } else {
             filtro = null;
           }
-         // alert(filtro.anioActual);
-         /// alert(filtro.mesActual);
-        //  alert(filtro.monedaActual);
+          // alert(filtro.anioActual);
+          /// alert(filtro.mesActual);
+          //  alert(filtro.monedaActual);
 
 
           this.userservice.responseLogin = result.data.validarlogin;
-          this.listCompanys = result.data.validarlogin.companiaa;
-          this.selectedCoin = filtro.monedaActual ;
-          this.selectedyear=String(filtro.anioActual);
-          this.selectedMonth=filtro.mesActual;
           let arraymonedas = this.userservice.responseLogin.monedass.info_moneda;
+          this.listCompanys = result.data.validarlogin.companiaa;
+          this.selectedCoin = filtro.monedaActual;
+          this.selectedyear = String(filtro.anioActual);
+          this.selectedMonth = filtro.mesActual;
+
           GlobalConstants.months = this.userservice.responseLogin.mess.info_mes;
           this.placeholderYear = this.userservice.responseLogin.anioo.descripcion_anio.nombre;
           this.placeholderMonth = this.userservice.responseLogin.mess.descripcion_mes.nombre;
           this.placeholderCoin = this.userservice.responseLogin.monedass.descripcion_moneda.nombre;
-          
-        
+
+
 
           GlobalConstants.months.forEach((item: any) => {
             const mes = {
@@ -317,17 +289,19 @@ export class CifrasNotablesComponent implements OnInit {
 
 
 
-          this.queryVentas = this.apollo.watchQuery({
-            query: QIVENTAS,
+          this.queryCN = this.apollo.watchQuery({
+            query: QCIFRASNOTABLES,
             variables: {
               idusuario: this.userservice.responseLogin.idUsuario,
               anio: filtro.anioActual,
-              mes:filtro.mesActual,
+              mes: filtro.mesActual,
               compania: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
               monedadestino: filtro.monedaActual
             }
           }).valueChanges.subscribe((result: any) => {
-            let listaIndicadores = [];
+            if (result) {
+              this.hideloader();
+            }
 
             if (result.data.detalleCifrasNotables.lista != null) {
               let listaCifrasNotables = result.data.detalleCifrasNotables.lista;
@@ -427,7 +401,37 @@ export class CifrasNotablesComponent implements OnInit {
     let coin = event.value;
     this.refreshQuery();
   }
+  hideloader() {
 
+    // Setting display of spinner
+    // element to none
+    const spinner: any = document.getElementById('loading');
+    spinner.style.display = 'none';
+    spinner.style.transition = 'opacity 1s ease-out';
+    spinner.style.opacity = 0;
+  }
+  initialConfig() {
+    let arraymonedas: any = this.userservice.responseLogin.monedass.info_moneda;
+    let arrayMeses: any = this.userservice.responseLogin.mess.info_mes;
+    this.placeholderYear = this.userservice.responseLogin.anioo.descripcion_anio.nombre;
+    this.placeholderMonth = this.userservice.responseLogin.mess.descripcion_mes.nombre;
+    this.placeholderCoin = this.userservice.responseLogin.monedass.descripcion_moneda.nombre;
+
+    arraymonedas.forEach((e: any) => {
+      let coin = {
+        value: e.idMonedaEmpresaOdoo,
+        viewValue: e.name
+      };
+      this.coins.push(coin);
+    });
+    arrayMeses.forEach((item: any) => {
+      const mes = {
+        value: String(item.mesid),
+        viewValue: item.nombre
+      }
+      this.months.push(mes);
+    });
+  }
   refreshQuery() {
     const currentFiltros: DataIndicador = {
       anioActual: Number(this.selectedyear),
@@ -439,8 +443,8 @@ export class CifrasNotablesComponent implements OnInit {
     localStorage.setItem('filtroAMM', JSON.stringify(currentFiltros));
 
     if (this.userservice.responseLogin) {
-      this.queryVentas = this.apollo.watchQuery({
-        query: QIVENTAS,
+      this.queryCN = this.apollo.watchQuery({
+        query: QCIFRASNOTABLES,
         variables: {
           idusuario: this.userservice.responseLogin.idUsuario,
           anio: Number(this.selectedyear),
@@ -451,9 +455,10 @@ export class CifrasNotablesComponent implements OnInit {
         }
       });
 
-      this.queryVentas.valueChanges.subscribe((result: any) => {
-
-        let listaIndicadores = [];
+      this.queryCN.valueChanges.subscribe((result: any) => {
+        if (result) {
+          this.hideloader();
+        }
         this.listSources = [];
         this.listTittles = [];
         if (result.data.detalleCifrasNotables.lista != null) {
@@ -508,8 +513,8 @@ export class CifrasNotablesComponent implements OnInit {
           // GlobalConstants.listCompanys=result.data.validarlogin.companiaa;
           this.listCompanys = result.data.validarlogin.companiaa;
           // this.moneda=result.data.validarlogin.monedass[0].name;
-          this.queryVentas = this.apollo.watchQuery({
-            query: QIVENTAS,
+          this.queryCN = this.apollo.watchQuery({
+            query: QCIFRASNOTABLES,
             variables: {
               idrol: this.userservice.responseLogin.idUsuario,
               anio: Number(this.selectedyear),
@@ -520,9 +525,7 @@ export class CifrasNotablesComponent implements OnInit {
             }
           });
 
-          this.queryVentas.valueChanges.subscribe((result: any) => {
-
-            let listaIndicadores = [];
+          this.queryCN.valueChanges.subscribe((result: any) => {
             this.listSources = [];
             this.listTittles = [];
             if (result.data.detalleCifrasNotables.lista != null) {

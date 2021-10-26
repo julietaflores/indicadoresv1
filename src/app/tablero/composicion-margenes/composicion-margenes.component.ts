@@ -174,14 +174,11 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
   }
 
   listIndicadores: any = [];//Lista Indicadores Composicion Ventas
-  listpercentagesmes: any = [];//lista porcentajes torta
-  listpercentagesyear: any = [];//lista porcentajes torta
+  listpercentagesmes: any = [];//lista porcentajes torta mensual
+  listpercentagesyear: any = [];//lista porcentajes torta anual
 
-  listChartsPie: any = [];
-  listChartsTop5: any = []
+  listChartsPie: any = [];    //lista tortas indicadores
 
-  listlabel: string[] = [];
-  listlabelyear: string[] = [];
   langDefault: any = '';
 
   colors: String[] = [];
@@ -216,20 +213,20 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
   // coins: any[] = [];
   years: any[] = GlobalConstants.years;
   months: any[] = [];
-  // Pie
+  // labels por cada indicador mes o Acumulado
   public pieChartLabels: string[] = [];
   public pieChartLabelsYear: string[] = [];
+
   public pieChartData: number[] = [];
   public pieChartDataYear: number[] = [];
   public pieChartType = 'pie';
 
   ngOnInit(): void {
     if (this.userservice.responseLogin) {
+      //setting language chose by user
       this.langDefault = this.userservice.responseLogin.idioma.abreviaturaIdioma;
+      this.setLanguage();
 
-      // alert("es dioma actual "+ this.langDefault);
-      this.translateService.setDefaultLang(this.langDefault);
-      this.translateService.use(this.langDefault);
       this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
       let arrayMeses:any= this.userservice.responseLogin.mess.info_mes;
       arrayMeses.forEach((item:any)=>{
@@ -268,7 +265,7 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
         },
         fetchPolicy: "no-cache"
       }).subscribe((response: any) => {
-        console.log(response);
+       
         let indicadores = response.data.composicion_margenes.lista;
         indicadores.forEach((item: any) => {
           this.listpercentagesmes= [];
@@ -346,15 +343,7 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
            }
            this.months.push(mes);
         });
-        // let arraymonedas = this.userservice.responseLogin.monedass;
-
-        // arraymonedas.forEach((e: any) => {
-        //   let coin = {
-        //     value: e.idMonedaEmpresaOdoo,
-        //     viewValue: e.name
-        //   };
-        //   this.coins.push(coin);
-        // });
+       
         this.queryComposition = this.apoll.watchQuery({
           query: QICM,
           variables: {
@@ -367,10 +356,8 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
         }).valueChanges.subscribe((response: any) => {
   
           this.langDefault = this.userservice.responseLogin.idioma.abreviaturaIdioma;
+          this.setLanguage();
 
-          // alert("es dioma actual "+ this.langDefault);
-          this.translateService.setDefaultLang(this.langDefault);
-          this.translateService.use(this.langDefault);
           let indicadores = response.data.composicion_margenes.lista;
           
   
@@ -423,7 +410,10 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
     }
   }
 
-
+  setLanguage(){
+    this.translateService.setDefaultLang(this.langDefault);
+    this.translateService.use(this.langDefault);
+  }
   getCurrenlyMonth() {
     let month = new Date().getMonth() + 1;
     if (month < 10) {
@@ -466,6 +456,7 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
     localStorage.setItem('filtroAMM', JSON.stringify(currentFiltros));
 
     this.listChartsPie=[];
+
     this.queryComposition=this.apoll.query({
       query: QICM,
       variables: {
@@ -507,7 +498,7 @@ export class ComposicionMargenesComponent implements OnInit, OnDestroy {
              }
           });
           pieChartData = this.listpercentagesmes;
-          console.log(pieChartData);
+          
           pieChartDataYear = this.listpercentagesyear;
   
           let pieRegion = {

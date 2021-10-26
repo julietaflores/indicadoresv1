@@ -49,68 +49,28 @@ const FIRSTITEM={
         icon: 'av_timer'
     
 }
-const LASTITEM={
-        state: 'authentication',
-        name: 'Authentication',
-        type: 'sub',
-        icon: 'perm_contact_calendar',
-        children: [
-            { state: 'login', name: 'Login', type: 'link' },
-            { state: 'register', name: 'Register', type: 'link' },
-            { state: 'forgot', name: 'Forgot', type: 'link' },
-            { state: 'lockscreen', name: 'Lockscreen', type: 'link' },
-            { state: '404', name: 'Error', type: 'link' }
-        ]
-    
-}
-const PerformanceLineas={
-    state:'tablero',
-    name: 'Performance',
-    type: 'sub',
-    icon:'perm_contact_calendar',
-    children:[
-        {state:'Performance_lineasGenerales',name:'Performance Lineas Generales',type:'link'}
-      
-    ]
-}
-const ContribucionPortafolio={
-    state:'tablero',
-    name: 'ContribucionPortafolio',
-    type: 'sub',
-    icon:'perm_contact_calendar',
-    children:[
-        {state:'Contribucion_Portafolio',name:'ContribucionPortafolio',type:'link'}
-     
-    ]
-}
+
 
 const MENUGRAPHQL= gql`
-query menu_Indicadores($idusuario:Int!) {
-  menu_Indicadores(idusuario: $idusuario){
-    id_categoriaRol
-    iD_categoria
-    iD_rolUsuario
-    categoriass{
-        id_categoria
-        nombrecategoria
-        estadoCategoria
-        idcategoriaPadre
-        tableross{
-          idTablero
-          nombreTablero
-          estadoTablero
-          urlTablero
-          idCategoria
-          indicadores{
-            idIndicador
-            nombreIndicador
-            estadoIndicador
-            iDTablero
-            
-          }
-          
-        }
+query lista_Menu($idusuario:Int!,$companiaid:Int!) {
+  lista_Menu(idusuario: $idusuario,companiaid:$companiaid){
+    categoriaCompaniaId
+    nombre
+    idCompania
+    fechaRegistro
+    estado
+    tablero{
+      idTablero
+      nombreTablero
+      estadoTablero
+      urlTablero
+      indicadores{
+        idIndicador
+        nombreIndicador
+        estadoIndicador
+        iDTablero
       }
+    }
 } 
 }
 `;
@@ -120,9 +80,10 @@ export class MenuItems{
    // subscription: Subscription;
     user:any;
     menuitems: any[]=[];
-    categorias:any=[];         
+    lista_menu_array:any=[];         
     childrem:any[]=[];
     tableros:any[]=[];  
+    categorias:any[]=[];  
     private query: any;
     idUsuario:Number|undefined;
     lang:String|undefined;
@@ -134,23 +95,30 @@ export class MenuItems{
     
         if(this.serviceuser.responseLogin){
           
-    //        alert('cc44');
             this.idUsuario=this.serviceuser.responseLogin.idUsuario;
+         
             this.lang=this.serviceuser.responseLogin.idioma.abreviaturaIdioma;
             this.query= this.apollo.watchQuery({
                 query: MENUGRAPHQL,
-                variables: { idusuario:this.idUsuario}
-              });
-          
-              this.query.valueChanges.subscribe((result:any) => {
-                this.categorias=result.data.menu_Indicadores;
-                this.categorias.forEach((categoria:any)=>{
-                    this.tableros=categoria.categoriass.tableross;
-                    GlobalConstants.detalleTablero=categoria.categoriass.tableross;
+                variables: { idusuario:this.idUsuario,companiaid:this.serviceuser.responseLogin.companiaa[0].idCompania}
+              }).valueChanges.subscribe((result:any) => {
+                if(result){
+                    this.serviceuser.responseMenu=result;
+                    const menuData: any= {
+                       
+                  
+                      }
+                }
+
+                this.lista_menu_array=result.data.lista_Menu;
+                this.lista_menu_array.forEach((list_m:any)=>{
+                    this.tableros=list_m.tablero
+                   // GlobalConstants.detalleTablero=.categoriass.tableross;
                     this.childrem=[];
                     this.tableros.forEach(element => {
                         this.childrem.push(
                             {
+                                idtablero:element.idTablero,
                                 state:element.urlTablero,
                                 name:element.nombreTablero,
                                 type: 'link'
@@ -160,7 +128,8 @@ export class MenuItems{
                 
                      let item={
                         state: 'tablero',
-                        name: categoria.categoriass.nombrecategoria,
+                        categoriacompaniaid: list_m.categoriaCompaniaId,
+                        name: list_m.nombre,
                         type: 'sub',
                         icon: 'av_timer',
                         children: this.childrem
@@ -173,30 +142,25 @@ export class MenuItems{
         }
         else{
             if(this.serviceAuth.isLoggedIn()){
-           
-
-     //           alert('cc45');
+        
                 this.idUsuario=this.serviceAuth.userData?.idUsuario;
-               // alert('idRol '+this.idUsuario);
                 this.lang=this.serviceAuth.userData?.language;
-               // alert('lang '+this.lang);
                 this.query= this.apollo.watchQuery({
                     query: MENUGRAPHQL,
-                    variables: { idusuario:this.idUsuario}
+                    variables: { idusuario:this.idUsuario,companiaid:this.serviceAuth.userData?.companiaId}
                   });
               
                   this.query.valueChanges.subscribe((result:any) => {
      
-                    this.categorias=result.data.menu_Indicadores;
-                    this.categorias.forEach((categoria:any)=>{
-                        this.tableros=categoria.categoriass.tableross;
+                    this.lista_menu_array=result.data.lista_Menu;
+                    this.lista_menu_array.forEach((list_m:any)=>{
+                        this.tableros=list_m.tablero
+                       // GlobalConstants.detalleTablero=.categoriass.tableross;
                         this.childrem=[];
                         this.tableros.forEach(element => {
-
-                      //    alert('cam '+element.nombreTablero);
-
                             this.childrem.push(
                                 {
+                                    idtablero:element.idTablero,
                                     state:element.urlTablero,
                                     name:element.nombreTablero,
                                     type: 'link'
@@ -206,7 +170,8 @@ export class MenuItems{
                     
                          let item={
                             state: 'tablero',
-                            name: categoria.categoriass.nombrecategoria,
+                            categoriacompaniaid: list_m.categoriaCompaniaId,
+                            name: list_m.nombre,
                             type: 'sub',
                             icon: 'av_timer',
                             children: this.childrem
@@ -218,8 +183,6 @@ export class MenuItems{
       
             }
         }
-
-     // this.menuitems.push(ContribucionPortafolio);
     }
     ngOnInit(): void {
        
@@ -231,7 +194,5 @@ export class MenuItems{
     thisngOnDestroy(){
         this.query.unsubscribe();
       }
-   /* setItems(Menu[]:menu):void {
-      this.menuitems=menu;
-    }*/
+ 
 }

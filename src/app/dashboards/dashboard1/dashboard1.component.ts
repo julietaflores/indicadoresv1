@@ -18,13 +18,7 @@ export class Dashboard1Component{
     user:any;
 
     constructor(private serviceuser:UserService,private translate: TranslateService) { 
-    //  this.translate.use("en");
-      /*  this.subscription = this.serviceuser.getMessage().subscribe(messagelogin => {
-            if (messagelogin) {
-              this.user=messagelogin;
-              console.log(this.user);
-            } 
-         });*/
+   
     }
     
 

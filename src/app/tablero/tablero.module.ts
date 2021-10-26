@@ -27,8 +27,9 @@ import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 
 import { HttpClient } from '@angular/common/http';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-import { MargenesBrutosRegionesAuxiliarComponent } from './margenes-brutos-regiones-auxiliar/margenes-brutos-regiones-auxiliar.component';
+
 import { ContribucionPortafolioComponent } from './contribucion-portafolio/contribucion-portafolio.component';
+import { SpinnerComponent } from '../shared/spinner.component';
 
 export function HttpLoaderFactory(http: HttpClient): any {
   const urir = 'http://localhost:4200'
@@ -39,7 +40,6 @@ export function HttpLoaderFactory(http: HttpClient): any {
   imports: [
     CommonModule,
     RouterModule.forChild(TableroRoutes),
-    
     DemoMaterialModule,
     FlexLayoutModule,
     FormsModule,
@@ -69,7 +69,6 @@ declarations: [
     MargenesBrutosTop5Component,
     ComposicionMargenesComponent,
     GastoComponent,
-    MargenesBrutosRegionesAuxiliarComponent,
     ContribucionPortafolioComponent
   ]
 })

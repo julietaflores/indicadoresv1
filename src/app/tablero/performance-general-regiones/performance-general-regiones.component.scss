@@ -8,3 +8,7 @@ tr.mat-footer-row {
     padding: 15px !important;
 }  
 
+.uploader-status::ng-deep .mat-progress-spinner circle, .mat-spinner circle {
+    stroke: #ffb22b;
+}
+

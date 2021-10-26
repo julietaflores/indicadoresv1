@@ -280,7 +280,7 @@ export class PerformanceTop5Component implements OnInit {
   public barChartDataAc: any[] = [];
 
 
-
+  filtro: DataIndicador | null | any = null;
   langDefault: any = '';
 
   listaitem: PerformanceTopFive[] = [];
@@ -441,16 +441,16 @@ export class PerformanceTop5Component implements OnInit {
         this.translateService.setDefaultLang(this.langDefault);
         this.translateService.use(this.langDefault);
 
-        let filtro: DataIndicador | null | any = null;
-        filtro = localStorage.getItem('filtroAMM');
-        if (filtro) {
-          filtro = JSON.parse(filtro);
+        
+        this.filtro = localStorage.getItem('filtroAMM');
+        if (this.filtro) {
+          this.filtro = JSON.parse(this.filtro);
         } else {
-          filtro = null;
+         this.filtro = null;
         }
-        this.selectedCoin = filtro.monedaActual;
-        this.selectedyear = String(filtro.anioActual);
-        this.selectedMonth = filtro.mesActual;
+        this.selectedCoin = this.filtro.monedaActual;
+        this.selectedyear = String(this.filtro.anioActual);
+        this.selectedMonth = this.filtro.mesActual;
         let arrayMeses: any = this.userservice.responseLogin.mess.info_mes;
         let arraymonedas = this.userservice.responseLogin.monedass.info_moneda;
         this.placeholderYear = this.userservice.responseLogin.anioo.descripcion_anio.nombre;
@@ -479,10 +479,10 @@ export class PerformanceTop5Component implements OnInit {
           query: QIPTOP5,
           variables: {
             idusuario: this.userservice.responseLogin.idUsuario,
-            anio: filtro.anioActual,
-            mes: filtro.mesActual,
+            anio: this.filtro.anioActual,
+            mes: this.filtro.mesActual,
             compania: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
-            monedadestino: filtro.monedaActual
+            monedadestino: this.filtro.monedaActual
           }
         }).valueChanges.subscribe((response: any) => {
 
@@ -513,7 +513,7 @@ export class PerformanceTop5Component implements OnInit {
               this.barChartLabels.push(listaPerformanceMes[i].nombre);
               this.barChartData[0] = {
                 data: listBarPercentaje,
-                label: 'VS ' + (filtro.anioActual - 1),
+                label: 'VS ' + (this.filtro.anioActual - 1),
                 backgroundColor: '#F08B3B',
                 hoverBackgroundColor: '#F08B3B',
               };
@@ -555,7 +555,7 @@ export class PerformanceTop5Component implements OnInit {
               this.barChartLabelsAc.push(listaPerformanceYear[j].nombre);
               this.barChartDataAc[0] = {
                 data: listBarPercentajeAc,
-                label: 'VS ' + (filtro.anioActual - 1),
+                label: 'VS ' + (this.filtro.anioActual - 1),
                 backgroundColor: '#F08B3B',
                 hoverBackgroundColor: '#F08B3B',
               };
@@ -660,6 +660,12 @@ export class PerformanceTop5Component implements OnInit {
     }
     localStorage.removeItem('filtroAMM');
     localStorage.setItem('filtroAMM', JSON.stringify(currentFiltros));
+    this.filtro = localStorage.getItem('filtroAMM');
+        if (this.filtro) {
+          this.filtro = JSON.parse(this.filtro);
+        } else {
+         this.filtro = null;
+        }
     this.listaitem = [];
     this.listItemYear = [];
     this.listamesVAR = [];
@@ -730,7 +736,7 @@ export class PerformanceTop5Component implements OnInit {
               this.barChartLabels.push(listaPerformanceMes[i].nombre);
               this.barChartData[0] = {
                 data: listBarPercentaje,
-                label: 'VS ' + (Number(this.selectedyear) - 1),
+                label: 'VS ' + (this.filtro.anioActual - 1),
                 backgroundColor: '#F08B3B',
                 hoverBackgroundColor: '#F08B3B',
               };

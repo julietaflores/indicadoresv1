@@ -45,6 +45,9 @@
 <!-- ============================================================== -->
 <!-- Performance General MES-->
 <!-- ============================================================== -->
+<div  class="uploader-status d-flex justify-content-center"  >
+    <mat-spinner style= "margin-top: 5%;" id="loading"></mat-spinner>
+  </div>
 <div fxLayout="row wrap">
     <div fxFlex.gt-sm="33.33" fxFlex.gt-xs="100" fxFlex="100" style="min-height: 50vh;"
      *ngIf="listaitem.length>0 ">
@@ -117,8 +120,8 @@
                                 class="mat-elevation-z8 m-t-10" style="margin: 0;padding: 0;">
                                 <!-- Index Column -->
                                 <ng-container matColumnDef="p_cantidad">
-                                    <th mat-header-cell *matHeaderCellDef>VAR $ %</th>
-                                    <td mat-cell *matCellDef="let value">
+                                    <th  style="text-align: center;" mat-header-cell *matHeaderCellDef>VAR $ %</th>
+                                    <td  style="text-align: center;" mat-cell *matCellDef="let value">
                                         <p style="margin: 0;padding: 0;" *ngIf="value.p_cantidad>=0">{{value.p_cantidad
                                             | percent:'1.2-5' }}</p>
 
@@ -133,8 +136,8 @@
 
                                 <!-- Index Column -->
                                 <ng-container matColumnDef="p_ventas">
-                                    <th mat-header-cell *matHeaderCellDef>VAR (m3) %</th>
-                                    <td mat-cell *matCellDef="let value">
+                                    <th style="text-align: center;" mat-header-cell *matHeaderCellDef>VAR (m3) %</th>
+                                    <td style="text-align: center;" mat-cell *matCellDef="let value">
                                         <p style="margin: 0;padding: 0;" *ngIf="value.p_ventas>=0">
                                             {{value.p_ventas | percent:'1.2-5' }}</p>
 
@@ -146,8 +149,8 @@
                                 </ng-container>
                                 <!-- Index Column -->
                                 <ng-container matColumnDef="p_precio">
-                                    <th mat-header-cell *matHeaderCellDef>VAR (pp) %</th>
-                                    <td mat-cell *matCellDef="let value">
+                                    <th style="text-align: center;" mat-header-cell *matHeaderCellDef>VAR (pp) %</th>
+                                    <td style="text-align: center;" mat-cell *matCellDef="let value">
                                         <p style="margin: 0;padding: 0;" *ngIf="value.p_precio>=0">
                                             {{value.p_precio | percent:'1.2-5' }}</p>
 
@@ -244,8 +247,8 @@
                                 style="margin: 0;padding: 0;">
                                 <!-- Index Column -->
                                 <ng-container matColumnDef="p_cantidad">
-                                    <th mat-header-cell *matHeaderCellDef>VAR $ %</th>
-                                    <td mat-cell *matCellDef="let value">
+                                    <th style="text-align: center;" mat-header-cell *matHeaderCellDef>VAR $ %</th>
+                                    <td style="text-align: center;" mat-cell *matCellDef="let value">
                                         <p style="margin: 0;padding: 0;" *ngIf="value.p_cantidad>=0">{{value.p_cantidad
                                             | percent:'1.2-5' }}</p>
 
@@ -260,8 +263,8 @@
 
                                 <!-- Index Column -->
                                 <ng-container matColumnDef="p_ventas">
-                                    <th mat-header-cell *matHeaderCellDef>VAR (m3) %</th>
-                                    <td mat-cell *matCellDef="let value">
+                                    <th style="text-align: center;" mat-header-cell *matHeaderCellDef>VAR (m3) %</th>
+                                    <td style="text-align: center;" mat-cell *matCellDef="let value">
                                         <p style="margin: 0;padding: 0;" *ngIf="value.p_ventas>=0">
                                             {{value.p_ventas | percent:'1.2-5' }}</p>
 
@@ -273,8 +276,8 @@
                                 </ng-container>
                                 <!-- Index Column -->
                                 <ng-container matColumnDef="p_precio">
-                                    <th mat-header-cell *matHeaderCellDef>VAR (pp) %</th>
-                                    <td mat-cell *matCellDef="let value">
+                                    <th style="text-align: center;" mat-header-cell *matHeaderCellDef>VAR (pp) %</th>
+                                    <td style="text-align: center;" mat-cell *matCellDef="let value">
                                         <p style="margin: 0;padding: 0;" *ngIf="value.p_precio>=0">
                                             {{value.p_precio | percent:'1.2-5' }}</p>
 

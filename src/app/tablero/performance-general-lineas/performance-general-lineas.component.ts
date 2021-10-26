@@ -137,9 +137,7 @@ const LOGIN = gql`
        abreviaturaIdioma
        detalleIdioma
      }
- 
-     
-   
+  
   
     }
   }
@@ -156,12 +154,14 @@ export class PerformanceGeneralLineasComponent implements OnInit {
   private queryPerformanceGL: Subscription;
   private queryLogin: Subscription;
 
+  //Variables seleccionadas por defecto
   selectedyear = String(new Date().getFullYear());
   selectedMonth = String(this.getCurrenlyMonth());
   MesActual: any = this.getCurrenlyMonth();
   selectedCoin = 0;
-  selectedCoinTable: String = '';//Variable en table
-  /*DataSource Month y Acumulate*/
+  selectedCoinTable: String = '';
+
+  //
   dataSource = new MatTableDataSource<PerformanceGL>();
   dataSourceVARS = new MatTableDataSource<VarPerformance>();
   dataSourceAc = new MatTableDataSource<PerformanceGL>();

@@ -13,6 +13,7 @@ import {
   NavigationError
 } from '@angular/router';
 import { DOCUMENT } from '@angular/common';
+import { setTimeout } from 'timers';
 
 @Component({
   selector: 'app-spinner',
@@ -36,6 +37,7 @@ export class SpinnerComponent implements OnDestroy {
     this.router.events.subscribe(
       event => {
         if (event instanceof NavigationStart) {
+        
           this.isSpinnerVisible = true;
         } else if (
           event instanceof NavigationEnd ||

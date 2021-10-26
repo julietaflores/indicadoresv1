@@ -150,7 +150,7 @@ const LOGIN = gql`
   templateUrl: './performance-general-regiones.component.html',
   styleUrls: ['./performance-general-regiones.component.scss']
 })
-export class PerformanceGeneralRegionesComponent implements OnInit, OnDestroy, DoCheck {
+export class PerformanceGeneralRegionesComponent implements OnInit, OnDestroy {
 
   //queries for GraphQL
   queryPerformanceRegion: Subscription;
@@ -278,8 +278,6 @@ export class PerformanceGeneralRegionesComponent implements OnInit, OnDestroy, D
   listIdPosicionYear: any[] = [];
 
   listamesVAR: VarPerformance[] = [];
-  newlistmes: VarPerformance[] = [];
-  newlistyear: VarPerformance[] = [];
   listyearVAR: VarPerformance[] = [];
 
 
@@ -304,14 +302,9 @@ export class PerformanceGeneralRegionesComponent implements OnInit, OnDestroy, D
 
   // dataSource = new MatTableDataSource<PerformanceTopFive>(this.data);
 
-  ngDoCheck() {
-    console.log('AfterViewInit');
-    //  alert('cc1 ');
-  }
 
 
   ngOnInit(): void {
-
 
 
     // alert('ddd1 ');
@@ -323,11 +316,18 @@ export class PerformanceGeneralRegionesComponent implements OnInit, OnDestroy, D
       this.initialSetup();
       this.selectedCoin = this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo;
       this.langDefault = this.userservice.responseLogin.idioma.abreviaturaIdioma;
+      const currentFiltros: DataIndicador = {
+        anioActual: Number(this.selectedyear),
+        mesActual: this.selectedMonth,
+        monedaActual: this.selectedCoin
+
+      }
+      localStorage.setItem('filtroAMM', JSON.stringify(currentFiltros));
 
       // alert("es dioma actual "+ this.langDefault);
       this.translateService.setDefaultLang(this.langDefault);
       this.translateService.use(this.langDefault);
-      this.queryPerformanceRegion = this.apollo.query(
+      this.queryPerformanceRegion = this.apollo.watchQuery(
         {
           query: QIPREGION,
           variables: {
@@ -337,9 +337,12 @@ export class PerformanceGeneralRegionesComponent implements OnInit, OnDestroy, D
             compania: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
             monedadestino: this.userservice.responseLogin.companiaa[0].idMonedaEmpresaOdoo
           },
-          fetchPolicy: "network-only"
+          fetchPolicy: "no-cache"
         }
-      ).subscribe((response: any) => {
+      ).valueChanges.subscribe((response: any) => {
+        if (response) {
+          this.hideloader();
+        }
         if (response.data.performanceregion.listames && response.data.performanceregion.listaanual) {
           let listaPerformanceMes = response.data.performanceregion.listames;
           let listaPerformanceYear = response.data.performanceregion.listaanual;
@@ -453,6 +456,9 @@ export class PerformanceGeneralRegionesComponent implements OnInit, OnDestroy, D
             fetchPolicy: "network-only"
           }
         ).subscribe((response: any) => {
+          if (response) {
+            this.hideloader();
+          }
           if (response.data.performanceregion.listames && response.data.performanceregion.listaanual) {
             let listaPerformanceMes = response.data.performanceregion.listames;
             let listaPerformanceYear = response.data.performanceregion.listaanual;
@@ -689,7 +695,7 @@ export class PerformanceGeneralRegionesComponent implements OnInit, OnDestroy, D
         this.selectedCoin).name
 
 
-      this.queryPerformanceRegion = this.apollo.query(
+      this.queryPerformanceRegion = this.apollo.watchQuery(
         {
           query: QIPREGION,
           variables: {
@@ -699,9 +705,12 @@ export class PerformanceGeneralRegionesComponent implements OnInit, OnDestroy, D
             compania: this.userservice.responseLogin.companiaa[0].idCompaniaOdoo,
             monedadestino: this.selectedCoin
           },
-          fetchPolicy: "network-only"
+          fetchPolicy: "no-cache"
         }
-      ).subscribe((response: any) => {
+      ).valueChanges.subscribe((response: any) => {
+        if (response) {
+          this.hideloader();
+        }
         if (response.data.performanceregion.listames && response.data.performanceregion.listaanual) {
 
           this.barChartData = [];
@@ -778,6 +787,15 @@ export class PerformanceGeneralRegionesComponent implements OnInit, OnDestroy, D
       );
 
     }
+  }
+  hideloader() {
+
+    // Setting display of spinner
+    // element to none
+   const spinner:any= document.getElementById('loading');
+      spinner.style.display = 'none';
+      spinner.style.transition= 'opacity 1s ease-out';
+      spinner.style.opacity= 0;
   }
   ngOnDestroy(): void {
     this.queryPerformanceRegion.unsubscribe();

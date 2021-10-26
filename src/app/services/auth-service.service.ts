@@ -1,3 +1,4 @@
+import { C } from '@angular/cdk/keycodes';
 import { Injectable } from '@angular/core';
 import { UserAuth } from '../models/userAuth.interface';
 import { StorageService } from './storage.service';
@@ -13,22 +14,22 @@ export class AuthServiceService {
     this.updateStorage();
   }
   updateStorage() {
-    const userData = this.storageService.secureStorage.getItem('auth-user');
+    //const userData = this.storageService.secureStorage.getItem('auth-user');
     //  console.log(JSON.parse(userData));
-    //const userData = localStorage.getItem('auth-user');
+    const userData = localStorage.getItem('auth-user');
     if (userData) {
-      // this.userData=userData;
-      // this.userData = JSON.parse(userData);
-      this.userData = userData;
+       this.userData=JSON.parse(userData);
+       this.userData = JSON.parse(userData);
+      //this.userData = userData;
     } else {
 
       this.userData = null;
     }
   }
   login(userAuth: UserAuth) {
-    this.storageService.secureStorage.setItem('auth-user', userAuth);
+   // this.storageService.secureStorage.setItem('auth-user', userAuth);
  
-    // localStorage.setItem('auth-user',JSON.stringify(userAuth));
+     localStorage.setItem('auth-user',JSON.stringify(userAuth));
   }
   logout() {
     // // if(!this.isLoggedIn()) return;
@@ -39,8 +40,8 @@ export class AuthServiceService {
 
     if (userData) {
       //  console.log(JSON.parse(userData));
-      //this.userData = JSON.parse(userData);
-      this.userData = userData;
+      this.userData = JSON.parse(userData);
+      //this.userData = userData;
       //  console.log(JSON.parse(userData));
     } else {
       this.userData = null;
@@ -65,12 +66,14 @@ export class AuthServiceService {
 
 
   updateStoragef(userAuth: UserAuth) {
+    this.storageService.secureStorage.removeItem('auth-user');
+    this.storageService.secureStorage.setItem('auth-user', userAuth);
+
     localStorage.removeItem('auth-user');
     localStorage.setItem('auth-user', JSON.stringify(userAuth));
-
-
-    const userData = localStorage.getItem('auth-user');
-
+   
+   // const userData = this.storageService.secureStorage.getItem('auth-user');
+    const userData=localStorage.getItem('auth-user');
     if (userData) {
       this.userData = JSON.parse(userData);
     } else {

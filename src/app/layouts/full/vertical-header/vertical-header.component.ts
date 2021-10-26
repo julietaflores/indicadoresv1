@@ -216,13 +216,14 @@ export class VerticalAppHeaderComponent {
           tipoEstado: 'MODIFICAR'
         }
       }
-    }).subscribe((result: any) => {
+    }).subscribe((response: any) => {
 
       const userAuth1: UserAuth = {
         idUsuario:this.userservice.responseLogin.idUsuario,
         name: this.userservice.responseLogin.usuario,
         password: this.userservice.responseLogin.passwordd,
-        idRol: this.userservice.responseLogin.idUsuario,
+        companiaId:response.data.validarlogin.companiaa[0].idCompania,
+        // idRol: this.userservice.responseLogin.idUsuario,
         language: this.langDefault
       }
 
@@ -245,7 +246,7 @@ export class VerticalAppHeaderComponent {
   ngOnInit() {
   
 
-    if (this.userservice.responseLogin) {
+    if(this.userservice.responseLogin) {
       this.langDefault = this.userservice.responseLogin.idioma.abreviaturaIdioma;
       this.companySelected = this.userservice.responseLogin.companiaa[0].name;
       this.selectedLanguage = this.languages.find(e => e.code === this.langDefault);
@@ -255,19 +256,20 @@ export class VerticalAppHeaderComponent {
       this.translate.use(this.langDefault);
     }
     else {
+    
       if (this.authservice.isLoggedIn()) {
         this.query = this.apollo.watchQuery({
           query: LOGIN,
           variables: { usuario: this.authservice.userData?.name, clave: this.authservice.userData?.password }
         });
 
-        this.query.valueChanges.subscribe((result: any) => {
+        this.query.valueChanges.subscribe((response: any) => {
           this.langDefault = this.authservice.userData?.language;
-          this.userservice.responseLogin = result.data.validarlogin;
-          this.companys = result.data.validarlogin.companiaa;
-          this.companySelected = result.data.validarlogin.companiaa[0].name;
+          this.userservice.responseLogin = response.data.validarlogin;
+          this.companys = response.data.validarlogin.companiaa;
+          this.companySelected = response.data.validarlogin.companiaa[0].name;
           this.selectedLanguage = this.languages.find(e => e.code === this.langDefault);
-          this.moneda = result.data.validarlogin.monedass.info_moneda[0].name;
+          this.moneda = response.data.validarlogin.monedass.info_moneda[0].name;
           this.translate.setDefaultLang(this.langDefault);
           this.translate.use(this.langDefault);
         });

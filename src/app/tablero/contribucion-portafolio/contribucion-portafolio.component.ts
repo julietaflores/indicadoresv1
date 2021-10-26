@@ -181,7 +181,7 @@ export class ContribucionPortafolioComponent implements OnInit {
   public barChartLabels: Label[] = ['VENTAS', 'VOLUMEN', 'MARGEN'];
   public barChartData: ChartDataSets[] = [];
   public barChartDataYear: ChartDataSets[] = [];
-  public barChartColorsx:string[]=['#FF5733','yellow','blue', 'red','pink'];
+  public barChartColorsx:string[]=['#0cbccc','#2898ee','#15297c', '#74abff','#dae9ff'];
   public colors = [
     { // 1st Year.
       backgroundColor: ''
@@ -209,13 +209,16 @@ export class ContribucionPortafolioComponent implements OnInit {
       }],
       xAxes: [{
         ticks: {
+          fontColor:'black',
           fontSize: 12,
+          fontStyle:'bold'
+          
         }
       }],
     },
     plugins: {
       datalabels: {
-        color: 'black',
+        color: '#fff',
         font: {
           weight: "bold",
           size: 10

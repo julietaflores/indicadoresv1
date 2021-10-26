@@ -9,8 +9,8 @@ import { MargenesBrutosLineasComponent } from './margenes-brutos-lineas/margenes
 import { MargenesBrutosRegionesComponent } from './margenes-brutos-regiones/margenes-brutos-regiones.component';
 import { ComposicionMargenesComponent } from './composicion-margenes/composicion-margenes.component';
 import { MargenesBrutosTop5Component } from './margenes-brutos-top5/margenes-brutos-top5.component';
-import { MargenesBrutosRegionesAuxiliarComponent } from './margenes-brutos-regiones-auxiliar/margenes-brutos-regiones-auxiliar.component';
 import { ContribucionPortafolioComponent } from './contribucion-portafolio/contribucion-portafolio.component';
+import { GastoComponent } from './gasto/gasto.component';
 
 
 
@@ -69,6 +69,11 @@ export const TableroRoutes: Routes = [
      {
         path: 'Contribución_del_portafolio',
         component: ContribucionPortafolioComponent,
+        data: { title: 'Indicadores' }
+     },
+     {
+        path: 'Gastos',
+        component: GastoComponent,
         data: { title: 'Indicadores' }
      }
 

@@ -8,6 +8,7 @@ import { Observable, Subject } from 'rxjs';
 
 export class UserService {
   responseLogin:any;
+  responseMenu:any;
   List_categorias:any;
   public static ARRAY_CATEGORIAS:any[];
   private subjectLogin = new Subject<any>();

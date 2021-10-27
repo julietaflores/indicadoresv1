@@ -1,0 +1,21 @@
+
+
+<div class="page-breadcrumb p-t-20 p-b-20 p-l-30 p-r-30">
+	<div fxLayout="row wrap">
+      
+      
+     
+        <div fxFlex.gt-sm="60" fxFlex.gt-xs="60" fxFlex="100" class="align-self-center">
+            <mat-icon class="breadcrumb-icon" *ngIf="pageInfo.title=='Home'; else blockTitle">business</mat-icon>
+        
+            <ng-template #blockTitle>
+                <h4 class="page-title m-0" id="tit">{{pageInfo?.title  | translate }}</h4> 
+              
+                <!-- <h4 class="page-title m-0" id="tit45">{{pageInfo?.title  | translate }}</h4>  -->
+            </ng-template>
+		</div> 
+	
+
+
+    </div>
+</div>

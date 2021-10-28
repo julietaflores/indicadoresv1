@@ -1,0 +1,41 @@
+<div class="login-register" style="background-image:url(assets/images/background/login-register.jpg);">
+    <div class="login-register-box">
+        <mat-card>
+            <mat-card-content>
+                <form [formGroup]="form" (ngSubmit)="onSubmit()">
+                    <div class="text-center m-b-1">
+                        <img alt="homepage" src="assets/images/Mediano.png">
+                        <!-- <h4 class="m-t-1">Iniciar Sesión</h4> -->
+                    </div>
+
+                    <div fxLayout="row wrap">
+                        <!-- col full-->
+                        <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
+                            <mat-form-field>
+                                <input matInput placeholder="User" [formControl]="form.controls['uname']">
+                            </mat-form-field>
+                            <small *ngIf="form.controls['uname'].hasError('required') && form.controls['uname'].touched" class="text-danger support-text">Username is required.</small>
+                        </div>
+                        <!-- col full-->
+                        <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
+                            <mat-form-field>
+                                <input matInput type="password" placeholder="Password" [formControl]="form.controls['password']">
+                            </mat-form-field>
+                            <small *ngIf="form.controls['password'].hasError('required') && form.controls['password'].touched" class="text-danger support-text">Password is required.</small>
+                        </div>
+                  
+                        <div fxFlex.gt-sm="100" fxFlex.gt-xs="100" fxFlex="100">
+                            <button mat-raised-button color="primary-button" style="color: #fff;" class="btn-block btn-lg m-t-20 m-b-20 primary-button" type="submit" [disabled]="!form.valid">Log in</button>
+                        </div>
+                        <!-- col full-->
+                         <!-- col half-->
+                         <div  fxLayoutAlign="center center" fxFlex.gt-sm="100" fxFlex.gt-xs="100" class="text-center">
+                            <a [routerLink]="['/authentication/forgot']" class="link">Forgot password?</a>
+                        </div>
+                       
+                    </div>
+                </form>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>

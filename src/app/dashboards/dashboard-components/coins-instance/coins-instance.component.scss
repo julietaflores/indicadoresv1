@@ -1,0 +1,25 @@
+.course-header {
+ 
+     // background-color: #ffb22b;
+     background-color: #f29341;
+    min-height: 40px;
+    color: #fff;
+ 
+    .mat-card-title {
+      font-size: 15px !important;
+      display: flex;
+      align-items: center;
+ 
+      .course-duration {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+      }
+    }
+  }
+ 
+  .mat-card-actions {
+    border-top: 1px solid rgba(120, 130, 140, 0.13);
+    padding: 8px 0 !important;
+  }
+ 

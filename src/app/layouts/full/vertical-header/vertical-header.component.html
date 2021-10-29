@@ -26,7 +26,8 @@ font-size: 14px;" class="m-r-5 btn-text" *ngIf="companys && companys.length>1">
         </li>
         <li>
           
-                <button mat-menu-item *ngFor="let comp of companys"   (click)="changecompany(comp.idCompania, comp.idCompaniaOdoo, comp.idMonedaOdoo, comp.imagenUrl)">
+                <button mat-menu-item *ngFor="let comp of companys"  
+                 (click)="changecompany(comp.idCompania, comp.idCompaniaOdoo, comp.idMonedaOdoo, comp.imagenUrl)">
                   
                     <span>{{comp.name | uppercase }}</span>
                 </button>

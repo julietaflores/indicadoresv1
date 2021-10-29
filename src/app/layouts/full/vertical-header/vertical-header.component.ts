@@ -166,8 +166,7 @@ export class VerticalAppHeaderComponent {
 
 
     this.userData_aux= this.authservice.Obtener_ls_authuser();
-    console.log('list cifra notables inicio'+ JSON.stringify(this.userData_aux));
-    console.log('variable inicio'+ JSON.stringify(this.userData_aux?.ls_idMonedaOdoo));
+ 
   
 
     if (this.userservice.responseLogin) {
@@ -216,7 +215,7 @@ export class VerticalAppHeaderComponent {
 
     }
 
-     console.log('aqui ver '+JSON.stringify(userAuth1));
+    
 
       this.authservice.updateStoragef(userAuth1);
     
@@ -344,7 +343,8 @@ export class VerticalAppHeaderComponent {
        }
      }
 
-     (<HTMLImageElement>document.getElementById("logocompania")).src="assets/images/compania/"+this.userData_aux?.urlcompania;
+     (<HTMLImageElement>document.getElementById("logocompania")).src="assets/images/compania/"+
+     this.userData_aux?.urlcompania;
 
       this.companys = this.userservice.responseLogin.companiaa;
       this.selectedLanguage = this.languages.find(e => e.code === this.langDefault);
@@ -359,7 +359,8 @@ export class VerticalAppHeaderComponent {
 
           this.userData_aux= this.authservice.Obtener_ls_authuser();
           console.log('list cifra notables ingresoo '+ JSON.stringify(this.userData_aux));
-          (<HTMLImageElement>document.getElementById("logocompania")).src="assets/images/compania/"+this.userData_aux?.urlcompania;
+          (<HTMLImageElement>document.getElementById("logocompania")).src="assets/images/compania/"+
+          this.userData_aux?.urlcompania;
 
         this.query = this.apollo.watchQuery({
           query: LOGIN,

@@ -1,0 +1,43 @@
+<div *ngIf="listCompanys != undefined">
+ 
+    <div fxLayout="row wrap" *ngIf="listCompanys.length>0">
+     
+        <div style="padding: 16px;margin: auto;" fxFlex.gt-lg="50" fxFlex.gt-sm="50"  fxFlex.gt-xs="100" fxFlex="100" *ngFor="let company of listCompanys">
+        
+            <div  id="compania_select" *ngIf="company.idCompania == idcom_select ">
+
+                <mat-card  style="min-height: 140px">
+                    <mat-card-content>
+                     
+                        <mat-car-title >{{company.name}}</mat-car-title>
+                        <img  src="assets/images/compania/{{company.imagenUrl}}" style="float: right;"  alt="user" class="profile-pic decore_img">
+                    </mat-card-content>
+                    
+                    <hr />
+                   
+                </mat-card>
+            </div>
+            <div id="compania_select_no" *ngIf="company.idCompania != idcom_select ">
+
+                <mat-card  style="min-height: 140px">
+                    <mat-card-content>
+                      
+                        <mat-car-title >{{company.name}}</mat-car-title>
+                     
+                    </mat-card-content>
+                    <hr />
+                    <a    (click)="changecompany_tabla(company.idCompania, company.idCompaniaOdoo, company.idMonedaOdoo, company.imagenUrl)">
+                        <p id="Enlace_compania">{{'Compania' | translate}}</p> 
+                        
+                        
+                    </a> 
+                </mat-card>
+            </div>
+            
+        </div>
+      
+ 
+    
+    </div>
+</div>
+

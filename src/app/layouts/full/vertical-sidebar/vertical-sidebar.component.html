@@ -1,0 +1,93 @@
+
+
+<mat-nav-list appAccordion class="m-t-5">
+    <mat-list-item appAccordionLink *ngFor="let menuitem of menuItems.getMenuitem()"  routerLinkActive="selected"  id="{{menuitem.categoriacompaniaid}}" group="{{menuitem.state}}" (click)="scrollToTop()">
+
+  <!-- <mat-list-item appAccordionLink *ngFor="let menuitem of menuItems.getMenuitem()"  id="{{menuitem.categoriacompaniaid}}" group="{{menuitem.state}}" (click)="scrollToTop()"> 
+         -->
+<!-- Inicio -->
+        <a class="" appAccordionToggle [routerLink]="['/', menuitem.state,menuitem.name]" (click)="Lector_inicio()"  *ngIf="menuitem.type === 'subini'">
+            <mat-icon>home</mat-icon>
+            <span>{{ menuitem.name | translate }}</span>
+            <span fxFlex></span>
+            <span class="label label-{{ badge.type }}" *ngFor="let badge of menuitem.badge">{{ badge.value }}</span> 
+        </a>
+
+<!-- Menu -->
+        <a class="icons_menu" appAccordionToggle href="javascript:;" *ngIf="menuitem.type === 'sub'" >
+            <img *ngIf="menuitem.name=='Finanzas' || menuitem.name=='Finance' || menuitem.name=='Finança'" style="margin-right:5px;" 
+             src="assets/images/IconosDashboards/0CategoriaFinanzas.png" alt="icon-indicator" width="24" 
+             height="24">
+               
+            <span>{{ menuitem.name }}</span>
+            <span fxFlex></span>
+            <span class="label label-{{ badge.type }}" *ngFor="let badge of menuitem.badge">{{ badge.value }}</span>
+            <mat-icon class="dd-icon">keyboard_arrow_down</mat-icon>
+        </a>
+
+
+        <mat-nav-list class="sub-item" *ngIf="menuitem.type === 'sub'" >
+
+            <mat-list-item *ngFor="let childitem of menuitem.children ;let j=index; let i = childitem " 
+            routerLinkActive="selected">
+                
+                <!-- <a [routerLink]="['/', menuitem.state, childitem.state,{title:childitem.name} ]"  -->
+                <!-- <a [routerLink]="['/', menuitem.state, childitem.state,menuitem.categoriacompaniaid,childitem.idtablero]" -->
+                <a style="display: inline-flex;" id="{{menuitem.categoriacompaniaid}}{{childitem.idtablero}}" [routerLink]="['/', menuitem.state, childitem.state]"
+                *ngIf="childitem.type === 'link'"  class="relative" routerLinkActive="selected"
+                 (click)="itemSelect[i]=j" 
+                 (click)="handleNotify(menuitem.categoriacompaniaid,childitem.idtablero,childitem.state,childitem.name)">
+                 <img *ngIf="childitem.name=='Cifras Notables' || childitem.name=='Notable Figures' || childitem.name=='Figuras Notáveis'" style="margin-right:5px;" 
+                  src="assets/images/IconosDashboards/Cifras Notables.png" alt="icon-indicator" 
+                  width="24" height="24">
+                  <img *ngIf="childitem.name=='Rendimiento general (líneas)' || childitem.name=='General performance (lines)' 
+                  || childitem.name=='Desempenho geral (linhas)' " style="margin-right:5px;" 
+                  src="assets/images/IconosDashboards/RendimientoGeneral.png" alt="icon-indicator" 
+                  width="24" height="24">
+                  <img *ngIf="childitem.name=='Desempeño general (Regiones)' || childitem.name=='General performance (Regions)' 
+                  || childitem.name=='Desempenho geral (regiões)'" style="margin-right:5px;" 
+                  src="assets/images/IconosDashboards/DesempeñoGeneral.png" alt="icon-indicator" 
+                  width="24" height="24">
+                  <img *ngIf="childitem.name=='Rendimiento Top 5 +' || childitem.name=='Performance Top 5 +' || 
+                  childitem.name=='Top 5+ de desempenho'" style="margin-right:5px;" 
+                  src="assets/images/IconosDashboards/RendimientoTop5.png" alt="icon-indicator" 
+                  width="24" height="24">
+                  <img *ngIf="childitem.name=='Composición de ventas' || childitem.name=='Sales composition' || 
+                  childitem.name=='Composição de vendas'" style="margin-right:5px;" 
+                  src="assets/images/IconosDashboards/ComposicionVentas.png" alt="icon-indicator" 
+                  width="24" height="24">
+                  <img *ngIf="childitem.name=='Márgenes brutos (líneas)' || childitem.name=='Gross margins (lines)' 
+                  || childitem.name=='Margens brutas (linhas)'" style="margin-right:5px;" 
+                  src="assets/images/IconosDashboards/MargenesBrutos.png" alt="icon-indicator" 
+                  width="24" height="24">
+                  <img *ngIf="childitem.name=='Márgenes brutos (regiones)' || childitem.name=='Gross margins (regions)' 
+                  || childitem.name=='Margens brutas (regiões)'" style="margin-right:5px;" 
+                  src="assets/images/IconosDashboards/MargenesBrutosRegiones.png" alt="icon-indicator" 
+                  width="24" height="24">
+                  <img *ngIf="childitem.name=='Márgenes brutos (Top 5+)' || childitem.name=='Gross margins (Top 5+)'
+                  || childitem.name== 'Margens brutas (5+ principais)' " style="margin-right:5px;" 
+                  src="assets/images/IconosDashboards/MargenesBrutosTop5.png" alt="icon-indicator" 
+                  width="24" height="24">
+                  <img *ngIf="childitem.name=='Contribución del portafolio' || 
+                  childitem.name=='Portfolio contribution' || 
+                  childitem.name=='Contribuição do portfólio' " style="margin-right:5px;" 
+                  src="assets/images/IconosDashboards/ContribucionPortafolio.png" alt="icon-indicator" 
+                  width="24" height="24">
+                  <img *ngIf="childitem.name=='Composición de márgenes' ||
+                   childitem.name=='Margin composition' ||  childitem.name=='Composição da margem'
+                   " style="margin-right:5px;" 
+                  src="assets/images/IconosDashboards/ComposicionMargenes.png" alt="icon-indicator" 
+                  width="24" height="24">
+                 <!-- <span>{{ childitem.name | translate}}</span> -->
+                    {{ childitem.name | translate}} </a> 
+                 
+            </mat-list-item>
+
+
+        </mat-nav-list>
+
+        <div class="saperator text-muted" *ngIf="menuitem.type === 'saperator'">
+            <span>{{ menuitem.name }}</span>
+        </div>
+    </mat-list-item>
+</mat-nav-list>

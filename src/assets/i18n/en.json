@@ -1,0 +1,21 @@
+{
+  "Inicio": "Home",
+   "Mes":"Month",
+   "Acumulado":"Accumulated",
+   "LINEA":"LINE",
+   "REGION":"REGION",
+   "Cerrar sesión":"Log out",
+   "TOP 5+": "TOP 5+",
+   "PRODUCTO":"PRODUCT",
+   "DIVISION":"DIVISION",
+   "Compañias":"COMPANYS",
+   "Español":"Spanish",
+   "Inglés": "English",
+   "Portugués": "Portuguese",
+   "VENTAS":"SALES",
+   "VOLUMEN":"VOLUME",
+   "MARGEN":"MARGIN",
+   "Compania":"See Company",
+   "Monedas Compania":"Currency Company"
+
+}

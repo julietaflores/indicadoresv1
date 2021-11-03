@@ -1,0 +1,67 @@
+
+ <div *ngIf="listCoins != undefined">
+  <!-- <mat-card class="course-app">
+    <mat-card-content style="padding: 5px 10px;">
+      <div fxLayout="row wrap" class="page-breadcrumb align-items-center course-filters">
+         <div fxFlex.gt-md="25" fxFlex.gt-lg="25" fxFlex="100">
+            <mat-icon class="breadcrumb-icon">monetization_on</mat-icon>
+        </div> 
+       
+      
+      </div>
+    </mat-card-content>
+  </mat-card> -->
+  <mat-card>
+    <div class="b-b p-5 bg-white">
+      <form [formGroup]="inputFg" class="d-md-flex align-items-center">
+        <mat-icon class="breadcrumb-icon p-l-5" style="color:rgba(120, 130, 140, 0.33);">monetization_on</mat-icon>
+        <p class="font-normal font-16 m-l-10">{{'Monedas Compania' | translate}}</p> 
+  
+      </form>
+    </div>
+    <mat-card-content style="min-height:30vh">
+      <div fxLayout="row wrap" class="course-app" *ngIf="listCoins.length && listCoins.length>0">
+        <div *ngFor="let coin of listCoins;" fxFlex.gt-md="33.33" fxFlex.gt-lg="33.33" fxFlex="100" >
+          <mat-card style="border: 1px solid rgba(120, 130, 140, 0.20);">
+            <mat-card-header class="course-header">
+              <mat-card-title>
+    
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content class="text-center">
+              <p class="m-b-5">{{coin.name}}</p>
+            </mat-card-content>
+            <mat-card-actions class="text-center">
+         
+            </mat-card-actions>
+          </mat-card>
+        </div>
+     
+      </div>
+ 
+    </mat-card-content>
+  </mat-card>
+ 
+ 
+  <!-- <div fxLa
+    yout="row wrap" class="course-app" *ngIf="listCoins.length && listCoins.length<2">
+    <div *ngFor="let coin of listCoins;" fxFlex.gt-md="33.33" fxFlex.gt-lg="33.33" fxFlex="100" >
+      <mat-card>
+        <mat-card-header class="course-header">
+          <mat-card-title>
+
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="text-center">
+          <p class="m-b-5">{{coin.name}}</p>
+        </mat-card-content>
+        <mat-card-actions class="text-center">
+     
+        </mat-card-actions>
+      </mat-card>
+    </div>
+ 
+  </div> -->
+ 
+ </div>
+
